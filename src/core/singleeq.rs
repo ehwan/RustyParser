@@ -3,15 +3,21 @@ use std::marker::PhantomData;
 
 use super::result::ParseResult;
 use super::traits::Parser;
+use super::traits::ResultValue;
 
-#[derive(Debug)]
-pub struct SingleEqualParser<TargetCharacterType, It: Iterator + Clone> {
+#[derive(Debug, Clone)]
+pub struct SingleEqualParser<TargetCharacterType, It>
+where
+    It: Iterator + Clone,
+    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
+{
     pub character: TargetCharacterType,
     _phantom: PhantomData<It>,
 }
 
-impl<TargetCharacterType, It: Iterator + Clone> SingleEqualParser<TargetCharacterType, It>
+impl<TargetCharacterType, It> SingleEqualParser<TargetCharacterType, It>
 where
+    It: Iterator + Clone,
     <It as Iterator>::Item: PartialEq<TargetCharacterType>,
 {
     pub fn new(character: TargetCharacterType) -> SingleEqualParser<TargetCharacterType, It> {
@@ -22,9 +28,16 @@ where
     }
 }
 
-impl<TargetCharacterType, It: Iterator + Clone> Parser<It>
-    for SingleEqualParser<TargetCharacterType, It>
+impl<TargetCharacterType, It> ResultValue<It> for SingleEqualParser<TargetCharacterType, It>
 where
+    It: Iterator + Clone,
+    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
+{
+}
+
+impl<TargetCharacterType, It> Parser<It> for SingleEqualParser<TargetCharacterType, It>
+where
+    It: Iterator + Clone,
     <It as Iterator>::Item: PartialEq<TargetCharacterType>,
 {
     type Output = <It as Iterator>::Item;

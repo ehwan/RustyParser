@@ -3,8 +3,9 @@ use std::ops::RangeBounds;
 
 use super::result::ParseResult;
 use super::traits::Parser;
+use super::traits::ResultValue;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct SingleRangeParser<RangeType, Idx, It>
 where
     RangeType: RangeBounds<Idx>,
@@ -31,6 +32,17 @@ where
             _phantom2: std::marker::PhantomData,
         }
     }
+}
+impl<RangeType, It, Idx> ResultValue<It> for SingleRangeParser<RangeType, Idx, It>
+where
+    It: Iterator + Clone,
+    Idx: PartialOrd
+        + PartialEq
+        + PartialOrd<<It as Iterator>::Item>
+        + PartialEq<<It as Iterator>::Item>,
+    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
+    RangeType: RangeBounds<Idx>,
+{
 }
 
 impl<RangeType, It, Idx> Parser<It> for SingleRangeParser<RangeType, Idx, It>

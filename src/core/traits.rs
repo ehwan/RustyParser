@@ -23,11 +23,12 @@ where
     }
 }
 
-// 'void' in Rust is '()'; which is also tuple
-// pub trait ResultVoid: Parser {}
-
-// marker trait for parser that returns a tuple for Output
+// marker trait for parser Output type
+// either it is void, tuple or single value
 pub trait ResultTuple<It: Iterator + Clone>: Parser<It> {}
 
+// Note, 'void' is (), also a tuple in Rust, but we separate it for seq parser
+pub trait ResultVoid<It: Iterator + Clone>: Parser<It> {}
+
 // marker trait for parser that returns a single value (not tuple) for Output
-pub trait ResultRaw<It: Iterator + Clone>: Parser<It> {}
+pub trait ResultValue<It: Iterator + Clone>: Parser<It> {}

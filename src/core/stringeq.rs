@@ -3,8 +3,9 @@ use std::iter::Iterator;
 
 use super::result::ParseResult;
 use super::traits::Parser;
+use super::traits::ResultVoid;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
@@ -25,6 +26,15 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
+}
+
+impl<StringContainer, It> ResultVoid<It> for StringEqualParser<StringContainer, It>
+where
+    StringContainer: IntoIterator + Clone,
+    It: Iterator + Clone,
+    <It as Iterator>::Item:
+        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
+{
 }
 
 impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer, It>
