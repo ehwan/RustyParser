@@ -1,0 +1,11 @@
+[package]
+name = "rusty_parser"
+version = "0.1.0"
+edition = "2021"
+authors = ["ehwan <ehwank98@gmail.com>"]
+description = "A Simple LL-Parser generator and pattern matching written in Rust"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
