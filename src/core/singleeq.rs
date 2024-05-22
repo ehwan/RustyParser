@@ -1,24 +1,36 @@
 use std::iter::Iterator;
+use std::marker::PhantomData;
 
 use super::result::ParseResult;
+use super::traits::Parser;
 
-#[derive(Debug, Clone)]
-pub struct SingleEqualParser<TargetCharacterType> {
+#[derive(Debug)]
+pub struct SingleEqualParser<TargetCharacterType, It: Iterator + Clone> {
     pub character: TargetCharacterType,
+    _phantom: PhantomData<It>,
 }
 
-impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
-    pub fn new(character: TargetCharacterType) -> SingleEqualParser<TargetCharacterType> {
+impl<TargetCharacterType, It: Iterator + Clone> SingleEqualParser<TargetCharacterType, It>
+where
+    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
+{
+    pub fn new(character: TargetCharacterType) -> SingleEqualParser<TargetCharacterType, It> {
         SingleEqualParser {
             character: character,
+            _phantom: PhantomData,
         }
     }
+}
 
-    pub fn parse<It>(&self, mut it: It) -> ParseResult<<It as Iterator>::Item, It>
-    where
-        It: Iterator + Clone,
-        <It as Iterator>::Item: PartialEq<TargetCharacterType>,
-    {
+impl<TargetCharacterType, It: Iterator + Clone> Parser<It>
+    for SingleEqualParser<TargetCharacterType, It>
+where
+    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
+{
+    type Output = <It as Iterator>::Item;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
             if val == self.character {
@@ -40,11 +52,8 @@ impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
         }
     }
 
-    pub fn match_pattern<It>(&self, mut it: It) -> ParseResult<(), It>
-    where
-        It: Iterator + Clone,
-        <It as Iterator>::Item: PartialEq<TargetCharacterType>,
-    {
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
             if val == self.character {
@@ -71,6 +80,7 @@ impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
 mod tests {
     use std::string::String;
 
+    use super::super::traits::Parser;
     use super::SingleEqualParser;
 
     #[test]

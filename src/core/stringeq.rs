@@ -2,26 +2,42 @@ use std::iter::IntoIterator;
 use std::iter::Iterator;
 
 use super::result::ParseResult;
+use super::traits::Parser;
 
-#[derive(Debug, Clone)]
-pub struct StringEqualParser<StringType> {
-    pub string: StringType,
+#[derive(Debug)]
+pub struct StringEqualParser<StringContainer, It>
+where
+    StringContainer: IntoIterator + Clone,
+    It: Iterator + Clone,
+{
+    pub string: StringContainer,
+    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<StringType> StringEqualParser<StringType>
+impl<StringContainer, It> StringEqualParser<StringContainer, It>
 where
-    StringType: IntoIterator + Clone,
+    StringContainer: IntoIterator + Clone,
+    It: Iterator + Clone,
 {
-    pub fn new(string: StringType) -> StringEqualParser<StringType> {
-        StringEqualParser { string: string }
+    pub fn new(string: StringContainer) -> StringEqualParser<StringContainer, It> {
+        StringEqualParser {
+            string: string,
+            _phantom: std::marker::PhantomData,
+        }
     }
+}
 
-    pub fn parse<It>(&self, mut it: It) -> ParseResult<(), It>
-    where
-        It: Iterator + Clone,
-        <It as Iterator>::Item:
-            PartialEq<<<StringType as IntoIterator>::IntoIter as Iterator>::Item>,
-    {
+impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer, It>
+where
+    StringContainer: IntoIterator + Clone,
+    It: Iterator + Clone,
+    <It as Iterator>::Item:
+        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
+{
+    type Output = ();
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let mut it = it;
         let i0 = it.clone();
         for ch in self.string.clone() {
             match it.next() {
@@ -48,19 +64,11 @@ where
             it: it,
         };
     }
-
-    pub fn match_pattern<It>(&self, it: It) -> ParseResult<(), It>
-    where
-        It: Iterator + Clone,
-        <It as Iterator>::Item:
-            PartialEq<<<StringType as IntoIterator>::IntoIter as Iterator>::Item>,
-    {
-        self.parse(it)
-    }
 }
 
 #[cfg(test)]
 mod test {
+    use super::super::traits::Parser;
     use super::*;
 
     #[test]

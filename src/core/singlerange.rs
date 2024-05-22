@@ -2,36 +2,51 @@ use std::iter::Iterator;
 use std::ops::RangeBounds;
 
 use super::result::ParseResult;
+use super::traits::Parser;
 
-#[derive(Debug, Clone)]
-pub struct SingleRangeParser<RangeType, Idx>
+#[derive(Debug)]
+pub struct SingleRangeParser<RangeType, Idx, It>
 where
     RangeType: RangeBounds<Idx>,
 {
     pub range: RangeType,
     _phantom: std::marker::PhantomData<Idx>,
+    _phantom2: std::marker::PhantomData<It>,
 }
 
-impl<RangeType, Idx> SingleRangeParser<RangeType, Idx>
+impl<RangeType, It, Idx> SingleRangeParser<RangeType, Idx, It>
 where
+    It: Iterator + Clone,
+    Idx: PartialOrd
+        + PartialEq
+        + PartialOrd<<It as Iterator>::Item>
+        + PartialEq<<It as Iterator>::Item>,
+    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
     RangeType: RangeBounds<Idx>,
 {
-    pub fn new(range: RangeType) -> SingleRangeParser<RangeType, Idx> {
-        Self {
+    pub fn new(range: RangeType) -> SingleRangeParser<RangeType, Idx, It> {
+        SingleRangeParser {
             range: range,
             _phantom: std::marker::PhantomData,
+            _phantom2: std::marker::PhantomData,
         }
     }
+}
 
-    pub fn parse<It>(&self, mut it: It) -> ParseResult<<It as Iterator>::Item, It>
-    where
-        It: Iterator + Clone,
-        Idx: PartialOrd
-            + PartialEq
-            + PartialOrd<<It as Iterator>::Item>
-            + PartialEq<<It as Iterator>::Item>,
-        <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
-    {
+impl<RangeType, It, Idx> Parser<It> for SingleRangeParser<RangeType, Idx, It>
+where
+    It: Iterator + Clone,
+    Idx: PartialOrd
+        + PartialEq
+        + PartialOrd<<It as Iterator>::Item>
+        + PartialEq<<It as Iterator>::Item>,
+    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
+    RangeType: RangeBounds<Idx>,
+{
+    type Output = <It as Iterator>::Item;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
             if self.range.contains(&val) {
@@ -52,15 +67,9 @@ where
             }
         }
     }
-    pub fn match_pattern<It>(&self, mut it: It) -> ParseResult<(), It>
-    where
-        It: Iterator + Clone,
-        Idx: PartialOrd
-            + PartialEq
-            + PartialOrd<<It as Iterator>::Item>
-            + PartialEq<<It as Iterator>::Item>,
-        <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
-    {
+
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
             if self.range.contains(&val) {
@@ -87,6 +96,7 @@ where
 mod tests {
     use std::string::String;
 
+    use super::super::traits::Parser;
     use super::SingleRangeParser;
 
     #[test]
