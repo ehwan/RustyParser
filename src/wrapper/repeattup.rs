@@ -136,7 +136,7 @@ where
 mod test {
     use super::*;
     use crate::core::singlerange::SingleRangeParser;
-    use crate::wrapper::seq::seq_valval::SeqValValParser;
+    use crate::wrapper::seq::valval::SeqValValParser;
 
     #[test]
     fn success_test1() {

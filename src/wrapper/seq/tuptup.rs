@@ -105,7 +105,7 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::super::seq_valval::SeqValValParser;
+    use super::super::valval::SeqValValParser;
     use super::*;
     use crate::core::singlerange::SingleRangeParser;
     use crate::core::traits::Parser;
