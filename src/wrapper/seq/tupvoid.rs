@@ -52,7 +52,7 @@ where
         let i0 = it.clone();
         let res_a = self.parser_a.parse(it);
         if let Some(val_a) = res_a.output {
-            let res_b = self.parser_b.match_pattern(res_a.it);
+            let res_b = self.parser_b.parse(res_a.it);
             if let Some(_) = res_b.output {
                 ParseResult {
                     output: Some(val_a),

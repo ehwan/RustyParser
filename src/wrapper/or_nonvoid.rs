@@ -68,6 +68,28 @@ where
             it: res.it,
         }
     }
+
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        let res = self.parser_a.match_pattern(it);
+        if let Some(_) = res.output {
+            return ParseResult {
+                output: Some(()),
+                it: res.it,
+            };
+        }
+        let res = self.parser_b.parse(res.it);
+        if let Some(_) = res.output {
+            return ParseResult {
+                output: Some(()),
+                it: res.it,
+            };
+        }
+
+        ParseResult {
+            output: None,
+            it: res.it,
+        }
+    }
 }
 
 #[cfg(test)]

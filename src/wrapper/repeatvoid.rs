@@ -92,6 +92,39 @@ where
             }
         }
     }
+    fn match_pattern(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let mut it = it;
+        let mut count = 0;
+        let mut next_count = 1;
+        loop {
+            // check reached max count
+            if self.range.contains(&count) && self.range.contains(&next_count) == false {
+                return ParseResult {
+                    output: Some(()),
+                    it: it,
+                };
+            }
+            let res = self.parser.match_pattern(it);
+            if let Some(_) = res.output {
+                count = next_count;
+                next_count = count + 1;
+                it = res.it;
+            } else {
+                if self.range.contains(&count) {
+                    return ParseResult {
+                        output: Some(()),
+                        it: res.it,
+                    };
+                } else {
+                    return ParseResult {
+                        output: None,
+                        it: i0,
+                    };
+                }
+            }
+        }
+    }
 }
 
 #[cfg(test)]

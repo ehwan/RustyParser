@@ -49,9 +49,9 @@ where
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
-        let res_a = self.parser_a.match_pattern(it);
+        let res_a = self.parser_a.parse(it);
         if let Some(_) = res_a.output {
-            let res_b = self.parser_b.match_pattern(res_a.it);
+            let res_b = self.parser_b.parse(res_a.it);
             if let Some(_) = res_b.output {
                 ParseResult {
                     output: Some(()),
