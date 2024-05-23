@@ -5,12 +5,11 @@ use crate::core::traits::Parser;
 use crate::core::traits::ResultValue;
 
 // Callback function's return value would be new value of the parser
-// Note that ResultType will be fixed to ResultValue, even function returns Tuple
-// Note that Callback takes Parser's output as input;
-// for ResultVoid Parser, must take () as input to Callback
+// Note that ResultType will be fixed to ResultValue, even function returns Tuple or Void
+// Callback takes Parser's output as input;
 
 #[derive(Debug, Clone)]
-pub struct CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+pub struct CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
@@ -22,7 +21,7 @@ where
 }
 
 impl<ParserType, CallbackType, CallbackOutput, It>
-    CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+    CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
@@ -38,7 +37,7 @@ where
 }
 
 impl<ParserType, CallbackType, CallbackOutput, It> ResultValue<It>
-    for CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+    for CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
@@ -47,7 +46,7 @@ where
 }
 
 impl<ParserType, CallbackType, CallbackOutput, It> Parser<It>
-    for CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+    for CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
@@ -89,7 +88,7 @@ mod test {
     fn success_test() {
         let digit_parser = SingleRangeParser::new('0'..='9');
         let callback_parser =
-            CallbackParser::new(digit_parser, |val| -> Option<i32> { Some(val as i32) });
+            CallbackNonVoidParser::new(digit_parser, |val| -> Option<i32> { Some(val as i32) });
 
         let str = "123hello";
 
@@ -102,7 +101,7 @@ mod test {
     fn success_fail1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
         let callback_parser =
-            CallbackParser::new(digit_parser, |val| -> Option<i32> { Some(val as i32) });
+            CallbackNonVoidParser::new(digit_parser, |val| -> Option<i32> { Some(val as i32) });
 
         let str = "a23hello";
 
@@ -114,7 +113,8 @@ mod test {
     #[test]
     fn success_none1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser = CallbackParser::new(digit_parser, |_val| -> Option<i32> { None });
+        let callback_parser =
+            CallbackNonVoidParser::new(digit_parser, |_val| -> Option<i32> { None });
 
         let str = "123hello";
 
@@ -126,7 +126,8 @@ mod test {
     #[test]
     fn success_none2() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser = CallbackParser::new(digit_parser, |_val| -> Option<i32> { None });
+        let callback_parser =
+            CallbackNonVoidParser::new(digit_parser, |_val| -> Option<i32> { None });
 
         let str = "a23hello";
 
