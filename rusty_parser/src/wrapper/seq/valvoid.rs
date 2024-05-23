@@ -5,23 +5,25 @@ use crate::core::traits::Parser;
 use crate::core::traits::ResultValue;
 use crate::core::traits::ResultVoid;
 
-#[derive(Debug, Clone)]
-pub struct SeqVoidValParser<ParserA, ParserB, It>
+use rusty_parser_derive::ResultValue;
+
+#[derive(Debug, Clone, ResultValue)]
+pub struct SeqValVoidParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultValue<It> + Parser<It>,
+    ParserA: ResultValue + Parser<It>,
+    ParserB: ResultVoid + Parser<It>,
 {
     pub parser_a: ParserA,
     pub parser_b: ParserB,
     _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserA, ParserB, It> SeqVoidValParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> SeqValVoidParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultValue<It> + Parser<It>,
+    ParserA: ResultValue + Parser<It>,
+    ParserB: ResultVoid + Parser<It>,
 {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
@@ -32,30 +34,22 @@ where
     }
 }
 
-impl<ParserA, ParserB, It> ResultValue<It> for SeqVoidValParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> Parser<It> for SeqValVoidParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultValue<It> + Parser<It>,
+    ParserA: ResultValue + Parser<It>,
+    ParserB: ResultVoid + Parser<It>,
 {
-}
-
-impl<ParserA, ParserB, It> Parser<It> for SeqVoidValParser<ParserA, ParserB, It>
-where
-    It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultValue<It> + Parser<It>,
-{
-    type Output = <ParserB as Parser<It>>::Output;
+    type Output = <ParserA as Parser<It>>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
         let res_a = self.parser_a.parse(it);
-        if let Some(_) = res_a.output {
+        if let Some(val_a) = res_a.output {
             let res_b = self.parser_b.parse(res_a.it);
-            if let Some(val_b) = res_b.output {
+            if let Some(_) = res_b.output {
                 ParseResult {
-                    output: Some(val_b),
+                    output: Some(val_a),
                     it: res_b.it,
                 }
             } else {
@@ -105,28 +99,40 @@ mod test {
     use crate::core::traits::Parser;
 
     #[test]
-    fn seq_parser_success_test() {
+    fn success_test() {
         let hello_parser = StringEqualParser::new("hello".chars());
         let a_parser = SingleEqualParser::new('a');
-        let seq_parser = SeqVoidValParser::new(hello_parser, a_parser);
+        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
 
-        let str = "helloabcd";
+        let str = "ahelloabcd";
         let res = seq_parser.parse(str.chars());
         assert_eq!(res.output, Some('a'));
         let rest: String = res.it.collect();
-        assert_eq!(rest, "bcd");
+        assert_eq!(rest, "abcd");
     }
 
     #[test]
-    fn seq_parser_fail_test() {
+    fn fail_test1() {
         let hello_parser = StringEqualParser::new("hello".chars());
         let a_parser = SingleEqualParser::new('a');
-        let seq_parser = SeqVoidValParser::new(hello_parser, a_parser);
+        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
 
-        let str = "hellobcd";
+        let str = "bhelloabcd";
         let res = seq_parser.parse(str.chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
-        assert_eq!(rest, "hellobcd");
+        assert_eq!(rest, "bhelloabcd");
+    }
+    #[test]
+    fn fail_test2() {
+        let hello_parser = StringEqualParser::new("hello".chars());
+        let a_parser = SingleEqualParser::new('a');
+        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
+
+        let str = "ahellaabcd";
+        let res = seq_parser.parse(str.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(rest, "ahellaabcd");
     }
 }

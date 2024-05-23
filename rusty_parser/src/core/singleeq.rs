@@ -5,7 +5,9 @@ use super::result::ParseResult;
 use super::traits::Parser;
 use super::traits::ResultValue;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultValue;
+
+#[derive(Debug, Clone, ResultValue)]
 pub struct SingleEqualParser<TargetCharacterType, It>
 where
     It: Iterator + Clone,
@@ -26,13 +28,6 @@ where
             _phantom: PhantomData,
         }
     }
-}
-
-impl<TargetCharacterType, It> ResultValue<It> for SingleEqualParser<TargetCharacterType, It>
-where
-    It: Iterator + Clone,
-    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
-{
 }
 
 impl<TargetCharacterType, It> Parser<It> for SingleEqualParser<TargetCharacterType, It>

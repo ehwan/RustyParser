@@ -4,7 +4,9 @@ use crate::core::result::ParseResult;
 use crate::core::traits::Parser;
 use crate::core::traits::ResultValue;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultValue;
+
+#[derive(Debug, Clone, ResultValue)]
 pub struct OrNonVoid<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
@@ -29,14 +31,6 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-}
-
-impl<ParserA, ParserB, It> ResultValue<It> for OrNonVoid<ParserA, ParserB, It>
-where
-    It: Iterator + Clone,
-    ParserA: Parser<It>,
-    ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
-{
 }
 
 impl<ParserA, ParserB, It> Parser<It> for OrNonVoid<ParserA, ParserB, It>

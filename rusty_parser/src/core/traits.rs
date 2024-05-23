@@ -25,10 +25,11 @@ where
 
 // marker trait for parser Output type
 // either it is void, tuple or single value
-pub trait ResultTuple<It: Iterator + Clone>: Parser<It> {}
+
+pub trait ResultTuple {}
 
 // Note, 'void' is (), also a tuple in Rust, but we separate it for seq parser
-pub trait ResultVoid<It: Iterator + Clone>: Parser<It> {}
+pub trait ResultVoid {}
 
 // marker trait for parser that returns a single value (not tuple) for Output
-pub trait ResultValue<It: Iterator + Clone>: Parser<It> {}
+pub trait ResultValue {}

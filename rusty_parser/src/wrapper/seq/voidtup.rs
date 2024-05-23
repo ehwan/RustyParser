@@ -5,12 +5,14 @@ use crate::core::traits::Parser;
 use crate::core::traits::ResultTuple;
 use crate::core::traits::ResultVoid;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultTuple;
+
+#[derive(Debug, Clone, ResultTuple)]
 pub struct SeqVoidTupParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultTuple<It> + Parser<It>,
+    ParserA: ResultVoid + Parser<It>,
+    ParserB: ResultTuple + Parser<It>,
 {
     pub parser_a: ParserA,
     pub parser_b: ParserB,
@@ -20,8 +22,8 @@ where
 impl<ParserA, ParserB, It> SeqVoidTupParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultTuple<It> + Parser<It>,
+    ParserA: ResultVoid + Parser<It>,
+    ParserB: ResultTuple + Parser<It>,
 {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
@@ -32,19 +34,11 @@ where
     }
 }
 
-impl<ParserA, ParserB, It> ResultTuple<It> for SeqVoidTupParser<ParserA, ParserB, It>
-where
-    It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultTuple<It> + Parser<It>,
-{
-}
-
 impl<ParserA, ParserB, It> Parser<It> for SeqVoidTupParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultVoid<It> + Parser<It>,
-    ParserB: ResultTuple<It> + Parser<It>,
+    ParserA: ResultVoid + Parser<It>,
+    ParserB: ResultTuple + Parser<It>,
 {
     type Output = <ParserB as Parser<It>>::Output;
 

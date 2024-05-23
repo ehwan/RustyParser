@@ -5,11 +5,15 @@ use super::result::ParseResult;
 use super::traits::Parser;
 use super::traits::ResultVoid;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultVoid;
+
+#[derive(Debug, Clone, ResultVoid)]
 pub struct StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
     It: Iterator + Clone,
+    <It as Iterator>::Item:
+        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {
     pub string: StringContainer,
     _phantom: std::marker::PhantomData<It>,
@@ -19,6 +23,8 @@ impl<StringContainer, It> StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
     It: Iterator + Clone,
+    <It as Iterator>::Item:
+        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {
     pub fn new(string: StringContainer) -> StringEqualParser<StringContainer, It> {
         StringEqualParser {
@@ -26,15 +32,6 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-}
-
-impl<StringContainer, It> ResultVoid<It> for StringEqualParser<StringContainer, It>
-where
-    StringContainer: IntoIterator + Clone,
-    It: Iterator + Clone,
-    <It as Iterator>::Item:
-        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
-{
 }
 
 impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer, It>

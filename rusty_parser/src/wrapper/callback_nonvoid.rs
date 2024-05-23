@@ -4,11 +4,13 @@ use crate::core::result::ParseResult;
 use crate::core::traits::Parser;
 use crate::core::traits::ResultValue;
 
+use rusty_parser_derive::ResultValue;
+
 // Callback function's return value would be new value of the parser
 // Note that ResultType will be fixed to ResultValue, even function returns Tuple or Void
 // Callback takes Parser's output as input;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, ResultValue)]
 pub struct CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
@@ -34,15 +36,6 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-}
-
-impl<ParserType, CallbackType, CallbackOutput, It> ResultValue<It>
-    for CallbackNonVoidParser<ParserType, CallbackType, CallbackOutput, It>
-where
-    It: Iterator + Clone,
-    ParserType: Parser<It>,
-    CallbackType: Fn(<ParserType as Parser<It>>::Output) -> Option<CallbackOutput>,
-{
 }
 
 impl<ParserType, CallbackType, CallbackOutput, It> Parser<It>

@@ -5,15 +5,17 @@ use crate::core::traits::Parser;
 use crate::core::traits::ResultValue;
 use crate::core::traits::ResultVoid;
 
+use rusty_parser_derive::ResultValue;
+
 // Callback function's return value would be new value of the parser
 // Note that ResultType will be fixed to ResultValue, even function returns Tuple or Void
 // Callback takes Parser's output as input;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, ResultValue)]
 pub struct CallbackVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     CallbackType: Fn() -> Option<CallbackOutput>,
 {
     parser: ParserType,
@@ -25,7 +27,7 @@ impl<ParserType, CallbackType, CallbackOutput, It>
     CallbackVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     CallbackType: Fn() -> Option<CallbackOutput>,
 {
     pub fn new(parser: ParserType, callback: CallbackType) -> Self {
@@ -37,20 +39,11 @@ where
     }
 }
 
-impl<ParserType, CallbackType, CallbackOutput, It> ResultValue<It>
-    for CallbackVoidParser<ParserType, CallbackType, CallbackOutput, It>
-where
-    It: Iterator + Clone,
-    ParserType: Parser<It> + ResultVoid<It>,
-    CallbackType: Fn() -> Option<CallbackOutput>,
-{
-}
-
 impl<ParserType, CallbackType, CallbackOutput, It> Parser<It>
     for CallbackVoidParser<ParserType, CallbackType, CallbackOutput, It>
 where
     It: Iterator + Clone,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     CallbackType: Fn() -> Option<CallbackOutput>,
 {
     type Output = CallbackOutput;

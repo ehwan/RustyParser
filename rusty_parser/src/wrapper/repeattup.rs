@@ -4,14 +4,17 @@ use std::vec::Vec;
 
 use crate::core::result::ParseResult;
 use crate::core::traits::Parser;
+use crate::core::traits::ResultTuple;
 use crate::core::traits::ResultValue;
 
-#[derive(Debug, Clone)]
-pub struct RepeatValueParser<ParserType, RangeType, Idx, It>
+use rusty_parser_derive::ResultValue;
+
+#[derive(Debug, Clone, ResultValue)]
+pub struct RepeatTupleParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultValue<It>,
+    ParserType: Parser<It> + ResultTuple,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
@@ -21,11 +24,11 @@ where
     _phantom2: std::marker::PhantomData<Idx>,
 }
 
-impl<ParserType, RangeType, Idx, It> RepeatValueParser<ParserType, RangeType, Idx, It>
+impl<ParserType, RangeType, Idx, It> RepeatTupleParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultValue<It>,
+    ParserType: Parser<It> + ResultTuple,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
@@ -39,23 +42,12 @@ where
     }
 }
 
-impl<ParserType, RangeType, Idx, It> ResultValue<It>
-    for RepeatValueParser<ParserType, RangeType, Idx, It>
-where
-    It: Iterator + Clone,
-    RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultValue<It>,
-    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
-    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
-{
-}
-
 impl<ParserType, RangeType, Idx, It> Parser<It>
-    for RepeatValueParser<ParserType, RangeType, Idx, It>
+    for RepeatTupleParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultValue<It>,
+    ParserType: Parser<It> + ResultTuple,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
@@ -135,53 +127,64 @@ where
 mod test {
     use super::*;
     use crate::core::singlerange::SingleRangeParser;
+    use crate::wrapper::seq::valval::SeqValValParser;
 
     #[test]
     fn success_test1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let repeat_parser = RepeatValueParser::new(digit_parser, 1..=3);
+        let tuple_parser = SeqValValParser::new(digit_parser.clone(), digit_parser);
+        let repeat_parser = RepeatTupleParser::new(tuple_parser, 1..=3);
 
-        let str = "123456abcd";
+        let str = "12345678abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(res.output, Some(vec!['1', '2', '3']));
+        assert_eq!(res.output, Some(vec![('1', '2'), ('3', '4'), ('5', '6')]));
         let rest: String = res.it.collect();
-        assert_eq!(rest, "456abcd");
+        assert_eq!(rest, "78abcd");
     }
     #[test]
     fn success_test2() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let repeat_parser = RepeatValueParser::new(digit_parser, 1..=6);
+        let tuple_parser = SeqValValParser::new(digit_parser.clone(), digit_parser);
+        let repeat_parser = RepeatTupleParser::new(tuple_parser, 1..=4);
 
-        let str = "123456abcd";
+        let str = "12345678abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(res.output, Some(vec!['1', '2', '3', '4', '5', '6']));
+        assert_eq!(
+            res.output,
+            Some(vec![('1', '2'), ('3', '4'), ('5', '6'), ('7', '8')])
+        );
         let rest: String = res.it.collect();
         assert_eq!(rest, "abcd");
     }
     #[test]
     fn success_test3() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let repeat_parser = RepeatValueParser::new(digit_parser, 4..);
+        let tuple_parser = SeqValValParser::new(digit_parser.clone(), digit_parser);
+        let repeat_parser = RepeatTupleParser::new(tuple_parser, 4..);
 
-        let str = "1234abcd";
+        let str = "12345678abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(res.output, Some(vec!['1', '2', '3', '4']));
+        assert_eq!(
+            res.output,
+            Some(vec![('1', '2'), ('3', '4'), ('5', '6'), ('7', '8')])
+        );
         let rest: String = res.it.collect();
         assert_eq!(rest, "abcd");
     }
     #[test]
     fn fail_test1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let repeat_parser = RepeatValueParser::new(digit_parser, 5..10);
+        let tuple_parser = SeqValValParser::new(digit_parser.clone(), digit_parser);
+        let repeat_parser = RepeatTupleParser::new(tuple_parser, 10..);
 
-        let str = "1234abcd";
+        let str = "12345678abcd";
         let res = repeat_parser.parse(str.chars());
 
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
-        assert_eq!(rest, "1234abcd");
+        assert_eq!(rest, "12345678abcd");
     }
 }

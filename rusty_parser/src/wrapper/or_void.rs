@@ -4,12 +4,14 @@ use crate::core::result::ParseResult;
 use crate::core::traits::Parser;
 use crate::core::traits::ResultVoid;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultVoid;
+
+#[derive(Debug, Clone, ResultVoid)]
 pub struct OrVoid<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: Parser<It, Output = ()> + ResultVoid<It>,
-    ParserB: Parser<It, Output = ()> + ResultVoid<It>,
+    ParserA: Parser<It> + ResultVoid,
+    ParserB: Parser<It> + ResultVoid,
 {
     parser_a: ParserA,
     parser_b: ParserB,
@@ -19,8 +21,8 @@ where
 impl<ParserA, ParserB, It> OrVoid<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: Parser<It, Output = ()> + ResultVoid<It>,
-    ParserB: Parser<It, Output = ()> + ResultVoid<It>,
+    ParserA: Parser<It> + ResultVoid,
+    ParserB: Parser<It> + ResultVoid,
 {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
@@ -31,19 +33,11 @@ where
     }
 }
 
-impl<ParserA, ParserB, It> ResultVoid<It> for OrVoid<ParserA, ParserB, It>
-where
-    It: Iterator + Clone,
-    ParserA: Parser<It, Output = ()> + ResultVoid<It>,
-    ParserB: Parser<It, Output = ()> + ResultVoid<It>,
-{
-}
-
 impl<ParserA, ParserB, It> Parser<It> for OrVoid<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: Parser<It, Output = ()> + ResultVoid<It>,
-    ParserB: Parser<It, Output = ()> + ResultVoid<It>,
+    ParserA: Parser<It> + ResultVoid,
+    ParserB: Parser<It> + ResultVoid,
 {
     type Output = ();
 

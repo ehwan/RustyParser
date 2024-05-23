@@ -5,12 +5,14 @@ use crate::core::result::ParseResult;
 use crate::core::traits::Parser;
 use crate::core::traits::ResultVoid;
 
-#[derive(Debug, Clone)]
+use rusty_parser_derive::ResultVoid;
+
+#[derive(Debug, Clone, ResultVoid)]
 pub struct RepeatVoidParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
@@ -24,7 +26,7 @@ impl<ParserType, RangeType, Idx, It> RepeatVoidParser<ParserType, RangeType, Idx
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
@@ -38,22 +40,11 @@ where
     }
 }
 
-impl<ParserType, RangeType, Idx, It> ResultVoid<It>
-    for RepeatVoidParser<ParserType, RangeType, Idx, It>
-where
-    It: Iterator + Clone,
-    RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultVoid<It>,
-    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
-    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
-{
-}
-
 impl<ParserType, RangeType, Idx, It> Parser<It> for RepeatVoidParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It> + ResultVoid<It>,
+    ParserType: Parser<It> + ResultVoid,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
