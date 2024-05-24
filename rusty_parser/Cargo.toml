@@ -5,6 +5,9 @@ edition = "2021"
 authors = ["ehwan <ehwank98@gmail.com>"]
 description = "A Simple LL-Parser generator and pattern matching written in Rust"
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/ehwan/RustyParser"
+keywords = ["parser", "pattern", "generator"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
