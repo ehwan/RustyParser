@@ -16,10 +16,11 @@ mod test {
         let alphadigit_parser2 = alpha_parser2.or_(digit_parser2);
 
         let alphadigit_parser2_vec = alphadigit_parser2.repeat(2..);
+        let alphadigit_parser2_vec_ref = alphadigit_parser2_vec.ref_();
 
         let str = "12abcdefg";
 
-        let res = alphadigit_parser2_vec.parse(str.chars());
+        let res = alphadigit_parser2_vec_ref.parse(str.chars());
         assert_eq!(res.output, Some((vec![(1, 2), (0, 1), (2, 3), (4, 5)],)));
 
         let rest: String = res.it.collect();

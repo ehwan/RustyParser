@@ -1,5 +1,6 @@
 pub mod map;
 pub mod or_;
+pub mod reference;
 pub mod repeat;
 pub mod seq;
 pub mod void;

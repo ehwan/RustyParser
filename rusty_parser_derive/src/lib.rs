@@ -7,6 +7,7 @@ use syn::{parse_macro_input, DeriveInput};
 //  - or_( self, rhs )
 //  - repeat( self, RangeBounds )
 //  - void_( self )
+//  - ref_( &self )
 #[proc_macro_derive(ParserHelper)]
 pub fn derive_result_void(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -77,6 +78,12 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
           pub fn void_(self) -> crate::wrapper::void::VoidParser<Self, It>
           {
             crate::wrapper::void::VoidParser::new(self)
+          }
+
+          // ref
+          pub fn ref_<'life_of_self__>(&'life_of_self__ self) -> crate::wrapper::reference::ReferenceParser<'life_of_self__, Self, It>
+          {
+            crate::wrapper::reference::ReferenceParser::new(self)
           }
         }
     };
