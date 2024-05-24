@@ -1,3 +1,4 @@
+pub mod dict;
 pub mod parser;
 pub mod result;
 pub mod singleeq;
