@@ -1,10 +1,4 @@
-# RustyParser
-A Parser generator and Pattern Matching Library written in Rust
-
-## Example
-```rust
-// import rusty_parser
-use rusty_parser as rp;
+use crate as rp;
 
 // for assert_eq!()
 use std::any::type_name;
@@ -77,7 +71,6 @@ fn example1() {
     let res = int_parser.parse(target_string.chars());
     assert_eq!(res.output, Some((12345,)));
 
-
     // pattern matching
     // .match_pattern only checks if the pattern is matched or not
     // it does not try to extract data from input string (e.g. push element in Vec above)
@@ -85,4 +78,3 @@ fn example1() {
     let res = int_parser.match_pattern(target_string.chars());
     assert_eq!(res.output, Some(()));
 }
-```

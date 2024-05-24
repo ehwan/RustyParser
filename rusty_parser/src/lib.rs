@@ -4,6 +4,8 @@ pub mod wrapper;
 
 use std::ops::RangeBounds;
 
+pub use core::parser::Parser;
+
 pub fn one<CharType, It>(ch: CharType) -> core::singleeq::SingleEqualParser<CharType, It>
 where
     It: Iterator + Clone,
