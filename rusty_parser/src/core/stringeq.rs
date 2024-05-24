@@ -102,7 +102,7 @@ mod test {
     }
 
     #[test]
-    fn success2() {
+    fn fail2() {
         let pattern = "hello";
         let parser = StringEqualParser::new(pattern.chars());
 

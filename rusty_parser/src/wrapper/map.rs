@@ -10,27 +10,26 @@ use rusty_parser_derive::ParserHelper;
 // Callback function's return value would be new value of the parser
 
 #[derive(Debug, Clone, ParserHelper)]
-pub struct CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+pub struct MapParser<ParserType, MapperType, MapOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
-    CallbackType: Fn(<ParserType as Parser<It>>::Output) -> CallbackOutput,
-    CallbackOutput: Tuple,
+    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
+    MapOutput: Tuple,
 {
     parser: ParserType,
-    callback: CallbackType,
+    callback: MapperType,
     _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, CallbackType, CallbackOutput, It>
-    CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+impl<ParserType, MapperType, MapOutput, It> MapParser<ParserType, MapperType, MapOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
-    CallbackType: Fn(<ParserType as Parser<It>>::Output) -> CallbackOutput,
-    CallbackOutput: Tuple,
+    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
+    MapOutput: Tuple,
 {
-    pub fn new(parser: ParserType, callback: CallbackType) -> Self {
+    pub fn new(parser: ParserType, callback: MapperType) -> Self {
         Self {
             parser: parser,
             callback: callback,
@@ -39,15 +38,15 @@ where
     }
 }
 
-impl<ParserType, CallbackType, CallbackOutput, It> Parser<It>
-    for CallbackParser<ParserType, CallbackType, CallbackOutput, It>
+impl<ParserType, MapperType, MapOutput, It> Parser<It>
+    for MapParser<ParserType, MapperType, MapOutput, It>
 where
     It: Iterator + Clone,
     ParserType: Parser<It>,
-    CallbackType: Fn(<ParserType as Parser<It>>::Output) -> CallbackOutput,
-    CallbackOutput: Tuple,
+    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
+    MapOutput: Tuple,
 {
-    type Output = CallbackOutput;
+    type Output = MapOutput;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.parse(it);
@@ -74,8 +73,7 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser =
-            CallbackParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
+        let callback_parser = MapParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
 
         let str = "123hello";
 
@@ -87,8 +85,7 @@ mod test {
     #[test]
     fn fail1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser =
-            CallbackParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
+        let callback_parser = MapParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
 
         let str = "a23hello";
 

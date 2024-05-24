@@ -8,68 +8,69 @@ use syn::{parse_macro_input, DeriveInput};
 pub fn derive_result_void(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
-    let _name = &input.ident;
-    let generics = &input.generics;
-    let (_impl_generics, _ty_generics, _where_clause) = generics.split_for_impl();
-
-    let expanded = quote! {
-        // impl #impl_generics #name #ty_generics #where_clause {
-        // }
-    };
-
-    TokenStream::from(expanded)
-}
-
-/*
-// ResultVoid
-#[proc_macro_derive(Parser)]
-pub fn derive_result_void(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
     let name = &input.ident;
     let generics = &input.generics;
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
+    // TODO, find name of generic type for Parser<'IteratorName'>
+    // currently hardcoded to 'It'
+
     let expanded = quote! {
-        impl #impl_generics ResultVoid for #name #ty_generics #where_clause {
+        impl #impl_generics #name #ty_generics
+        #where_clause
+        Self: Parser<It>,
+        {
+
+          // map
+          pub fn map<MapperType__, MapOutput__>(
+            self,
+            map: MapperType__,
+          ) -> crate::wrapper::map::MapParser<Self, MapperType__, MapOutput__, It>
+          where
+            MapperType__: Fn(<Self as Parser<It>>::Output) -> MapOutput__,
+            MapOutput__: crate::core::tuple::Tuple,
+          {
+            crate::wrapper::map::MapParser::new(self, map)
+          }
+
+          // seq
+          pub fn seq<Rhs__>(
+            self,
+            rhs: Rhs__,
+          ) -> crate::wrapper::seq::SeqParser<Self, Rhs__, It>
+          where
+            Rhs__: Parser<It>,
+            <Self as Parser<It>>::Output: crate::wrapper::tuplemerge::AppendTupleToTuple<<Rhs__ as Parser<It>>::Output>,
+            <<Self as Parser<It>>::Output as crate::wrapper::tuplemerge::AppendTupleToTuple<<Rhs__ as Parser<It>>::Output>>::Output: crate::core::tuple::Tuple,
+          {
+            crate::wrapper::seq::SeqParser::new(self, rhs)
+          }
+
+          // or
+          pub fn or<Rhs__>(
+            self,
+            rhs: Rhs__,
+          ) -> crate::wrapper::or_::OrParser<Self, Rhs__, It>
+          where
+            Rhs__: Parser<It, Output = <Self as Parser<It>>::Output>,
+          {
+            crate::wrapper::or_::OrParser::new(self, rhs)
+          }
+
+          // repeat
+          pub fn repeat<RangeType__, Idx__>(
+            self,
+            range: RangeType__,
+          ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType__, Idx__, It>
+          where
+            RangeType__: std::ops::RangeBounds<Idx__>,
+            Idx__: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
+            i32: PartialOrd + PartialEq + PartialOrd<Idx__> + PartialEq<Idx__>,
+          {
+            crate::wrapper::repeat::RepeatParser::new(self, range)
+          }
         }
     };
 
     TokenStream::from(expanded)
 }
-
-// ResultValue
-#[proc_macro_derive(ResultValue)]
-pub fn derive_result_value(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let name = &input.ident;
-    let generics = &input.generics;
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
-    let expanded = quote! {
-        impl #impl_generics ResultValue for #name #ty_generics #where_clause {
-        }
-    };
-
-    TokenStream::from(expanded)
-}
-
-// ResultTuple
-#[proc_macro_derive(ResultTuple)]
-pub fn derive_result_tuple(input: TokenStream) -> TokenStream {
-    let input = parse_macro_input!(input as DeriveInput);
-
-    let name = &input.ident;
-    let generics = &input.generics;
-    let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
-
-    let expanded = quote! {
-        impl #impl_generics ResultTuple for #name #ty_generics #where_clause {
-        }
-    };
-
-    TokenStream::from(expanded)
-}
-
-*/
