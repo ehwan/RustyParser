@@ -13,7 +13,7 @@ mod test {
         let alpha_parser = alpha_parser.map(|(x,)| (x as i32 - 'a' as i32,));
         let alpha_parser2 = alpha_parser.clone().seq(alpha_parser);
 
-        let alphadigit_parser2 = alpha_parser2.or(digit_parser2);
+        let alphadigit_parser2 = alpha_parser2.or_(digit_parser2);
 
         let alphadigit_parser2_vec = alphadigit_parser2.repeat(2..);
 

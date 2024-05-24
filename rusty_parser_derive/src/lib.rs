@@ -47,7 +47,7 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
           }
 
           // or
-          pub fn or<Rhs__>(
+          pub fn or_<Rhs__>(
             self,
             rhs: Rhs__,
           ) -> crate::wrapper::or_::OrParser<Self, Rhs__, It>
@@ -68,6 +68,12 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
             i32: PartialOrd + PartialEq + PartialOrd<Idx__> + PartialEq<Idx__>,
           {
             crate::wrapper::repeat::RepeatParser::new(self, range)
+          }
+
+          // void
+          pub fn void_(self) -> crate::wrapper::void::VoidParser<Self, It>
+          {
+            crate::wrapper::void::VoidParser::new(self)
           }
         }
     };
