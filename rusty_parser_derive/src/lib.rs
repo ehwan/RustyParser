@@ -2,8 +2,11 @@ use proc_macro::TokenStream;
 use quote::quote;
 use syn::{parse_macro_input, DeriveInput};
 
-// must implement: seq, callback, or, repeat
-
+// This macro automatically generates the following member functions for Parsers
+//  - seq( self, rhs )
+//  - or_( self, rhs )
+//  - repeat( self, RangeBounds )
+//  - void_( self )
 #[proc_macro_derive(ParserHelper)]
 pub fn derive_result_void(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
