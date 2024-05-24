@@ -8,6 +8,9 @@ use syn::{parse_macro_input, DeriveInput};
 //  - repeat( self, RangeBounds )
 //  - void_( self )
 //  - ref_( &self )
+//  - boxed( self )     -> BoxedParser      Box<Parser> wrapper
+//  - refcelled( self ) -> RefCelledParser  RefCell<Parser> wrapper
+//  - rced( self )      -> RcedParser       Rc<Parser> wrapper
 #[proc_macro_derive(ParserHelper)]
 pub fn derive_result_void(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
@@ -84,6 +87,27 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
           pub fn ref_<'life_of_self__>(&'life_of_self__ self) -> crate::wrapper::reference::ReferenceParser<'life_of_self__, Self, It>
           {
             crate::wrapper::reference::ReferenceParser::new(self)
+          }
+
+          // boxed
+          pub fn boxed<'life_of_self__>(self)
+          -> crate::wrapper::boxed::BoxedParser<'life_of_self__, <Self as Parser<It>>::Output, It>
+          where Self: 'life_of_self__,
+          {
+            crate::wrapper::boxed::BoxedParser::new(self)
+          }
+
+          // refcelled
+          pub fn refcelled(self)
+          -> crate::wrapper::refcelled::RefCelledParser<Self, It>
+          {
+            crate::wrapper::refcelled::RefCelledParser::new(self)
+          }
+
+          pub fn rced(self)
+          -> crate::wrapper::rced::RcedParser<Self, It>
+          {
+            crate::wrapper::rced::RcedParser::new(self)
           }
         }
     };
