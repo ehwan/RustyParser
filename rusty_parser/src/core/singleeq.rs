@@ -1,13 +1,12 @@
 use std::iter::Iterator;
 use std::marker::PhantomData;
 
+use super::parser::Parser;
 use super::result::ParseResult;
-use super::traits::Parser;
-use super::traits::ResultValue;
 
-use rusty_parser_derive::ResultValue;
+use rusty_parser_derive::ParserHelper;
 
-#[derive(Debug, Clone, ResultValue)]
+#[derive(Debug, Clone, ParserHelper)]
 pub struct SingleEqualParser<TargetCharacterType, It>
 where
     It: Iterator + Clone,
@@ -35,7 +34,7 @@ where
     It: Iterator + Clone,
     <It as Iterator>::Item: PartialEq<TargetCharacterType>,
 {
-    type Output = <It as Iterator>::Item;
+    type Output = (<It as Iterator>::Item,);
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let mut it = it;
@@ -43,7 +42,7 @@ where
         if let Some(val) = it.next() {
             if val == self.character {
                 ParseResult {
-                    output: Some(val),
+                    output: Some((val,)),
                     it: it,
                 }
             } else {
@@ -88,21 +87,31 @@ where
 mod tests {
     use std::string::String;
 
-    use super::super::traits::Parser;
+    use super::super::parser::Parser;
     use super::SingleEqualParser;
 
     #[test]
-    fn parse_a_success_test() {
+    fn success_test1() {
         let a_parser = SingleEqualParser::new('a');
         // success
         let start_with_a_string = String::from("abcde");
         let res = a_parser.parse(start_with_a_string.chars());
-        assert_eq!(res.output, Some('a'));
+        assert_eq!(res.output, Some(('a',)));
         let rest: String = res.it.collect();
         assert_eq!(&rest, "bcde");
     }
     #[test]
-    fn parse_a_fail_test() {
+    fn success_test2() {
+        let b_parser = SingleEqualParser::new('b');
+        // success
+        let start_with_b_string = String::from("bacde");
+        let res = b_parser.parse(start_with_b_string.chars());
+        assert_eq!(res.output, Some(('b',)));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "acde");
+    }
+    #[test]
+    fn fail_test1() {
         let a_parser = SingleEqualParser::new('a');
         // this case is fail
         let start_with_b_string = String::from("bacde");
@@ -112,17 +121,7 @@ mod tests {
         assert_eq!(&rest, "bacde");
     }
     #[test]
-    fn parse_b_success_test() {
-        let b_parser = SingleEqualParser::new('b');
-        // success
-        let start_with_b_string = String::from("bacde");
-        let res = b_parser.parse(start_with_b_string.chars());
-        assert_eq!(res.output, Some('b'));
-        let rest: String = res.it.collect();
-        assert_eq!(&rest, "acde");
-    }
-    #[test]
-    fn parse_b_fail_test() {
+    fn fail_test2() {
         let b_parser = SingleEqualParser::new('b');
         // this case is fail
         let start_with_a_string = String::from("abcde");
@@ -133,67 +132,63 @@ mod tests {
     }
 
     #[test]
-    fn parse_null_test() {
+    fn parse_null() {
         let x_parser = SingleEqualParser::new('x');
-        {
-            let empty_string = String::from("");
-            let res = x_parser.parse(empty_string.chars());
-            assert_eq!(res.output, None);
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "");
-        }
+        let empty_string = String::from("");
+        let res = x_parser.parse(empty_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "");
     }
 
     #[test]
-    fn match_a_test() {
+    fn match_success1() {
         let a_parser = SingleEqualParser::new('a');
-        {
-            // success
-            let start_with_a_string = String::from("abcde");
-            let res = a_parser.match_pattern(start_with_a_string.chars());
-            assert_eq!(res.output, Some(()));
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "bcde");
-        }
-        {
-            // this case is fail
-            let start_with_b_string = String::from("bacde");
-            let res = a_parser.match_pattern(start_with_b_string.chars());
-            assert_eq!(res.output, None);
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "bacde");
-        }
+        // success
+        let start_with_a_string = String::from("abcde");
+        let res = a_parser.match_pattern(start_with_a_string.chars());
+        assert_eq!(res.output, Some(()));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "bcde");
     }
     #[test]
-    fn match_b_test() {
+    fn match_success2() {
         let b_parser = SingleEqualParser::new('b');
-        {
-            // success
-            let start_with_b_string = String::from("bacde");
-            let res = b_parser.match_pattern(start_with_b_string.chars());
-            assert_eq!(res.output, Some(()));
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "acde");
-        }
-        {
-            // this case is fail
-            let start_with_a_string = String::from("abcde");
-            let res = b_parser.match_pattern(start_with_a_string.chars());
-            assert_eq!(res.output, None);
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "abcde");
-        }
+        // success
+        let start_with_b_string = String::from("bacde");
+        let res = b_parser.match_pattern(start_with_b_string.chars());
+        assert_eq!(res.output, Some(()));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "acde");
+    }
+    #[test]
+    fn match_fail1() {
+        let a_parser = SingleEqualParser::new('a');
+        // this case is fail
+        let start_with_b_string = String::from("bacde");
+        let res = a_parser.match_pattern(start_with_b_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "bacde");
+    }
+    #[test]
+    fn match_fail2() {
+        let b_parser = SingleEqualParser::new('b');
+        // this case is fail
+        let start_with_a_string = String::from("abcde");
+        let res = b_parser.match_pattern(start_with_a_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "abcde");
     }
 
     #[test]
-    fn match_null_test() {
+    fn match_null() {
         let x_parser = SingleEqualParser::new('x');
-        {
-            let empty_string = String::from("");
-            let res = x_parser.match_pattern(empty_string.chars());
-            assert_eq!(res.output, None);
-            let rest: String = res.it.collect();
-            assert_eq!(&rest, "");
-        }
+        let empty_string = String::from("");
+        let res = x_parser.match_pattern(empty_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "");
     }
 }

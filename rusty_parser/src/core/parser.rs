@@ -1,12 +1,19 @@
 use super::result::ParseResult;
+use super::tuple::Tuple;
 
+// defulat Parser trait
 pub trait Parser<It>
 where
     It: Iterator + Clone,
 {
-    type Output;
+    type Output: Tuple;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It>;
+
+    // this is special implementation for parsing.
+    // it does not parse data from string, just check if it matches the pattern
+    // for some parser, there may be a cheaper way to check if it matches the pattern
+    // than actually parsing the data
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let res = self.parse(it);
         if let Some(_) = res.output {
@@ -22,14 +29,3 @@ where
         }
     }
 }
-
-// marker trait for parser Output type
-// either it is void, tuple or single value
-
-pub trait ResultTuple {}
-
-// Note, 'void' is (), also a tuple in Rust, but we separate it for seq parser
-pub trait ResultVoid {}
-
-// marker trait for parser that returns a single value (not tuple) for Output
-pub trait ResultValue {}

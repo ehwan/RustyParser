@@ -1,13 +1,12 @@
 use std::iter::Iterator;
 
+use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
-use crate::core::traits::Parser;
-use crate::core::traits::ResultValue;
 
-use rusty_parser_derive::ResultValue;
+use rusty_parser_derive::ParserHelper;
 
-#[derive(Debug, Clone, ResultValue)]
-pub struct OrNonVoid<ParserA, ParserB, It>
+#[derive(Debug, Clone, ParserHelper)]
+pub struct OrParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
     ParserA: Parser<It>,
@@ -18,7 +17,7 @@ where
     _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserA, ParserB, It> OrNonVoid<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> OrParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
     ParserA: Parser<It>,
@@ -33,7 +32,7 @@ where
     }
 }
 
-impl<ParserA, ParserB, It> Parser<It> for OrNonVoid<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> Parser<It> for OrParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
     ParserA: Parser<It>,
@@ -91,33 +90,33 @@ mod test {
     use super::*;
     use crate::core::singlerange::SingleRangeParser;
     #[test]
-    fn success_test() {
+    fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
         let alpha_parser = SingleRangeParser::new('a'..='z');
 
-        let digitalpha_parser = OrNonVoid::new(digit_parser, alpha_parser);
+        let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "1a2b3c";
 
         let res = digitalpha_parser.parse(str.chars());
-        assert_eq!(res.output, Some('1'));
+        assert_eq!(res.output, Some(('1',)));
 
         let res = digitalpha_parser.parse(res.it);
-        assert_eq!(res.output, Some('a'));
+        assert_eq!(res.output, Some(('a',)));
 
         let rest: String = res.it.collect();
         assert_eq!(rest, "2b3c");
     }
 
     #[test]
-    fn fail_test1() {
+    fn fail1() {
         let digit_parser = SingleRangeParser::new('0'..'9');
         let alpha_parser = SingleRangeParser::new('a'..'z');
 
-        let digitalpha_parser = OrNonVoid::new(digit_parser, alpha_parser);
+        let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "1z2b3c";
 
         let res = digitalpha_parser.parse(str.chars());
-        assert_eq!(res.output, Some('1'));
+        assert_eq!(res.output, Some(('1',)));
 
         let res = digitalpha_parser.parse(res.it);
         assert_eq!(res.output, None);
@@ -126,11 +125,11 @@ mod test {
         assert_eq!(rest, "z2b3c");
     }
     #[test]
-    fn fail_test2() {
+    fn fail2() {
         let digit_parser = SingleRangeParser::new('0'..'9');
         let alpha_parser = SingleRangeParser::new('a'..'z');
 
-        let digitalpha_parser = OrNonVoid::new(digit_parser, alpha_parser);
+        let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "9a2b3c";
 
         let res = digitalpha_parser.parse(str.chars());

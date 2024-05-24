@@ -4,8 +4,25 @@ use syn::{parse_macro_input, DeriveInput};
 
 // must implement: seq, callback, or, repeat
 
+#[proc_macro_derive(ParserHelper)]
+pub fn derive_result_void(input: TokenStream) -> TokenStream {
+    let input = parse_macro_input!(input as DeriveInput);
+
+    let _name = &input.ident;
+    let generics = &input.generics;
+    let (_impl_generics, _ty_generics, _where_clause) = generics.split_for_impl();
+
+    let expanded = quote! {
+        // impl #impl_generics #name #ty_generics #where_clause {
+        // }
+    };
+
+    TokenStream::from(expanded)
+}
+
+/*
 // ResultVoid
-#[proc_macro_derive(ResultVoid)]
+#[proc_macro_derive(Parser)]
 pub fn derive_result_void(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
 
@@ -54,3 +71,5 @@ pub fn derive_result_tuple(input: TokenStream) -> TokenStream {
 
     TokenStream::from(expanded)
 }
+
+*/

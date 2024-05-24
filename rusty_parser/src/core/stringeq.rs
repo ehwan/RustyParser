@@ -1,13 +1,12 @@
 use std::iter::IntoIterator;
 use std::iter::Iterator;
 
+use super::parser::Parser;
 use super::result::ParseResult;
-use super::traits::Parser;
-use super::traits::ResultVoid;
 
-use rusty_parser_derive::ResultVoid;
+use rusty_parser_derive::ParserHelper;
 
-#[derive(Debug, Clone, ResultVoid)]
+#[derive(Debug, Clone, ParserHelper)]
 pub struct StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
@@ -75,11 +74,11 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::super::traits::Parser;
+    use super::super::parser::Parser;
     use super::*;
 
     #[test]
-    fn test_string_match_success() {
+    fn success1() {
         let pattern = "hello";
         let parser = StringEqualParser::new(pattern.chars());
 
@@ -91,7 +90,7 @@ mod test {
     }
 
     #[test]
-    fn test_string_match_fail() {
+    fn fail1() {
         let pattern = "hello";
         let parser = StringEqualParser::new(pattern.chars());
 
@@ -103,7 +102,7 @@ mod test {
     }
 
     #[test]
-    fn test_pattern_longer_than_input() {
+    fn success2() {
         let pattern = "hello";
         let parser = StringEqualParser::new(pattern.chars());
 

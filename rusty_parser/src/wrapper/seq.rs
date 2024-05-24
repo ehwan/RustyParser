@@ -1,29 +1,34 @@
 use std::iter::Iterator;
 
+use super::tuplemerge::AppendTupleToTuple;
+
+use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
-use crate::core::traits::Parser;
-use crate::core::traits::ResultValue;
-use crate::core::traits::ResultVoid;
+use crate::core::tuple::Tuple;
 
-use rusty_parser_derive::ResultValue;
+use rusty_parser_derive::ParserHelper;
 
-#[derive(Debug, Clone, ResultValue)]
-pub struct SeqValVoidParser<ParserA, ParserB, It>
+#[derive(Debug, Clone, ParserHelper)]
+pub struct SeqParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultValue + Parser<It>,
-    ParserB: ResultVoid + Parser<It>,
+    ParserA: Parser<It>,
+    ParserB: Parser<It>,
+    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
+    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
 {
     pub parser_a: ParserA,
     pub parser_b: ParserB,
     _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserA, ParserB, It> SeqValVoidParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> SeqParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultValue + Parser<It>,
-    ParserB: ResultVoid + Parser<It>,
+    ParserA: Parser<It>,
+    ParserB: Parser<It>,
+    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
+    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
 {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
@@ -34,22 +39,26 @@ where
     }
 }
 
-impl<ParserA, ParserB, It> Parser<It> for SeqValVoidParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> Parser<It> for SeqParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,
-    ParserA: ResultValue + Parser<It>,
-    ParserB: ResultVoid + Parser<It>,
+    ParserA: Parser<It>,
+    ParserB: Parser<It>,
+    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
+    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
 {
-    type Output = <ParserA as Parser<It>>::Output;
+    type Output = <<ParserA as Parser<It>>::Output as AppendTupleToTuple<
+        <ParserB as Parser<It>>::Output,
+    >>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
         let res_a = self.parser_a.parse(it);
         if let Some(val_a) = res_a.output {
             let res_b = self.parser_b.parse(res_a.it);
-            if let Some(_) = res_b.output {
+            if let Some(val_b) = res_b.output {
                 ParseResult {
-                    output: Some(val_a),
+                    output: Some(val_a.append_back(val_b)),
                     it: res_b.it,
                 }
             } else {
@@ -94,45 +103,42 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::singleeq::SingleEqualParser;
-    use crate::core::stringeq::StringEqualParser;
-    use crate::core::traits::Parser;
+    use crate::core::parser::Parser;
+    use crate::core::singlerange::SingleRangeParser;
 
     #[test]
-    fn success_test() {
-        let hello_parser = StringEqualParser::new("hello".chars());
-        let a_parser = SingleEqualParser::new('a');
-        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
+    fn success1() {
+        let digit_parser = SingleRangeParser::new('0'..='9');
+        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
 
-        let str = "ahelloabcd";
+        let str = "1234abcd";
         let res = seq_parser.parse(str.chars());
-        assert_eq!(res.output, Some('a'));
+        assert_eq!(res.output, Some(('1', '2')));
         let rest: String = res.it.collect();
-        assert_eq!(rest, "abcd");
+        assert_eq!(rest, "34abcd");
     }
 
     #[test]
-    fn fail_test1() {
-        let hello_parser = StringEqualParser::new("hello".chars());
-        let a_parser = SingleEqualParser::new('a');
-        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
+    fn fail1() {
+        let digit_parser = SingleRangeParser::new('0'..='9');
+        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
 
-        let str = "bhelloabcd";
+        let str = "1a34abcd";
         let res = seq_parser.parse(str.chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
-        assert_eq!(rest, "bhelloabcd");
+        assert_eq!(rest, "1a34abcd");
     }
-    #[test]
-    fn fail_test2() {
-        let hello_parser = StringEqualParser::new("hello".chars());
-        let a_parser = SingleEqualParser::new('a');
-        let seq_parser = SeqValVoidParser::new(a_parser, hello_parser);
 
-        let str = "ahellaabcd";
+    #[test]
+    fn fail2() {
+        let digit_parser = SingleRangeParser::new('0'..='9');
+        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+
+        let str = "a234abcd";
         let res = seq_parser.parse(str.chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
-        assert_eq!(rest, "ahellaabcd");
+        assert_eq!(rest, "a234abcd");
     }
 }
