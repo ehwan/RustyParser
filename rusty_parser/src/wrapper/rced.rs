@@ -28,7 +28,8 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-    pub fn parser(&self) -> &Rc<ParserType> {
+    // get &Rc<ChildParser>
+    pub fn rced_parser(&self) -> &Rc<ParserType> {
         &self.parser
     }
     pub fn clone(from: &Self) -> Self {
@@ -83,12 +84,12 @@ mod test {
         assert_eq!(rest, "23456abcd");
 
         // now change rcde1 to a_parser
-        *(rced1.parser().parser().borrow_mut()) = a_boxed;
-        //        ^         ^         ^
-        //        |         |         |
-        //        |         |     Box<Parser>
-        //        |  &RefCell<Box<Parser>>
-        //   &Rc<RefCell<Box<Parser>>>
+        *(rced1.rced_parser().refcelled_parser().borrow_mut()) = a_boxed;
+        //           ^            ^                  ^
+        //           |            |                  |
+        //           |            |              Box<Parser>
+        //           |     &RefCell<Box<Parser>>
+        //      &Rc<RefCell<Box<Parser>>>
 
         // since rced1 and rced2 point to the same parser, rced2 should also be a_parser
         let res = rced2.parse(str.chars());

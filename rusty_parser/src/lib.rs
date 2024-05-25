@@ -1,10 +1,11 @@
-pub mod core;
-pub mod test;
-pub mod wrapper;
+pub(crate) mod core;
+pub(crate) mod test;
+pub(crate) mod wrapper;
 
 use std::ops::RangeBounds;
 
 pub use core::parser::Parser;
+pub use core::result::ParseResult;
 
 pub fn one<CharType, It>(ch: CharType) -> core::singleeq::SingleEqualParser<CharType, It>
 where
@@ -40,8 +41,8 @@ where
     core::stringeq::StringEqualParser::new(str)
 }
 
-pub use core::dict::DictBTreeParser as DictBTree;
-pub use core::dict::DictHashMapParser as DictHashMap;
+pub use core::dict_btree::DictBTreeParser as DictBTree;
+pub use core::dict_hashmap::DictHashMapParser as DictHashMap;
 
 pub use wrapper::boxed::BoxedParser as Boxed;
 pub use wrapper::rced::RcedParser as RCed;

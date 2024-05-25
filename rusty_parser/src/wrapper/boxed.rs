@@ -34,6 +34,14 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
+
+    // assign new parser
+    pub fn assign<ParserType>(&mut self, parser: ParserType)
+    where
+        ParserType: Parser<It, Output = Output> + 'a,
+    {
+        self.parser = Box::new(parser);
+    }
 }
 
 impl<'a, Output, It> Parser<It> for BoxedParser<'a, Output, It>

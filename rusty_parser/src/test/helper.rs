@@ -61,7 +61,7 @@ mod test {
         assert_eq!(rest, "ahello");
 
         // set immutable refcelled parser to alpha_parser
-        *refcelled.parser().borrow_mut() = a_parser.boxed();
+        *refcelled.refcelled_parser().borrow_mut() = a_parser.boxed();
         // refcelled is now 'a' parser
         let res = refcelled.parse(res.it);
         assert_eq!(res.output, Some(('a',)));
@@ -89,12 +89,12 @@ mod test {
         assert_eq!(rest, "23456");
 
         // now change rcde1 to a_parser
-        *(rced1.parser().parser().borrow_mut()) = a_boxed;
-        //        ^         ^         ^
-        //        |         |         |
-        //        |         |     Box<Parser>
-        //        |  &RefCell<Box<Parser>>
-        //   &Rc<RefCell<Box<Parser>>>
+        *(rced1.rced_parser().refcelled_parser().borrow_mut()) = a_boxed;
+        //           ^               ^                ^
+        //           |               |                |
+        //           |               |          &mut Box<Parser>
+        //           |        &RefCell<Box<Parser>>
+        //      &Rc<RefCell<Box<Parser>>>
 
         // since rced1 and rced2 point to the same parser, rced2 should also be a_parser
         let res = rced2.parse(res.it);

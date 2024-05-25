@@ -30,7 +30,8 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-    pub fn parser(&self) -> &RefCell<ParserType> {
+    // get &RefCell<ChildParser>
+    pub fn refcelled_parser(&self) -> &RefCell<ParserType> {
         &self.parser
     }
 }
