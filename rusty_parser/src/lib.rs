@@ -1,5 +1,5 @@
 pub(crate) mod core;
-pub(crate) mod test;
+pub(crate) mod example;
 pub(crate) mod wrapper;
 
 use std::ops::RangeBounds;

@@ -2,6 +2,8 @@
 A Parser generator and Pattern Matching Library written in Rust
 
 ## Example
+`rusty_parser/src/example/example1.rs`
+
 ```rust
 // import rusty_parser
 use rusty_parser as rp;
@@ -46,37 +48,31 @@ fn example1() {
     // iterator will not move if parsing failed
     assert_eq!(res.it.collect::<String>(), target_string);
 
-    // define pattern: [0-9]{3,5}
-    // repeat 'digit_parser' 3 to 5 times (inclusive)
-    // this will parse as long as possible
-    // Output = ( Vec< OutputType of the Repeated Parser >, ) --> ( Vec<(char,)>, )
-    let multiple_digit_parser = digit_parser.repeat(3..=5);
+    // define pattern: [0-9][0-9]
+    // perform 'digit_parser', and then 'digit_parser', sequentially
+    // Output = ( Output of first Parser, Output of second Parser, )  -->  (char, char,)
+    let two_digit_parser = digit_parser.clone().seq(digit_parser);
+    //                          ^ move occured here, so clone() it.
 
     // parse; put IntoIterator
-    let res = multiple_digit_parser.parse(target_string.chars());
+    let res = two_digit_parser.parse(target_string.chars());
     assert_eq!(
         type_name_of_val(&res.output),
-        type_name::<Option<(Vec<(char,)>,)>>()
+        type_name::<Option<(char, char,)>>()
     );
-    assert_eq!(
-        res.output,
-        Some((vec![('1',), ('2',), ('3',), ('4',), ('5',)],))
-    );
+    assert_eq!(res.output, Some(('1', '2')));
 
     // Output mapping
-    // ( Vec<(char,)>, )  -->  (i32, )
+    // ( char, char, )  -->  (i32, )
     // Parser's Output must be Tuple
-    let int_parser = multiple_digit_parser.map(|(vec,)| -> (i32,) {
-        let mut res = 0;
-        for (ch,) in vec {
-            res = res * 10 + (ch as i32 - '0' as i32);
-        }
-        (res,)
+    let int_parser = two_digit_parser.map(|(x, y)| -> (i32,) {
+        let x_i32 = x as i32 - '0' as i32;
+        let y_i32 = y as i32 - '0' as i32;
+        (x_i32 * 10 + y_i32,)
     });
 
     let res = int_parser.parse(target_string.chars());
-    assert_eq!(res.output, Some((12345,)));
-
+    assert_eq!(res.output, Some((12,)));
 
     // pattern matching
     // .match_pattern only checks if the pattern is matched or not
@@ -242,6 +238,7 @@ Note that the output of both parsers must be the same type.
     assert_eq!(res.output, Some((0,)));
     assert_eq!(res.it.collect::<String>(), "bcd");
 ```
+`Output`: return type of the closure ( must be Tuple )
 
 ### `repeat`: repeat the parser multiple times
 
@@ -256,6 +253,11 @@ Note that the output of both parsers must be the same type.
     assert_eq!(res.output, Some((vec![('a',), ('a',), ('a',), ('a',)],)));
     assert_eq!(res.it.collect::<String>(), "bcd");
 ```
+
+`Output`: 
+ - if `Output` of the repeated parser is `()`, then `Output` is `()`
+ - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
+ - otherwise, `Vec< Output of the Repeated Parser >`
 
 ### `void_`: ignore the output of the parser
 Force the output to be `()`. 

@@ -1,9 +1,10 @@
 use std::iter::Iterator;
 use std::ops::RangeBounds;
-use std::vec::Vec;
 
+use super::vecmerge::VectorOutputSpecialize;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
+use crate::core::tuple::Tuple;
 
 use rusty_parser_derive::ParserHelper;
 
@@ -15,6 +16,8 @@ where
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
+    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
 {
     parser: ParserType,
     range: RangeType,
@@ -29,6 +32,8 @@ where
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
+    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
 {
     pub fn new(parser: ParserType, range: RangeType) -> Self {
         Self {
@@ -47,12 +52,16 @@ where
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
+    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
 {
-    type Output = (Vec<<ParserType as Parser<It>>::Output>,);
+    type Output = <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
-        let mut vec: Vec<<ParserType as Parser<It>>::Output> = Vec::new();
+        // is this how 'template specialization' done in Rust?
+        let mut output =
+            <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::new_output();
         let mut it = it;
         let mut count = 0;
         let mut next_count = 1;
@@ -60,7 +69,7 @@ where
             // check reached max count
             if self.range.contains(&count) && self.range.contains(&next_count) == false {
                 return ParseResult {
-                    output: Some((vec,)),
+                    output: Some(output),
                     it: it,
                 };
             }
@@ -68,12 +77,12 @@ where
             if let Some(val) = res.output {
                 count = next_count;
                 next_count = count + 1;
-                vec.push(val);
+                val.push_this_to_output(&mut output);
                 it = res.it;
             } else {
                 if self.range.contains(&count) {
                     return ParseResult {
-                        output: Some((vec,)),
+                        output: Some(output),
                         it: res.it,
                     };
                 } else {
@@ -123,7 +132,10 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::singlerange::SingleRangeParser;
+    use crate::{
+        core::singlerange::SingleRangeParser,
+        wrapper::{seq::SeqParser, void::VoidParser},
+    };
 
     #[test]
     fn success1() {
@@ -133,7 +145,7 @@ mod test {
         let str = "123456abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(res.output, Some((vec![('1',), ('2',), ('3',)],)));
+        assert_eq!(res.output, Some((vec!['1', '2', '3',],)));
         let rest: String = res.it.collect();
         assert_eq!(rest, "456abcd");
     }
@@ -145,10 +157,7 @@ mod test {
         let str = "123456abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(
-            res.output,
-            Some((vec![('1',), ('2',), ('3',), ('4',), ('5',), ('6',)],))
-        );
+        assert_eq!(res.output, Some((vec!['1', '2', '3', '4', '5', '6',],)));
         let rest: String = res.it.collect();
         assert_eq!(rest, "abcd");
     }
@@ -160,9 +169,35 @@ mod test {
         let str = "1234abcd";
         let res = repeat_parser.parse(str.chars());
 
-        assert_eq!(res.output, Some((vec![('1',), ('2',), ('3',), ('4',)],)));
+        assert_eq!(res.output, Some((vec!['1', '2', '3', '4',],)));
         let rest: String = res.it.collect();
         assert_eq!(rest, "abcd");
+    }
+    #[test]
+    fn success4() {
+        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = VoidParser::new(digit_parser);
+        let repeat_parser = RepeatParser::new(digit_parser, 4..);
+
+        let str = "1234abcd";
+        let res = repeat_parser.parse(str.chars());
+
+        assert_eq!(res.output, Some(()));
+        let rest: String = res.it.collect();
+        assert_eq!(rest, "abcd");
+    }
+    #[test]
+    fn success5() {
+        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let repeat_parser = RepeatParser::new(digit_parser, 2..=2);
+
+        let str = "12341234";
+        let res = repeat_parser.parse(str.chars());
+
+        assert_eq!(res.output, Some((vec![('1', '2'), ('3', '4')],)));
+        let rest: String = res.it.collect();
+        assert_eq!(rest, "1234");
     }
     #[test]
     fn fail1() {

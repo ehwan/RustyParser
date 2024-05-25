@@ -9,3 +9,4 @@ pub mod seq;
 pub mod void;
 
 pub(crate) mod tuplemerge;
+pub(crate) mod vecmerge;

@@ -73,6 +73,8 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
             RangeType__: std::ops::RangeBounds<Idx__>,
             Idx__: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
             i32: PartialOrd + PartialEq + PartialOrd<Idx__> + PartialEq<Idx__>,
+            <Self as Parser<It>>::Output: crate::wrapper::vecmerge::VectorOutputSpecialize,
+            <<Self as Parser<It>>::Output as crate::wrapper::vecmerge::VectorOutputSpecialize>::Output: crate::core::tuple::Tuple,
           {
             crate::wrapper::repeat::RepeatParser::new(self, range)
           }
@@ -104,6 +106,7 @@ pub fn derive_result_void(input: TokenStream) -> TokenStream {
             crate::wrapper::refcelled::RefCelledParser::new(self)
           }
 
+          // RCed
           pub fn rced(self)
           -> crate::wrapper::rced::RcedParser<Self, It>
           {
