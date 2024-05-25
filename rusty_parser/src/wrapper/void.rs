@@ -1,12 +1,11 @@
-use std::iter::Iterator;
-
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone)]
 pub struct VoidParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     parser: ParserType,
@@ -15,7 +14,7 @@ where
 
 impl<ParserType, It> VoidParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     pub fn new(parser: ParserType) -> Self {
@@ -28,7 +27,7 @@ where
 
 impl<ParserType, It> Parser<It> for VoidParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     type Output = ();

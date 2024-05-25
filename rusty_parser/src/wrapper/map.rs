@@ -1,5 +1,4 @@
-use std::iter::Iterator;
-
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
@@ -10,7 +9,7 @@ use crate::core::tuple::Tuple;
 #[derive(Debug, Clone)]
 pub struct MapParser<ParserType, MapperType, MapOutput, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
     MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
     MapOutput: Tuple,
@@ -22,7 +21,7 @@ where
 
 impl<ParserType, MapperType, MapOutput, It> MapParser<ParserType, MapperType, MapOutput, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
     MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
     MapOutput: Tuple,
@@ -39,7 +38,7 @@ where
 impl<ParserType, MapperType, MapOutput, It> Parser<It>
     for MapParser<ParserType, MapperType, MapOutput, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
     MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
     MapOutput: Tuple,

@@ -1,5 +1,4 @@
-use std::iter::Iterator;
-
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
@@ -8,7 +7,7 @@ use crate::core::result::ParseResult;
 pub struct ReferenceParser<'a, ParserType, It>
 where
     ParserType: 'a + Parser<It>,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
 {
     parser: &'a ParserType,
     _phantom: std::marker::PhantomData<It>,
@@ -17,7 +16,7 @@ where
 impl<'a, ParserType, It> ReferenceParser<'a, ParserType, It>
 where
     ParserType: 'a + Parser<It>,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
 {
     pub fn new(parser: &'a ParserType) -> Self {
         Self {
@@ -30,7 +29,7 @@ where
 impl<'a, ParserType, It> Parser<It> for ReferenceParser<'a, ParserType, It>
 where
     ParserType: 'a + Parser<It>,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
 {
     type Output = <ParserType as Parser<It>>::Output;
 

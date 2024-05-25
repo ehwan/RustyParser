@@ -1,12 +1,11 @@
-use std::iter::Iterator;
-
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone)]
 pub struct OrParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
 {
@@ -17,7 +16,7 @@ where
 
 impl<ParserA, ParserB, It> OrParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
 {
@@ -32,7 +31,7 @@ where
 
 impl<ParserA, ParserB, It> Parser<It> for OrParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
 {

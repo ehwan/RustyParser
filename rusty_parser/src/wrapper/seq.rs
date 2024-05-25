@@ -1,7 +1,6 @@
-use std::iter::Iterator;
-
 use super::tuplemerge::AppendTupleToTuple;
 
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
@@ -9,7 +8,7 @@ use crate::core::tuple::Tuple;
 #[derive(Debug, Clone)]
 pub struct SeqParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It>,
     <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
@@ -22,7 +21,7 @@ where
 
 impl<ParserA, ParserB, It> SeqParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It>,
     <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
@@ -39,7 +38,7 @@ where
 
 impl<ParserA, ParserB, It> Parser<It> for SeqParser<ParserA, ParserB, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserA: Parser<It>,
     ParserB: Parser<It>,
     <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,

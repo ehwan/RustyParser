@@ -1,6 +1,6 @@
 use std::cell::RefCell;
-use std::iter::Iterator;
 
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
@@ -10,7 +10,7 @@ use crate::core::result::ParseResult;
 #[derive(Debug, Clone)]
 pub struct RefCelledParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     parser: RefCell<ParserType>,
@@ -19,7 +19,7 @@ where
 
 impl<ParserType, It> RefCelledParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     pub fn new(parser: ParserType) -> Self {
@@ -36,7 +36,7 @@ where
 
 impl<ParserType, It> Parser<It> for RefCelledParser<ParserType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
     type Output = <ParserType as Parser<It>>::Output;

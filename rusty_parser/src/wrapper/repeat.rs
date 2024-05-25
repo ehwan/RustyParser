@@ -1,7 +1,7 @@
-use std::iter::Iterator;
 use std::ops::RangeBounds;
 
 use super::vecmerge::VectorOutputSpecialize;
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
@@ -9,7 +9,7 @@ use crate::core::tuple::Tuple;
 #[derive(Debug, Clone)]
 pub struct RepeatParser<ParserType, RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
@@ -25,7 +25,7 @@ where
 
 impl<ParserType, RangeType, Idx, It> RepeatParser<ParserType, RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
@@ -45,7 +45,7 @@ where
 
 impl<ParserType, RangeType, Idx, It> Parser<It> for RepeatParser<ParserType, RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
     ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,

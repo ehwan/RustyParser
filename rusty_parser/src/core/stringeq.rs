@@ -1,6 +1,7 @@
 use std::iter::IntoIterator;
 use std::iter::Iterator;
 
+use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 
@@ -8,7 +9,7 @@ use super::result::ParseResult;
 pub struct StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     <It as Iterator>::Item:
         PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {
@@ -19,7 +20,7 @@ where
 impl<StringContainer, It> StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     <It as Iterator>::Item:
         PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {
@@ -34,7 +35,7 @@ where
 impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     <It as Iterator>::Item:
         PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {

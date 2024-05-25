@@ -1,10 +1,11 @@
+use super::iterator_bound::InputIteratorTrait;
 use super::result::ParseResult;
 use super::tuple::Tuple;
 
 // defulat Parser trait
 pub trait Parser<It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
 {
     type Output: Tuple;
 

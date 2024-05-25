@@ -1,7 +1,6 @@
-use std::iter::Iterator;
-
 use std::boxed::Box;
 
+use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
@@ -11,7 +10,7 @@ use crate::core::tuple::Tuple;
 #[derive()]
 pub struct BoxedParser<'a, Output, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Output: Tuple,
 {
     parser: Box<dyn Parser<It, Output = Output> + 'a>,
@@ -20,7 +19,7 @@ where
 
 impl<'a, Output, It> BoxedParser<'a, Output, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Output: Tuple,
 {
     pub fn new<ParserType>(parser: ParserType) -> Self
@@ -44,7 +43,7 @@ where
 
 impl<'a, Output, It> Parser<It> for BoxedParser<'a, Output, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Output: Tuple,
 {
     type Output = Output;

@@ -7,9 +7,11 @@ use std::ops::RangeBounds;
 pub use core::parser::Parser;
 pub use core::result::ParseResult;
 
+use crate::core::iterator_bound::InputIteratorTrait;
+
 pub fn one<CharType, It>(ch: CharType) -> core::singleeq::SingleEqualParser<CharType, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     <It as Iterator>::Item: PartialEq<CharType>,
 {
     core::singleeq::SingleEqualParser::new(ch)
@@ -19,7 +21,7 @@ pub fn range<RangeType, Idx, It>(
     range_: RangeType,
 ) -> core::singlerange::SingleRangeParser<RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Idx: PartialOrd
         + PartialEq
         + PartialOrd<<It as Iterator>::Item>
@@ -35,7 +37,7 @@ pub fn string<CharIntoIter, It>(
 ) -> core::stringeq::StringEqualParser<CharIntoIter, It>
 where
     CharIntoIter: IntoIterator + Clone,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     <It as Iterator>::Item: PartialEq<<<CharIntoIter as IntoIterator>::IntoIter as Iterator>::Item>,
 {
     core::stringeq::StringEqualParser::new(str)

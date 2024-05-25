@@ -1,11 +1,11 @@
+use super::iterator_bound::InputIteratorTrait;
 use super::tuple::Tuple;
-use std::iter::Iterator;
 
 #[derive(Debug)]
 pub struct ParseResult<Output, It>
 where
     Output: Tuple,
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
 {
     // the output; extracted data
     // 'None' means parsing failed

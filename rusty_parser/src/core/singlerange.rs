@@ -1,13 +1,13 @@
-use std::iter::Iterator;
 use std::ops::RangeBounds;
 
+use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 
 #[derive(Debug, Clone)]
 pub struct SingleRangeParser<RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Idx: PartialOrd
         + PartialEq
         + PartialOrd<<It as Iterator>::Item>
@@ -22,7 +22,7 @@ where
 
 impl<RangeType, It, Idx> SingleRangeParser<RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Idx: PartialOrd
         + PartialEq
         + PartialOrd<<It as Iterator>::Item>
@@ -41,7 +41,7 @@ where
 
 impl<RangeType, It, Idx> Parser<It> for SingleRangeParser<RangeType, Idx, It>
 where
-    It: Iterator + Clone,
+    It: InputIteratorTrait,
     Idx: PartialOrd
         + PartialEq
         + PartialOrd<<It as Iterator>::Item>
