@@ -175,6 +175,15 @@ the iterator must be cheaply clonable.
 There are two types of Dictionary: `DictBTree` and `DictHashMap`, for Trie implementation.
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
 
+### `End`: success if it reached to the end of input
+```rust
+let end_parser = rp::End::new();
+let res = end_parser.parse("".chars());
+assert_eq!( res.output, Some(()));
+```
+
+`Output`: `()`
+
 ### Combinators
 
 ### `seq`: sequence of parsers
