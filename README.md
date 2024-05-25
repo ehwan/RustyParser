@@ -250,7 +250,7 @@ Note that the output of both parsers must be the same type.
 
     let res = multiple_a_parser.parse("aaaabcd".chars());
     // four 'a' is parsed
-    assert_eq!(res.output, Some((vec![('a',), ('a',), ('a',), ('a',)],)));
+    assert_eq!(res.output, Some((vec!['a', 'a', 'a', 'a',],)));
     assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 
