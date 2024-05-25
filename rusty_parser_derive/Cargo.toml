@@ -2,6 +2,11 @@
 name = "rusty_parser_derive"
 version = "0.1.0"
 edition = "2021"
+authors = ["ehwan <ehwank98@gmail.com>"]
+description = "Proc-Macro utility library only for rusty_parser"
+license = "MIT"
+readme = "../README.md"
+repository = "https://github.com/ehwan/RustyParser"
 
 [dependencies]
 syn = "1.0"
