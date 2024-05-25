@@ -3,9 +3,7 @@ use std::iter::Iterator;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct OrParser<ParserA, ParserB, It>
 where
     It: Iterator + Clone,

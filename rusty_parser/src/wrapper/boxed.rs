@@ -6,11 +6,9 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-use rusty_parser_derive::ParserHelper;
-
 // Box< dyn Parser > wrapper for Parser
 // this can take any Parser type with fixed Output
-#[derive(ParserHelper)]
+#[derive()]
 pub struct BoxedParser<'a, Output, It>
 where
     It: Iterator + Clone,

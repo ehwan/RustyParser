@@ -4,12 +4,10 @@ use std::iter::Iterator;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
 // RefCell<Parser> wrapper
 // this can be combined with BoxedParser, a Box<Parser> wrapper
 // for dynamic parser changes
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct RefCelledParser<ParserType, It>
 where
     It: Iterator + Clone,

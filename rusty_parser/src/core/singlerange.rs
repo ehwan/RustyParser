@@ -4,9 +4,7 @@ use std::ops::RangeBounds;
 use super::parser::Parser;
 use super::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct SingleRangeParser<RangeType, Idx, It>
 where
     It: Iterator + Clone,

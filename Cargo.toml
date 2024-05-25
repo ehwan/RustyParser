@@ -1,4 +1,4 @@
 [workspace]
 members = [
-    "rusty_parser", "rusty_parser_derive",
+    "rusty_parser"
 ]

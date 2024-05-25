@@ -4,9 +4,7 @@ use std::iter::Iterator;
 use super::parser::Parser;
 use super::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct StringEqualParser<StringContainer, It>
 where
     StringContainer: IntoIterator + Clone,

@@ -4,9 +4,7 @@ use std::marker::PhantomData;
 use super::parser::Parser;
 use super::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct SingleEqualParser<TargetCharacterType, It>
 where
     It: Iterator + Clone,

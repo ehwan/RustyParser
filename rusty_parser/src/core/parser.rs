@@ -28,4 +28,97 @@ where
             }
         }
     }
+
+    // map
+    fn map<ClosureType, ClosureOutput>(
+        self,
+        map: ClosureType,
+    ) -> crate::wrapper::map::MapParser<Self, ClosureType, ClosureOutput, It>
+    where
+        Self: Sized,
+        ClosureType: Fn(Self::Output) -> ClosureOutput,
+        ClosureOutput: crate::core::tuple::Tuple,
+    {
+        crate::wrapper::map::MapParser::new(self, map)
+    }
+
+    // seq
+    fn seq<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::seq::SeqParser<Self, RhsParser, It>
+    where
+        Self: Sized,
+        RhsParser: Parser<It>,
+        Self::Output:
+            crate::wrapper::tuplemerge::AppendTupleToTuple<<RhsParser as Parser<It>>::Output>,
+        <Self::Output as crate::wrapper::tuplemerge::AppendTupleToTuple<
+            <RhsParser as Parser<It>>::Output,
+        >>::Output: crate::core::tuple::Tuple,
+    {
+        crate::wrapper::seq::SeqParser::new(self, rhs)
+    }
+
+    // or
+    fn or_<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::or_::OrParser<Self, RhsParser, It>
+    where
+        Self: Sized,
+        RhsParser: Parser<It, Output = Self::Output>,
+    {
+        crate::wrapper::or_::OrParser::new(self, rhs)
+    }
+
+    // repeat
+    fn repeat<RangeType, Idx>(
+        self,
+        range: RangeType,
+    ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType, Idx, It>
+    where
+        Self: Sized,
+        RangeType: std::ops::RangeBounds<Idx>,
+        Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
+        i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+        Self::Output: crate::wrapper::vecmerge::VectorOutputSpecialize,
+        <Self::Output as crate::wrapper::vecmerge::VectorOutputSpecialize>::Output:
+            crate::core::tuple::Tuple,
+    {
+        crate::wrapper::repeat::RepeatParser::new(self, range)
+    }
+
+    // void
+    fn void_(self) -> crate::wrapper::void::VoidParser<Self, It>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::void::VoidParser::new(self)
+    }
+
+    // ref
+    fn ref_<'a>(&'a self) -> crate::wrapper::reference::ReferenceParser<'a, Self, It>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::reference::ReferenceParser::new(self)
+    }
+
+    // boxed
+    fn boxed<'a>(self) -> crate::wrapper::boxed::BoxedParser<'a, Self::Output, It>
+    where
+        Self: Sized + 'a,
+    {
+        crate::wrapper::boxed::BoxedParser::new(self)
+    }
+
+    // refcelled
+    fn refcelled(self) -> crate::wrapper::refcelled::RefCelledParser<Self, It>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::refcelled::RefCelledParser::new(self)
+    }
+
+    // RCed
+    fn rced(self) -> crate::wrapper::rced::RcedParser<Self, It>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::rced::RcedParser::new(self)
+    }
 }

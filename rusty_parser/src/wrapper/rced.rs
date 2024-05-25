@@ -4,10 +4,8 @@ use std::rc::Rc;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
 // Rc<Parser> wrapper
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct RcedParser<ParserType, It>
 where
     It: Iterator + Clone,

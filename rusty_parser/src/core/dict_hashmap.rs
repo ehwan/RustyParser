@@ -7,8 +7,6 @@ use super::parser::Parser;
 use super::result::ParseResult;
 use super::tuple::Tuple;
 
-use rusty_parser_derive::ParserHelper;
-
 #[derive(Debug, Clone)]
 struct HashTrieNode<CharType, Output>
 where
@@ -75,7 +73,7 @@ where
 
 // Dictionary using trie
 // implementation uses HashMap; O(1) search
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct DictHashMapParser<Output, CharType, It>
 where
     It: Iterator<Item = CharType> + Clone,

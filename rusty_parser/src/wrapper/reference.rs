@@ -3,11 +3,8 @@ use std::iter::Iterator;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-use rusty_parser_derive::ParserHelper;
-
 // reference wrapper for Parser
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct ReferenceParser<'a, ParserType, It>
 where
     ParserType: 'a + Parser<It>,

@@ -6,8 +6,6 @@ use super::parser::Parser;
 use super::result::ParseResult;
 use super::tuple::Tuple;
 
-use rusty_parser_derive::ParserHelper;
-
 // Build Trie using BTreeMap
 // Can be implemented by HashMap ( commented out below ),
 #[derive(Debug, Clone)]
@@ -78,7 +76,7 @@ where
 
 // Dictionary using trie
 // implementation uses BTreeMap; O(log(N)) search
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct DictBTreeParser<Output, CharType, It>
 where
     Output: Clone + Tuple,

@@ -4,12 +4,10 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-use rusty_parser_derive::ParserHelper;
-
 // Callback takes Parser's output as input;
 // Callback function's return value would be new value of the parser
 
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct MapParser<ParserType, MapperType, MapOutput, It>
 where
     It: Iterator + Clone,

@@ -6,9 +6,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-use rusty_parser_derive::ParserHelper;
-
-#[derive(Debug, Clone, ParserHelper)]
+#[derive(Debug, Clone)]
 pub struct RepeatParser<ParserType, RangeType, Idx, It>
 where
     It: Iterator + Clone,
