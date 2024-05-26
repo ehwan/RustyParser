@@ -5,15 +5,17 @@ use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 
+// This Parser will compare the input string starts with the given string.
+// 'string' may be a iterator returned by 'chars()', 'bytes()', etc.
+// string must be cheaply cloneable.
 #[derive(Debug, Clone)]
-pub struct StringEqualParser<StringContainer, It>
+pub struct StringEqualParser<CharIterType, It>
 where
-    StringContainer: IntoIterator + Clone,
+    CharIterType: IntoIterator + Clone,
     It: InputIteratorTrait,
-    <It as Iterator>::Item:
-        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
+    <It as Iterator>::Item: PartialEq<<<CharIterType as IntoIterator>::IntoIter as Iterator>::Item>,
 {
-    pub string: StringContainer,
+    string: CharIterType,
     _phantom: std::marker::PhantomData<It>,
 }
 

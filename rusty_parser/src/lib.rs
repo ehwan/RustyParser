@@ -32,6 +32,11 @@ where
     core::singlerange::SingleRangeParser::new(range_)
 }
 
+// This Parser will compare the input string starts with the given string.
+// 'string' may be a iterator returned by 'chars()', etc.
+// string must be cheaply cloneable.
+// since iterator from 'chars()' is borrowed reference to the original string,
+// it is cheaply cloneable.
 pub fn string<CharIntoIter, It>(
     str: CharIntoIter,
 ) -> core::stringeq::StringEqualParser<CharIntoIter, It>
