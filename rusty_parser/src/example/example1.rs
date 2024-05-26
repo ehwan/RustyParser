@@ -286,3 +286,20 @@ fn iter_example() {
     assert_eq!(begin.collect::<String>(), "hello0123");
     assert_eq!(end.collect::<String>(), "3");
 }
+
+#[test]
+fn custom_parser_example() {
+    let parser = rp::parser(|it: &mut std::str::Chars| {
+        if it.take(5).eq("hello".chars()) {
+            Some((0,))
+        } else {
+            // no need to move the iterator back
+            None
+        }
+    });
+
+    let target_string = "hello0123";
+    let res = parser.parse(target_string.chars());
+    assert_eq!(res.output, Some((0,)));
+    assert_eq!(res.it.collect::<String>(), "0123");
+}

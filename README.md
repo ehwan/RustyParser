@@ -135,42 +135,42 @@ the iterator must be cheaply clonable.
  let parser = one( c: CharactorType )
  let a_parser = one('a');
  ```
-   `Output`: `(Iterator::Item,)`
+`Output`: `(Iterator::Item,)`
 
 ### `range`: consumes one charactor if it is in the range `r`.
 ```rust
-  let parser = range( r: impl std::ops::RangeBounds )
-  let digit_parser = range( '0'..='9' )
-  ```
-  `Output`: `(Iterator::Item,)`
+let parser = range( r: impl std::ops::RangeBounds )
+let digit_parser = range( '0'..='9' )
+```
+`Output`: `(Iterator::Item,)`
 
 ### `string`: consumes multiple charactors if it is equal to `s`.
 ```rust
-  let parser = string( s: impl IntoIterator )
-  let hello_parser = string("hello".chars()); // &str is not IntoIterator
-  ```
-  `Output`: `()`
+let parser = string( s: impl IntoIterator )
+let hello_parser = string("hello".chars()); // &str is not IntoIterator
+```
+`Output`: `()`
 
 ### Dictionary: build Trie from a list of strings
 ```rust
-    // let mut parser = rp::DictBTree::new();
-    let mut parser = rp::DictHashMap::new();
+// let mut parser = rp::DictBTree::new();
+let mut parser = rp::DictHashMap::new();
 
-    parser.insert("hello".chars(), (1,));
-    parser.insert("hello_world".chars(), (2,));
-    parser.insert("world".chars(), (3,));
+parser.insert("hello".chars(), (1,));
+parser.insert("hello_world".chars(), (2,));
+parser.insert("world".chars(), (3,));
 
-    // this will match as long as possible
-    let res = parser.parse("hello_world_abcdefg".chars());
-    assert_eq!(res.output, Some((2,)));
-    // 'hello_world' is parsed, so the rest is "_abcdefg"
-    assert_eq!(res.it.collect::<String>(), "_abcdefg");
+// this will match as long as possible
+let res = parser.parse("hello_world_abcdefg".chars());
+assert_eq!(res.output, Some((2,)));
+// 'hello_world' is parsed, so the rest is "_abcdefg"
+assert_eq!(res.it.collect::<String>(), "_abcdefg");
 
-    // match 'hello' only
-    let res = parser.parse("hello_wo".chars());
-    assert_eq!(res.output, Some((1,)));
-  ```
-  `Output`: generic type you support
+// match 'hello' only
+let res = parser.parse("hello_wo".chars());
+assert_eq!(res.output, Some((1,)));
+```
+`Output`: generic type you support
 
 There are two types of Dictionary: `DictBTree` and `DictHashMap`, for Trie implementation.
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
@@ -188,16 +188,16 @@ assert_eq!( res.output, Some(()));
 
 ### `seq`: sequence of parsers
 ```rust
-    let a_parser = rp::one('a');
-    let b_parser = rp::one('b');
+let a_parser = rp::one('a');
+let b_parser = rp::one('b');
 
-    // parser sequence
-    // 'a', and then 'b'
-    let ab_parser = a_parser.seq(b_parser);
+// parser sequence
+// 'a', and then 'b'
+let ab_parser = a_parser.seq(b_parser);
 
-    let res = ab_parser.parse("abcd".chars());
-    assert_eq!(res.output, Some(('a', 'b')));
-    assert_eq!(res.it.collect::<String>(), "cd");
+let res = ab_parser.parse("abcd".chars());
+assert_eq!(res.output, Some(('a', 'b')));
+assert_eq!(res.it.collect::<String>(), "cd");
   ```
   `Output`: `( L0, L1, ..., R0, R1, ... )` 
   where `(L0, L1, ...)` are the outputs of the first parser, 
@@ -206,30 +206,30 @@ assert_eq!( res.output, Some(()));
 ### `or_`: or combinator
 
 ```rust
-    let a_parser = rp::one('a');
-    let b_parser = rp::one('b');
+let a_parser = rp::one('a');
+let b_parser = rp::one('b');
 
-    // parser sequence
-    // if 'a' is not matched, then try 'b'
-    // the order is preserved; if both parser shares condition
-    let ab_parser = a_parser.or_(b_parser);
+// parser sequence
+// if 'a' is not matched, then try 'b'
+// the order is preserved; if both parser shares condition
+let ab_parser = a_parser.or_(b_parser);
 
-    // 'a' is matched
-    let res = ab_parser.parse("abcd".chars());
-    assert_eq!(res.output, Some(('a',)));
-    assert_eq!(res.it.clone().collect::<String>(), "bcd");
+// 'a' is matched
+let res = ab_parser.parse("abcd".chars());
+assert_eq!(res.output, Some(('a',)));
+assert_eq!(res.it.clone().collect::<String>(), "bcd");
 
-    // continue parsing from the rest
-    // 'a' is not matched, but 'b' is matched
-    let res = ab_parser.parse(res.it);
-    assert_eq!(res.output, Some(('b',)));
-    assert_eq!(res.it.clone().collect::<String>(), "cd");
+// continue parsing from the rest
+// 'a' is not matched, but 'b' is matched
+let res = ab_parser.parse(res.it);
+assert_eq!(res.output, Some(('b',)));
+assert_eq!(res.it.clone().collect::<String>(), "cd");
 
-    // continue parsing from the rest
-    // 'a' is not matched, 'b' is not matched; failed
-    let res = ab_parser.parse(res.it);
-    assert_eq!(res.output, None);
-    assert_eq!(res.it.clone().collect::<String>(), "cd");
+// continue parsing from the rest
+// 'a' is not matched, 'b' is not matched; failed
+let res = ab_parser.parse(res.it);
+assert_eq!(res.output, None);
+assert_eq!(res.it.clone().collect::<String>(), "cd");
 ```
 `Output`: `Output` of the first and second parser.
 Note that the output of both parsers must be the same type.
@@ -237,30 +237,30 @@ Note that the output of both parsers must be the same type.
 
 ### `map`: map the output of the parser
 ```rust
-    let a_parser = rp::one('a');
+let a_parser = rp::one('a');
 
-    // map the output
-    // (Charactor Type You Entered,)  -->  (i32, )
-    let int_parser = a_parser.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
+// map the output
+// (Charactor Type You Entered,)  -->  (i32, )
+let int_parser = a_parser.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
 
-    let res = int_parser.parse("abcd".chars());
-    assert_eq!(res.output, Some((0,)));
-    assert_eq!(res.it.collect::<String>(), "bcd");
+let res = int_parser.parse("abcd".chars());
+assert_eq!(res.output, Some((0,)));
+assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: return type of the closure ( must be Tuple )
 
 ### `repeat`: repeat the parser multiple times
 
 ```rust
-    let a_parser = rp::one('a');
+let a_parser = rp::one('a');
 
-    // repeat 'a' 3 to 5 times (inclusive)
-    let multiple_a_parser = a_parser.repeat(3..=5);
+// repeat 'a' 3 to 5 times (inclusive)
+let multiple_a_parser = a_parser.repeat(3..=5);
 
-    let res = multiple_a_parser.parse("aaaabcd".chars());
-    // four 'a' is parsed
-    assert_eq!(res.output, Some((vec!['a', 'a', 'a', 'a',],)));
-    assert_eq!(res.it.collect::<String>(), "bcd");
+let res = multiple_a_parser.parse("aaaabcd".chars());
+// four 'a' is parsed
+assert_eq!(res.output, Some((vec!['a', 'a', 'a', 'a',],)));
+assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 
 `Output`: 
@@ -275,40 +275,40 @@ This is useful when you only want to check if the pattern is matched or not.
 For more information, see `match_pattern(...)` above.
 
 ```rust
-    let a_parser = rp::one('a');
-    let a_parser = a_parser.map(|(_,)| -> (i32,) {
-        // some expensive operations....
-        panic!("This should not be called");
-    });
-    let multiple_a_parser = a_parser.repeat(3..=5);
-    let multiple_a_void_parser = multiple_a_parser.void_();
+let a_parser = rp::one('a');
+let a_parser = a_parser.map(|(_,)| -> (i32,) {
+    // some expensive operations....
+    panic!("This should not be called");
+});
+let multiple_a_parser = a_parser.repeat(3..=5);
+let multiple_a_void_parser = multiple_a_parser.void_();
 
-    // ignore the output of parser
-    // this internally calls 'match_pattern(...)' instead of 'parse(...)'
-    let res = multiple_a_void_parser.parse("aaaabcd".chars());
-    assert_eq!(res.output, Some(()));
-    assert_eq!(res.it.collect::<String>(), "bcd");
+// ignore the output of parser
+// this internally calls 'match_pattern(...)' instead of 'parse(...)'
+let res = multiple_a_void_parser.parse("aaaabcd".chars());
+assert_eq!(res.output, Some(()));
+assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: `()`
 
 
 ### `iter`: capture a [begin, end) iterator range on input string
 ```rust
-    let hello_parser = rp::string("hello".chars());
-    let digit_parser = rp::range('0'..='9').void_();
-    let parser = hello_parser.seq(
-      digit_parser.repeat(3..=3)
-    ).iter();
+let hello_parser = rp::string("hello".chars());
+let digit_parser = rp::range('0'..='9').void_();
+let parser = hello_parser.seq(
+  digit_parser.repeat(3..=3)
+).iter();
 
-    //                   <------> parsed range
-    let target_string = "hello0123";
-    //                   |       ^ end
-    //                   ^ begin
-    let res = parser.parse(target_string.chars());
-    assert_eq!(res.output.is_some(), true);
-    let (begin, end) = res.output.unwrap();
-    assert_eq!(begin.collect::<String>(), "hello0123");
-    assert_eq!(end.collect::<String>(), "3");
+//                   <------> parsed range
+let target_string = "hello0123";
+//                   |       ^ end
+//                   ^ begin
+let res = parser.parse(target_string.chars());
+assert_eq!(res.output.is_some(), true);
+let (begin, end) = res.output.unwrap();
+assert_eq!(begin.collect::<String>(), "hello0123");
+assert_eq!(end.collect::<String>(), "3");
 ```
 `Output`: `(It, It)`
 
@@ -329,29 +329,29 @@ RustyParser provides `BoxedParser`, `RCedParser`, `RefCelledParser` which are Pa
 ### `boxed`: a `Box<dyn Parser>` wrapper
 
 ```rust
-    let hello_parser = rp::string("hello".chars());
-    let digit_parser = rp::range('0'..='9').void_(); // force the output to be ()
+let hello_parser = rp::string("hello".chars());
+let digit_parser = rp::range('0'..='9').void_(); // force the output to be ()
 
-    // this will wrap the parser into Box< dyn Parser >
-    let mut boxed_parser = hello_parser.boxed();
-    // Note. boxed_parser is mutable
+// this will wrap the parser into Box< dyn Parser >
+let mut boxed_parser = hello_parser.boxed();
+// Note. boxed_parser is mutable
 
-    let target_string = "hello0123";
+let target_string = "hello0123";
 
-    let res_hello = boxed_parser.parse(target_string.chars());
-    // success
-    assert_eq!(res_hello.output, Some(()));
-    assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+let res_hello = boxed_parser.parse(target_string.chars());
+// success
+assert_eq!(res_hello.output, Some(()));
+assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
-    // now change boxed_parser to digit_parser
-    boxed_parser = digit_parser.boxed();
-    // this is same as:
-    // boxed_parser.assign(digit_parser);
+// now change boxed_parser to digit_parser
+boxed_parser = digit_parser.boxed();
+// this is same as:
+// boxed_parser.assign(digit_parser);
 
-    let res_digit = boxed_parser.parse(res_hello.it);
-    // success
-    assert_eq!(res_digit.output, Some(()));
-    assert_eq!(res_digit.it.collect::<String>(), "123");
+let res_digit = boxed_parser.parse(res_hello.it);
+// success
+assert_eq!(res_digit.output, Some(()));
+assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
@@ -360,31 +360,31 @@ RustyParser provides `BoxedParser`, `RCedParser`, `RefCelledParser` which are Pa
 Since it provides internal mutability.
 
 ```rust
-    let hello_parser = rp::string("hello".chars());
-    let digit_parser = rp::range('0'..='9').void_();
+let hello_parser = rp::string("hello".chars());
+let digit_parser = rp::range('0'..='9').void_();
 
-    // this will wrap the parser into Box< dyn Parser >
-    let boxed_parser = hello_parser.boxed();
-    let refcelled_parser = boxed_parser.refcelled();
-    // Note. refcelled_parser is immutable
+// this will wrap the parser into Box< dyn Parser >
+let boxed_parser = hello_parser.boxed();
+let refcelled_parser = boxed_parser.refcelled();
+// Note. refcelled_parser is immutable
 
-    let target_string = "hello0123";
+let target_string = "hello0123";
 
-    let res_hello = refcelled_parser.parse(target_string.chars());
-    // success
-    assert_eq!(res_hello.output, Some(()));
-    assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+let res_hello = refcelled_parser.parse(target_string.chars());
+// success
+assert_eq!(res_hello.output, Some(()));
+assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
-    // now change refcelled_parser to digit_parser
-    refcelled_parser           // RefCelledParser
-        .refcelled_parser()    // &RefCell<BoxedParser>
-        .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
-        .assign(digit_parser); // assign new parser
+// now change refcelled_parser to digit_parser
+refcelled_parser           // RefCelledParser
+    .refcelled_parser()    // &RefCell<BoxedParser>
+    .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
+    .assign(digit_parser); // assign new parser
 
-    let res_digit = refcelled_parser.parse(res_hello.it);
-    // success
-    assert_eq!(res_digit.output, Some(()));
-    assert_eq!(res_digit.it.collect::<String>(), "123");
+let res_digit = refcelled_parser.parse(res_hello.it);
+// success
+assert_eq!(res_digit.output, Some(()));
+assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
@@ -392,36 +392,61 @@ Since it provides internal mutability.
 `RCedParser` is used to share the same parser.
 
 ```rust
-    let hello_parser = rp::string("hello".chars());
-    let digit_parser = rp::range('0'..='9').void_();
+let hello_parser = rp::string("hello".chars());
+let digit_parser = rp::range('0'..='9').void_();
 
-    // this will wrap the parser into Box< dyn Parser >
-    let boxed_parser = hello_parser.boxed();
-    let refcelled_parser = boxed_parser.refcelled();
-    // Note. refcelled_parser is immutable
+// this will wrap the parser into Box< dyn Parser >
+let boxed_parser = hello_parser.boxed();
+let refcelled_parser = boxed_parser.refcelled();
+// Note. refcelled_parser is immutable
 
-    let rced_parser1 = refcelled_parser.rced();
-    let rced_parser2 = rp::RCed::clone(&rced_parser1);
-    // rced_parser2 is now pointing to the same parser as rced_parser1
+let rced_parser1 = refcelled_parser.rced();
+let rced_parser2 = rp::RCed::clone(&rced_parser1);
+// rced_parser2 is now pointing to the same parser as rced_parser1
 
-    let target_string = "hello0123";
+let target_string = "hello0123";
 
-    let res_hello = rced_parser1.parse(target_string.chars());
-    // success
-    assert_eq!(res_hello.output, Some(()));
-    assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+let res_hello = rced_parser1.parse(target_string.chars());
+// success
+assert_eq!(res_hello.output, Some(()));
+assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
-    // now change rced_parser1 to digit_parser
-    rced_parser1               // RCedParser
-        .rced_parser()         // &Rc<RefCelledParser>
-        .refcelled_parser()    // &RefCell<BoxedParser>
-        .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
-        .assign(digit_parser); // assign new parser
+// now change rced_parser1 to digit_parser
+rced_parser1               // RCedParser
+    .rced_parser()         // &Rc<RefCelledParser>
+    .refcelled_parser()    // &RefCell<BoxedParser>
+    .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
+    .assign(digit_parser); // assign new parser
 
-    // rced_parser2 should also be digit_parser
-    let res_digit = rced_parser2.parse(res_hello.it);
-    // success
-    assert_eq!(res_digit.output, Some(()));
-    assert_eq!(res_digit.it.collect::<String>(), "123");
+// rced_parser2 should also be digit_parser
+let res_digit = rced_parser2.parse(res_hello.it);
+// success
+assert_eq!(res_digit.output, Some(()));
+assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
+
+
+## Making your own Parser
+You can design your own Parser by
+```rust
+parser( closure: impl Fn(&mut It) -> Option<NewOutput> ) -> impl Parser<It>
+```
+
+the closure takes mutable reference of the iterator and returns `Option<NewOutput>`.
+
+```rust
+let parser = rp::parser(|it: &mut std::str::Chars| {
+    if it.take(5).eq("hello".chars()) {
+        Some((0,))
+    } else {
+      // no need to move the iterator back
+        None
+    }
+});
+
+let target_string = "hello0123";
+let res = parser.parse(target_string.chars());
+assert_eq!(res.output, Some((0,)));
+assert_eq!(res.it.collect::<String>(), "0123");
+```

@@ -48,6 +48,18 @@ where
     core::stringeq::StringEqualParser::new(str)
 }
 
+// This Parser will use the closure to parse the input.
+pub fn parser<ParseClosure, ClosureOutput, It>(
+    parse_closure: ParseClosure,
+) -> core::custom::CustomParser<ParseClosure, ClosureOutput, It>
+where
+    It: InputIteratorTrait,
+    ParseClosure: Fn(&mut It) -> Option<ClosureOutput>,
+    ClosureOutput: core::tuple::Tuple,
+{
+    core::custom::CustomParser::new(parse_closure)
+}
+
 pub use core::dict_btree::DictBTreeParser as DictBTree;
 pub use core::dict_hashmap::DictHashMapParser as DictHashMap;
 // parser that success if reached end of input
