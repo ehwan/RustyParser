@@ -269,3 +269,20 @@ fn rc_example() {
     assert_eq!(res_digit.output, Some(()));
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
+
+#[test]
+fn iter_example() {
+    let hello_parser = rp::string("hello".chars());
+    let digit_parser = rp::range('0'..='9').void_();
+    let parser = hello_parser.seq(digit_parser.repeat(3..=3)).iter();
+
+    //                   <------> parsed range
+    let target_string = "hello0123";
+    //                   |       ^ end
+    //                   ^ begin
+    let res = parser.parse(target_string.chars());
+    assert_eq!(res.output.is_some(), true);
+    let (begin, end) = res.output.unwrap();
+    assert_eq!(begin.collect::<String>(), "hello0123");
+    assert_eq!(end.collect::<String>(), "3");
+}

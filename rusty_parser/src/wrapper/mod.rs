@@ -1,4 +1,5 @@
 pub mod boxed;
+pub mod iter_range;
 pub mod map;
 pub mod or_;
 pub mod rced;

@@ -122,4 +122,12 @@ where
     {
         crate::wrapper::rced::RcedParser::new(self)
     }
+
+    // iterator range
+    fn iter(self) -> crate::wrapper::iter_range::IterParser<Self, It>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::iter_range::IterParser::new(self)
+    }
 }
