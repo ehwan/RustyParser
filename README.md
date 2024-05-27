@@ -464,3 +464,12 @@ let res = parser.parse(target_string.chars());
 assert_eq!(res.output, Some((0,)));
 assert_eq!(res.it.collect::<String>(), "0123");
 ```
+
+## Others
+ Trivial, but useful parsers
+
+### `constant`: This parser will always succeed, and return the constant value
+```rust
+let parser = rp::constant( (1, 2, 3) );
+// Output = (i32, i32, i32)
+```

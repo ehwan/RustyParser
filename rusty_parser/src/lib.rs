@@ -47,6 +47,14 @@ where
     core::custom::CustomParser::new(parse_closure)
 }
 
+// This Parser will always success and return the clone of given output.
+pub fn constant<Output>(output: Output) -> core::constant::ConstantParser<Output>
+where
+    Output: core::tuple::Tuple + Clone,
+{
+    core::constant::ConstantParser::new(output)
+}
+
 pub use core::dict_btree::DictBTreeParser as DictBTree;
 pub use core::dict_hashmap::DictHashMapParser as DictHashMap;
 // parser that success if reached end of input
