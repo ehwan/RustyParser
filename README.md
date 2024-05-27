@@ -198,10 +198,14 @@ let ab_parser = a_parser.seq(b_parser);
 let res = ab_parser.parse("abcd".chars());
 assert_eq!(res.output, Some(('a', 'b')));
 assert_eq!(res.it.collect::<String>(), "cd");
-  ```
-  `Output`: `( L0, L1, ..., R0, R1, ... )` 
-  where `(L0, L1, ...)` are the outputs of the first parser, 
-  and `(R0, R1, ...)` are the outputs of the second parser.
+```
+or you can use macro `seq!`
+```rust
+let parser = rp::seq!( parser_a, and_then_b, and_then_c, ... );
+```
+`Output`: `( L0, L1, ..., R0, R1, ... )` 
+where `(L0, L1, ...)` are the outputs of the first parser, 
+and `(R0, R1, ...)` are the outputs of the second parser.
 
 ### `or_`: or combinator
 
@@ -230,6 +234,10 @@ assert_eq!(res.it.clone().collect::<String>(), "cd");
 let res = ab_parser.parse(res.it);
 assert_eq!(res.output, None);
 assert_eq!(res.it.clone().collect::<String>(), "cd");
+```
+or you can use macro `or_!` macro
+```rust
+let parser = rp::or!( parser_a, else_b, else_c, ... );
 ```
 `Output`: `Output` of the first and second parser.
 Note that the output of both parsers must be the same type.

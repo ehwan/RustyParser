@@ -68,3 +68,31 @@ pub use core::end::EndParser as End;
 pub use wrapper::boxed::BoxedParser as Boxed;
 pub use wrapper::rced::RcedParser as RCed;
 pub use wrapper::refcelled::RefCelledParser as RefCelled;
+
+// ================== useful macros below ==================
+
+#[macro_export]
+macro_rules! seq {
+    // Base case: just return
+    ($single:expr) => {
+        $single
+    };
+
+    // N arguments
+    ($first:expr, $($rest:expr),+) => {
+        $first.seq($crate::seq!($($rest),+))
+    };
+}
+
+#[macro_export]
+macro_rules! or_ {
+    // Base case: just return
+    ($single:expr) => {
+        $single
+    };
+
+    // N arguments
+    ($first:expr, $($rest:expr),+) => {
+        $first.or_($crate::or_!($($rest),+))
+    };
+}
