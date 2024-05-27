@@ -175,14 +175,6 @@ assert_eq!(res.output, Some((1,)));
 There are two types of Dictionary: `DictBTree` and `DictHashMap`, for Trie implementation.
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
 
-### `End`: success if it reached to the end of input
-```rust
-let end_parser = rp::End::new();
-let res = end_parser.parse("".chars());
-assert_eq!( res.output, Some(()));
-```
-
-`Output`: `()`
 
 ### Combinators
 
@@ -473,3 +465,10 @@ assert_eq!(res.it.collect::<String>(), "0123");
 let parser = rp::constant( (1, 2, 3) );
 // Output = (i32, i32, i32)
 ```
+
+### `End`: success if it reached to the end of input
+```rust
+let end_parser = rp::end();
+```
+
+`Output`: `()`

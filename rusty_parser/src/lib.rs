@@ -55,10 +55,13 @@ where
     core::constant::ConstantParser::new(output)
 }
 
+// parser that success if reached end of input
+pub fn end() -> core::end::EndParser {
+    core::end::EndParser::new()
+}
+
 pub use core::dict_btree::DictBTreeParser as DictBTree;
 pub use core::dict_hashmap::DictHashMapParser as DictHashMap;
-// parser that success if reached end of input
-pub use core::end::EndParser as End;
 
 pub use wrapper::boxed::BoxedParser as Boxed;
 pub use wrapper::rced::RcedParser as RCed;

@@ -7,7 +7,7 @@ use rp::Parser;
 fn main() {
     // Since there are no 'null parsers' in RustyParser, we need to create a dummy parser
     // this will tell compiler that the Output of the parser is (i32,)
-    let dummy_parser = rp::one('0').map(|_| -> (i32,) { (0,) });
+    let dummy_parser = rp::constant((0,));
     let expr = dummy_parser.clone().boxed().refcelled().rced();
     let expr0 = dummy_parser.clone().boxed().refcelled().rced();
     let expr1 = dummy_parser.clone().boxed().refcelled().rced();
@@ -97,7 +97,7 @@ fn main() {
         whitespaces.clone(),
         rp::RCed::clone(&expr),
         whitespaces.clone(),
-        rp::End::new()
+        rp::end()
     );
 
     loop {
