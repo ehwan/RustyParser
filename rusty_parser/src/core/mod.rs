@@ -3,6 +3,7 @@ pub mod custom;
 pub mod dict_btree;
 pub mod dict_hashmap;
 pub mod end;
+pub mod fail;
 pub mod iterator_bound;
 pub mod parser;
 pub mod result;

@@ -466,9 +466,13 @@ let parser = rp::constant( (1, 2, 3) );
 // Output = (i32, i32, i32)
 ```
 
-### `End`: success if it reached to the end of input
+### `end`: success if it reached to the end of input
 ```rust
 let end_parser = rp::end();
 ```
 
-`Output`: `()`
+
+### `fail`: This parser will always fail
+```rust
+let parser = rp::fail();
+```

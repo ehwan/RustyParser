@@ -60,6 +60,11 @@ pub fn end() -> core::end::EndParser {
     core::end::EndParser::new()
 }
 
+// This Parser will always fail.
+pub fn fail() -> core::fail::Fail {
+    core::fail::Fail::new()
+}
+
 pub use core::dict_btree::DictBTreeParser as DictBTree;
 pub use core::dict_hashmap::DictHashMapParser as DictHashMap;
 
