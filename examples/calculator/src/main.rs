@@ -38,11 +38,7 @@ fn main() {
     );
 
     // expr0: num | paren_expr
-    expr0
-        .rced_parser()
-        .refcelled_parser()
-        .borrow_mut()
-        .assign(num.clone().or_(paren_expr));
+    expr0.borrow_mut().assign(num.clone().or_(paren_expr));
 
     // expr1: expr0 ((*|/) expr0)*
     let mul_or_div_op = rp::one('*').or_(rp::one('/'));
@@ -67,11 +63,7 @@ fn main() {
         return (base,);
     });
 
-    expr1
-        .rced_parser()
-        .refcelled_parser()
-        .borrow_mut()
-        .assign(mul_or_div);
+    expr1.borrow_mut().assign(mul_or_div);
 
     // expr2: expr1 ((+|-) expr1)*
     let add_or_sub_op = rp::one('+').or_(rp::one('-'));
@@ -96,17 +88,10 @@ fn main() {
         return (base,);
     });
 
-    expr2
-        .rced_parser()
-        .refcelled_parser()
-        .borrow_mut()
-        .assign(add_or_sub);
+    expr2.borrow_mut().assign(add_or_sub);
 
     // @TODO: simplify this
-    expr.rced_parser() // RC<>
-        .refcelled_parser() // RefCell<>
-        .borrow_mut() // &mut Boxed
-        .assign(rp::RCed::clone(&expr2));
+    expr.borrow_mut().assign(rp::RCed::clone(&expr2));
 
     let line_parser = rp::seq!(
         whitespaces.clone(),

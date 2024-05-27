@@ -1,3 +1,5 @@
+use std::ops::Deref;
+use std::ops::DerefMut;
 use std::rc::Rc;
 
 use crate::core::iterator_bound::InputIteratorTrait;
@@ -50,6 +52,27 @@ where
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         self.parser.as_ref().match_pattern(it)
+    }
+}
+
+impl<ParserType, It> Deref for RcedParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    type Target = Rc<ParserType>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.parser
+    }
+}
+impl<ParserType, It> DerefMut for RcedParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.parser
     }
 }
 

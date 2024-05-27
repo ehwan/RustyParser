@@ -1,4 +1,6 @@
 use std::cell::RefCell;
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
@@ -46,6 +48,27 @@ where
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         self.parser.borrow().match_pattern(it)
+    }
+}
+
+impl<ParserType, It> Deref for RefCelledParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    type Target = RefCell<ParserType>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.parser
+    }
+}
+impl<ParserType, It> DerefMut for RefCelledParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.parser
     }
 }
 

@@ -387,7 +387,10 @@ assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 refcelled_parser           // RefCelledParser
     .refcelled_parser()    // &RefCell<BoxedParser>
     .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
-    .assign(digit_parser); // assign new parser
+    .assign(digit_parser.clone()); // assign new parser
+
+// Thanks to Deref, you can call borrow_mut().assign() directly
+refcelled_parser.borrow_mut().assign(digit_parser);
 
 let res_digit = refcelled_parser.parse(res_hello.it);
 // success
@@ -424,7 +427,10 @@ rced_parser1               // RCedParser
     .rced_parser()         // &Rc<RefCelledParser>
     .refcelled_parser()    // &RefCell<BoxedParser>
     .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
-    .assign(digit_parser); // assign new parser
+    .assign(digit_parser.clone()); // assign new parser
+
+// Thanks to Deref, you can call borrow_mut().assign() directly
+rced_parser1.borrow_mut().assign(digit_parser);
 
 // rced_parser2 should also be digit_parser
 let res_digit = rced_parser2.parse(res_hello.it);

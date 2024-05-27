@@ -102,6 +102,7 @@ fn seq_example() {
     // parser sequence
     // 'a', and then 'b'
     let ab_parser = a_parser.seq(b_parser);
+    // let ab_parser = rp::seq!(a_parser, b_parser, ...);
 
     let res = ab_parser.parse("abcd".chars());
     assert_eq!(res.output, Some(('a', 'b')));
@@ -117,6 +118,7 @@ fn or_example() {
     // if 'a' is not matched, then try 'b'
     // the order is preserved; if both parser shares condition
     let ab_parser = a_parser.or_(b_parser);
+    // let ab_parser = rp::or_!(a_parser, b_parser, ...);
 
     // 'a' is matched
     let res = ab_parser.parse("abcd".chars());
@@ -215,6 +217,7 @@ fn refcell_example() {
     let boxed_parser = hello_parser.boxed();
     let refcelled_parser = boxed_parser.refcelled();
     // Note. refcelled_parser is immutable
+    // but you can change the parser(the Boxed Parser) inside it
 
     let target_string = "hello0123";
 
@@ -227,7 +230,10 @@ fn refcell_example() {
     refcelled_parser // RefCelledParser
         .refcelled_parser() // &RefCell<BoxedParser>
         .borrow_mut() // RefMut<BoxedParser> --> &mut BoxedParser
-        .assign(digit_parser); // assign new parser
+        .assign(digit_parser.clone()); // assign new parser
+
+    // Thanks to Deref, you can call borrow_mut().assign() directly
+    refcelled_parser.borrow_mut().assign(digit_parser);
 
     let res_digit = refcelled_parser.parse(res_hello.it);
     // success
@@ -261,7 +267,10 @@ fn rc_example() {
         .rced_parser() // &Rc<RefCelledParser>
         .refcelled_parser() // &RefCell<BoxedParser>
         .borrow_mut() // RefMut<BoxedParser> --> &mut BoxedParser
-        .assign(digit_parser); // assign new parser
+        .assign(digit_parser.clone()); // assign new parser
+
+    // Thanks to Deref, you can call borrow_mut().assign() directly
+    rced_parser1.borrow_mut().assign(digit_parser);
 
     // rced_parser2 should also be digit_parser
     let res_digit = rced_parser2.parse(res_hello.it);
