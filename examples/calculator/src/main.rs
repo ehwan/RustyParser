@@ -14,6 +14,15 @@ fn main() {
     let expr1 = dummy_parser.boxed().refcelled().rced();
     let expr2 = dummy_parser.boxed().refcelled().rced();
 
+    /*
+    paren_expr: '(' expr ')'
+    expr0: num | paren_expr
+    expr1: expr0 ((*|/) expr0)*
+    expr2: expr1 ((+|-) expr1)*
+    line_parser: expr lineend
+    lineend: '\0'
+     */
+
     let whitespaces = rp::one(' ').or_(rp::one('\n')).repeat(0..).void_();
 
     // one digit [0-9]

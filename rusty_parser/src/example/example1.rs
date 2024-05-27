@@ -40,31 +40,35 @@ fn example1() {
     // iterator will not move if parsing failed
     assert_eq!(res.it.collect::<String>(), target_string);
 
-    // define pattern: [0-9][0-9]
+    // define pattern: [0-9][0-9][0-9]
     // perform 'digit_parser', and then 'digit_parser', sequentially
     // Output = ( Output of first Parser, Output of second Parser, )  -->  (char, char,)
-    let two_digit_parser = digit_parser.clone().seq(digit_parser);
-    //                          ^ move occured here, so clone() it.
+    let three_digit_parser = rp::seq!(
+        digit_parser.clone(), // clone() is required
+        digit_parser.clone(), // clone() is required
+        digit_parser
+    );
 
     // parse; put IntoIterator
-    let res = two_digit_parser.parse(target_string.chars());
+    let res = three_digit_parser.parse(target_string.chars());
     assert_eq!(
         type_name_of_val(&res.output),
-        type_name::<Option<(char, char,)>>()
+        type_name::<Option<(char, char, char,)>>()
     );
-    assert_eq!(res.output, Some(('1', '2')));
+    assert_eq!(res.output, Some(('1', '2', '3',)));
 
     // Output mapping
-    // ( char, char, )  -->  (i32, )
+    // ( char, char, char )  -->  (i32, )
     // Parser's Output must be Tuple
-    let int_parser = two_digit_parser.map(|(x, y)| -> (i32,) {
+    let int_parser = three_digit_parser.map(|(x, y, z)| -> (i32,) {
         let x_i32 = x as i32 - '0' as i32;
         let y_i32 = y as i32 - '0' as i32;
-        (x_i32 * 10 + y_i32,)
+        let z_i32 = z as i32 - '0' as i32;
+        (x_i32 * 100 + y_i32 * 10 + z_i32,)
     });
 
     let res = int_parser.parse(target_string.chars());
-    assert_eq!(res.output, Some((12,)));
+    assert_eq!(res.output, Some((123,)));
 
     // pattern matching
     // .match_pattern only checks if the pattern is matched or not
