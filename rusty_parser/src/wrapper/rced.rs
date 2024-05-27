@@ -80,7 +80,7 @@ where
 mod test {
     use super::*;
     use crate::{
-        core::{singleeq::SingleEqualParser, singlerange::SingleRangeParser},
+        leaf::{singleeq::SingleEqualParser, singlerange::SingleRangeParser},
         wrapper::{boxed::BoxedParser, refcelled::RefCelledParser},
     };
 

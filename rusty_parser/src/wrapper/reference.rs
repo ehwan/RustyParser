@@ -44,7 +44,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::singlerange::SingleRangeParser;
+    use crate::leaf::singlerange::SingleRangeParser;
 
     #[test]
     fn success1() {

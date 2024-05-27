@@ -131,7 +131,7 @@ where
 mod test {
     use super::*;
     use crate::{
-        core::singlerange::SingleRangeParser,
+        leaf::singlerange::SingleRangeParser,
         wrapper::{seq::SeqParser, void::VoidParser},
     };
 

@@ -75,7 +75,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{core::singlerange::SingleRangeParser, wrapper::boxed::BoxedParser};
+    use crate::{leaf::singlerange::SingleRangeParser, wrapper::boxed::BoxedParser};
 
     #[test]
     fn success1() {

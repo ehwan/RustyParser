@@ -1,9 +1,9 @@
 use std::iter::IntoIterator;
 use std::iter::Iterator;
 
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
 
 // This Parser will compare the input string starts with the given string.
 // 'string' may be a iterator returned by 'chars()', 'bytes()', etc.
@@ -66,7 +66,6 @@ where
 
 #[cfg(test)]
 mod test {
-    use super::super::parser::Parser;
     use super::*;
 
     #[test]

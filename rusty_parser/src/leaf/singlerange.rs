@@ -1,8 +1,8 @@
 use std::ops::RangeBounds;
 
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone)]
 pub struct SingleRangeParser<RangeType, Idx>
@@ -90,8 +90,7 @@ where
 mod tests {
     use std::string::String;
 
-    use super::super::parser::Parser;
-    use super::SingleRangeParser;
+    use super::*;
 
     #[test]
     fn success1() {

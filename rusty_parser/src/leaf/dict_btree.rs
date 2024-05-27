@@ -1,10 +1,10 @@
 use std::collections::BTreeMap;
 use std::iter::Iterator;
 
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
-use super::tuple::Tuple;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
+use crate::core::tuple::Tuple;
 
 // Build Trie using BTreeMap
 // Can be implemented by HashMap ( commented out below ),

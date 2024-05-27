@@ -1,6 +1,6 @@
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
 
 // parser that success if reached end of input
 #[derive(Debug, Clone)]
@@ -35,8 +35,7 @@ where
 
 #[cfg(test)]
 mod tests {
-    use super::super::parser::Parser;
-    use super::EndParser;
+    use super::*;
 
     #[test]
     fn success() {

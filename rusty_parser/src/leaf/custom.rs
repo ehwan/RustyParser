@@ -1,9 +1,9 @@
 use std::marker::PhantomData;
 
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
-use super::tuple::Tuple;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
+use crate::core::tuple::Tuple;
 
 #[derive(Debug, Clone)]
 pub struct CustomParser<ParseClosure, ClosureOutput, It>
@@ -59,8 +59,8 @@ where
 mod tests {
     use std::string::String;
 
-    use super::super::parser::Parser;
     use super::CustomParser;
+    use crate::core::parser::Parser;
 
     #[test]
     fn success_test1() {

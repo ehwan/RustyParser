@@ -1,8 +1,8 @@
 use std::iter::Iterator;
 
-use super::iterator_bound::InputIteratorTrait;
-use super::parser::Parser;
-use super::result::ParseResult;
+use crate::core::iterator_bound::InputIteratorTrait;
+use crate::core::parser::Parser;
+use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone)]
 pub struct SingleEqualParser<TargetCharacterType> {
@@ -75,8 +75,7 @@ where
 mod tests {
     use std::string::String;
 
-    use super::super::parser::Parser;
-    use super::SingleEqualParser;
+    use super::*;
 
     #[test]
     fn success_test1() {

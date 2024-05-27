@@ -59,8 +59,8 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::singleeq::SingleEqualParser;
-    use crate::core::singlerange::SingleRangeParser;
+    use crate::leaf::singleeq::SingleEqualParser;
+    use crate::leaf::singlerange::SingleRangeParser;
 
     #[test]
     fn success1() {

@@ -85,7 +85,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::core::singlerange::SingleRangeParser;
+    use crate::leaf::singlerange::SingleRangeParser;
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');

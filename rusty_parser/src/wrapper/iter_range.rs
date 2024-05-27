@@ -57,7 +57,7 @@ where
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{core::singlerange::SingleRangeParser, wrapper::seq::SeqParser};
+    use crate::{leaf::singlerange::SingleRangeParser, wrapper::seq::SeqParser};
 
     #[test]
     fn success1() {
