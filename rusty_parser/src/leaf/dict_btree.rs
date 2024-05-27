@@ -7,7 +7,6 @@ use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
 // Build Trie using BTreeMap
-// Can be implemented by HashMap ( commented out below ),
 #[derive(Debug, Clone)]
 struct BTreeTrieNode<CharType, Output>
 where
