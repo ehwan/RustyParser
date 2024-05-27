@@ -1,8 +1,8 @@
 use std::collections::HashMap;
 use std::hash::Hash;
 use std::iter::Iterator;
-use std::marker::PhantomData;
 
+use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 use super::tuple::Tuple;
@@ -74,26 +74,22 @@ where
 // Dictionary using trie
 // implementation uses HashMap; O(1) search
 #[derive(Debug, Clone)]
-pub struct DictHashMapParser<Output, CharType, It>
+pub struct DictHashMapParser<Output, CharType>
 where
-    It: Iterator<Item = CharType> + Clone,
     CharType: Hash + Eq,
     Output: Clone + Tuple,
 {
     trie: HashTrieNode<CharType, Output>,
-    _phantom: PhantomData<It>,
 }
 
-impl<Output, CharType, It> DictHashMapParser<Output, CharType, It>
+impl<Output, CharType> DictHashMapParser<Output, CharType>
 where
-    It: Iterator<Item = CharType> + Clone,
     CharType: Hash + Eq,
     Output: Clone + Tuple,
 {
     pub fn new() -> Self {
         Self {
             trie: HashTrieNode::new(),
-            _phantom: PhantomData,
         }
     }
 
@@ -105,9 +101,9 @@ where
     }
 }
 
-impl<Output, CharType, It> Parser<It> for DictHashMapParser<Output, CharType, It>
+impl<Output, CharType, It> Parser<It> for DictHashMapParser<Output, CharType>
 where
-    It: Iterator<Item = CharType> + Clone,
+    It: InputIteratorTrait + Iterator<Item = CharType> + Clone,
     CharType: Hash + Eq,
     Output: Clone + Tuple,
 {
@@ -125,7 +121,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let mut dict: DictHashMapParser<(i32,), char, _> = DictHashMapParser::new();
+        let mut dict: DictHashMapParser<(i32,), char> = DictHashMapParser::new();
         dict.insert("hello_world".chars(), (0,));
         dict.insert("hello_trie".chars(), (1,));
         dict.insert("hello".chars(), (2,));
@@ -139,7 +135,7 @@ mod test {
     }
     #[test]
     fn success2() {
-        let mut dict: DictHashMapParser<(i32,), char, _> = DictHashMapParser::new();
+        let mut dict: DictHashMapParser<(i32,), char> = DictHashMapParser::new();
         dict.insert("hello_world".chars(), (0,));
         dict.insert("hello_trie".chars(), (1,));
         dict.insert("hello".chars(), (2,));
@@ -153,7 +149,7 @@ mod test {
     }
     #[test]
     fn success3() {
-        let mut dict: DictHashMapParser<(i32,), char, _> = DictHashMapParser::new();
+        let mut dict: DictHashMapParser<(i32,), char> = DictHashMapParser::new();
         dict.insert("hello_world".chars(), (0,));
         dict.insert("hello_trie".chars(), (1,));
         dict.insert("hello".chars(), (2,));
@@ -167,7 +163,7 @@ mod test {
     }
     #[test]
     fn fail1() {
-        let mut dict: DictHashMapParser<(i32,), char, _> = DictHashMapParser::new();
+        let mut dict: DictHashMapParser<(i32,), char> = DictHashMapParser::new();
         dict.insert("hello_world".chars(), (0,));
         dict.insert("hello_trie".chars(), (1,));
         dict.insert("hello".chars(), (2,));

@@ -1,30 +1,18 @@
-use std::marker::PhantomData;
-
 use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 
 // parser that success if reached end of input
 #[derive(Debug, Clone)]
-pub struct EndParser<It>
-where
-    It: InputIteratorTrait,
-{
-    _phantom: PhantomData<It>,
-}
+pub struct EndParser {}
 
-impl<It> EndParser<It>
-where
-    It: InputIteratorTrait,
-{
+impl EndParser {
     pub fn new() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
+        Self {}
     }
 }
 
-impl<It> Parser<It> for EndParser<It>
+impl<It> Parser<It> for EndParser
 where
     It: InputIteratorTrait,
 {

@@ -1,34 +1,23 @@
 use std::iter::Iterator;
-use std::marker::PhantomData;
 
 use super::iterator_bound::InputIteratorTrait;
 use super::parser::Parser;
 use super::result::ParseResult;
 
 #[derive(Debug, Clone)]
-pub struct SingleEqualParser<TargetCharacterType, It>
-where
-    It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
-{
+pub struct SingleEqualParser<TargetCharacterType> {
     pub character: TargetCharacterType,
-    _phantom: PhantomData<It>,
 }
 
-impl<TargetCharacterType, It> SingleEqualParser<TargetCharacterType, It>
-where
-    It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
-{
-    pub fn new(character: TargetCharacterType) -> SingleEqualParser<TargetCharacterType, It> {
+impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
+    pub fn new(character: TargetCharacterType) -> Self {
         SingleEqualParser {
             character: character,
-            _phantom: PhantomData,
         }
     }
 }
 
-impl<TargetCharacterType, It> Parser<It> for SingleEqualParser<TargetCharacterType, It>
+impl<TargetCharacterType, It> Parser<It> for SingleEqualParser<TargetCharacterType>
 where
     It: InputIteratorTrait,
     <It as Iterator>::Item: PartialEq<TargetCharacterType>,

@@ -9,24 +9,15 @@ pub use core::result::ParseResult;
 
 use crate::core::iterator_bound::InputIteratorTrait;
 
-pub fn one<CharType, It>(ch: CharType) -> core::singleeq::SingleEqualParser<CharType, It>
-where
-    It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<CharType>,
-{
+pub fn one<CharType>(ch: CharType) -> core::singleeq::SingleEqualParser<CharType> {
     core::singleeq::SingleEqualParser::new(ch)
 }
 
-pub fn range<RangeType, Idx, It>(
+pub fn range<RangeType, Idx>(
     range_: RangeType,
-) -> core::singlerange::SingleRangeParser<RangeType, Idx, It>
+) -> core::singlerange::SingleRangeParser<RangeType, Idx>
 where
-    It: InputIteratorTrait,
-    Idx: PartialOrd
-        + PartialEq
-        + PartialOrd<<It as Iterator>::Item>
-        + PartialEq<<It as Iterator>::Item>,
-    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
+    Idx: PartialOrd + PartialEq,
     RangeType: RangeBounds<Idx>,
 {
     core::singlerange::SingleRangeParser::new(range_)
@@ -37,13 +28,9 @@ where
 // string must be cheaply cloneable.
 // since iterator from 'chars()' is borrowed reference to the original string,
 // it is cheaply cloneable.
-pub fn string<CharIntoIter, It>(
-    str: CharIntoIter,
-) -> core::stringeq::StringEqualParser<CharIntoIter, It>
+pub fn string<CharIntoIter>(str: CharIntoIter) -> core::stringeq::StringEqualParser<CharIntoIter>
 where
     CharIntoIter: IntoIterator + Clone,
-    It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<<<CharIntoIter as IntoIterator>::IntoIter as Iterator>::Item>,
 {
     core::stringeq::StringEqualParser::new(str)
 }

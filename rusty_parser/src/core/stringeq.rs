@@ -9,32 +9,23 @@ use super::result::ParseResult;
 // 'string' may be a iterator returned by 'chars()', 'bytes()', etc.
 // string must be cheaply cloneable.
 #[derive(Debug, Clone)]
-pub struct StringEqualParser<CharIterType, It>
+pub struct StringEqualParser<CharIterType>
 where
     CharIterType: IntoIterator + Clone,
-    It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<<<CharIterType as IntoIterator>::IntoIter as Iterator>::Item>,
 {
     string: CharIterType,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<StringContainer, It> StringEqualParser<StringContainer, It>
+impl<StringContainer> StringEqualParser<StringContainer>
 where
     StringContainer: IntoIterator + Clone,
-    It: InputIteratorTrait,
-    <It as Iterator>::Item:
-        PartialEq<<<StringContainer as IntoIterator>::IntoIter as Iterator>::Item>,
 {
-    pub fn new(string: StringContainer) -> StringEqualParser<StringContainer, It> {
-        StringEqualParser {
-            string: string,
-            _phantom: std::marker::PhantomData,
-        }
+    pub fn new(string: StringContainer) -> Self {
+        StringEqualParser { string: string }
     }
 }
 
-impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer, It>
+impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer>
 where
     StringContainer: IntoIterator + Clone,
     It: InputIteratorTrait,

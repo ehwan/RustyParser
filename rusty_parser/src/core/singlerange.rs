@@ -5,41 +5,29 @@ use super::parser::Parser;
 use super::result::ParseResult;
 
 #[derive(Debug, Clone)]
-pub struct SingleRangeParser<RangeType, Idx, It>
+pub struct SingleRangeParser<RangeType, Idx>
 where
-    It: InputIteratorTrait,
-    Idx: PartialOrd
-        + PartialEq
-        + PartialOrd<<It as Iterator>::Item>
-        + PartialEq<<It as Iterator>::Item>,
-    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
+    Idx: PartialOrd + PartialEq,
     RangeType: RangeBounds<Idx>,
 {
     pub range: RangeType,
     _phantom: std::marker::PhantomData<Idx>,
-    _phantom2: std::marker::PhantomData<It>,
 }
 
-impl<RangeType, It, Idx> SingleRangeParser<RangeType, Idx, It>
+impl<RangeType, Idx> SingleRangeParser<RangeType, Idx>
 where
-    It: InputIteratorTrait,
-    Idx: PartialOrd
-        + PartialEq
-        + PartialOrd<<It as Iterator>::Item>
-        + PartialEq<<It as Iterator>::Item>,
-    <It as Iterator>::Item: PartialOrd<Idx> + PartialEq<Idx>,
+    Idx: PartialOrd + PartialEq,
     RangeType: RangeBounds<Idx>,
 {
-    pub fn new(range: RangeType) -> SingleRangeParser<RangeType, Idx, It> {
+    pub fn new(range: RangeType) -> Self {
         SingleRangeParser {
             range: range,
             _phantom: std::marker::PhantomData,
-            _phantom2: std::marker::PhantomData,
         }
     }
 }
 
-impl<RangeType, It, Idx> Parser<It> for SingleRangeParser<RangeType, Idx, It>
+impl<RangeType, It, Idx> Parser<It> for SingleRangeParser<RangeType, Idx>
 where
     It: InputIteratorTrait,
     Idx: PartialOrd
