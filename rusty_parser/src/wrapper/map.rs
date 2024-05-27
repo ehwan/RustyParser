@@ -6,7 +6,7 @@ use crate::core::tuple::Tuple;
 // Callback takes Parser's output as input;
 // Callback function's return value would be new value of the parser
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct MapParser<ParserType, MapperType, MapOutput, It>
 where
     It: InputIteratorTrait,

@@ -8,7 +8,7 @@ use crate::core::result::ParseResult;
 // This Parser will compare the input string starts with the given string.
 // 'string' may be a iterator returned by 'chars()', 'bytes()', etc.
 // string must be cheaply cloneable.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct StringEqualParser<CharIterType>
 where
     CharIterType: IntoIterator + Clone,

@@ -2,7 +2,7 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct VoidParser<ParserType, It>
 where
     It: InputIteratorTrait,

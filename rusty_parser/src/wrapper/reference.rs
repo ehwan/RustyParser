@@ -3,7 +3,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 // reference wrapper for Parser
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct ReferenceParser<'a, ParserType, It>
 where
     ParserType: 'a + Parser<It>,

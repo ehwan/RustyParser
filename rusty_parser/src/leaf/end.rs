@@ -3,7 +3,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 // parser that success if reached end of input
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct EndParser {}
 
 impl EndParser {

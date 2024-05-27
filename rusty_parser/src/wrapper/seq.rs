@@ -5,7 +5,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub struct SeqParser<ParserA, ParserB, It>
 where
     It: InputIteratorTrait,
