@@ -1,4 +1,2 @@
 [workspace]
-members = [
-    "rusty_parser"
-]
+members = [ "rusty_parser", "examples/calculator" ]
