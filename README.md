@@ -1,10 +1,11 @@
 # RustyParser
 A Generic Parser generator and Pattern Matching Library written in Rust
 
-## Examples
+## Example
  - **[Calculator](examples/calculator)**
 
 
+## Sample Code
 `rusty_parser/src/example/example1.rs`
 
 ```rust
