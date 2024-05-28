@@ -5,27 +5,26 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-// This Parser will compare the input string starts with the given string.
-// 'string' may be a iterator returned by 'chars()', 'bytes()', etc.
-// string must be cheaply cloneable.
+/// This Parser will compare the input string starts with the given string.
+/// 'string' must be a iterator of slice &[U] or &str.chars()
 #[derive(Debug, Clone, Copy)]
-pub struct StringEqualParser<CharIterType>
+pub struct SliceEqualParser<SliceIter>
 where
-    CharIterType: IntoIterator + Clone,
+    SliceIter: IntoIterator + Clone,
 {
-    string: CharIterType,
+    string: SliceIter,
 }
 
-impl<StringContainer> StringEqualParser<StringContainer>
+impl<SliceIter> SliceEqualParser<SliceIter>
 where
-    StringContainer: IntoIterator + Clone,
+    SliceIter: IntoIterator + Clone,
 {
-    pub fn new(string: StringContainer) -> Self {
-        StringEqualParser { string: string }
+    pub fn new(string: SliceIter) -> Self {
+        SliceEqualParser { string: string }
     }
 }
 
-impl<StringContainer, It> Parser<It> for StringEqualParser<StringContainer>
+impl<StringContainer, It> Parser<It> for SliceEqualParser<StringContainer>
 where
     StringContainer: IntoIterator + Clone,
     It: InputIteratorTrait,
@@ -35,8 +34,9 @@ where
     type Output = ();
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        let mut it = it;
         let i0 = it.clone();
+        let mut it = it;
+        // take
         for ch in self.string.clone() {
             match it.next() {
                 Some(ch2) => {
@@ -71,7 +71,7 @@ mod test {
     #[test]
     fn success1() {
         let pattern = "hello";
-        let parser = StringEqualParser::new(pattern.chars());
+        let parser = SliceEqualParser::new(pattern.chars());
 
         let str: String = "hello_world!!".to_string();
         let res = parser.parse(str.chars());
@@ -83,7 +83,7 @@ mod test {
     #[test]
     fn fail1() {
         let pattern = "hello";
-        let parser = StringEqualParser::new(pattern.chars());
+        let parser = SliceEqualParser::new(pattern.chars());
 
         let str: String = "hell_world!!".to_string();
         let res = parser.parse(str.chars());
@@ -94,8 +94,8 @@ mod test {
 
     #[test]
     fn fail2() {
-        let pattern = "hello";
-        let parser = StringEqualParser::new(pattern.chars());
+        let pattern = ['h', 'e', 'l', 'l', 'o'];
+        let parser = SliceEqualParser::new((&pattern).into_iter().copied());
 
         let str: String = "hell".to_string();
         let res = parser.parse(str.chars());

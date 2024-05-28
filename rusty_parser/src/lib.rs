@@ -34,15 +34,18 @@ where
 }
 
 /// This Parser will compare the input string starts with the given string.
-/// 'string' may be a iterator returned by 'chars()', etc.
-/// string must be cheaply cloneable.
-/// since iterator from 'chars()' is borrowed reference to the original string,
-/// it is cheaply cloneable.
-pub fn string<CharIntoIter>(str: CharIntoIter) -> leaf::stringeq::StringEqualParser<CharIntoIter>
+pub fn chars<'a>(str: &'a str) -> leaf::sliceeq::SliceEqualParser<std::str::Chars<'a>> {
+    leaf::sliceeq::SliceEqualParser::new(str.chars())
+}
+
+/// This Parser will compare the input string starts with the given slice
+pub fn slice<'a, T>(
+    str: &'a [T],
+) -> leaf::sliceeq::SliceEqualParser<std::iter::Copied<std::slice::Iter<'a, T>>>
 where
-    CharIntoIter: IntoIterator + Clone,
+    T: Clone + Copy,
 {
-    leaf::stringeq::StringEqualParser::new(str)
+    leaf::sliceeq::SliceEqualParser::new(str.iter().copied())
 }
 
 /// This Parser will use the closure to parse the input.

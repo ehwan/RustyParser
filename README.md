@@ -152,10 +152,12 @@ let digit_parser = range( '0'..='9' )
 ```
 `Output`: `(Iterator::Item,)`
 
-### `string`: consumes multiple charactors if it is equal to `s`.
+### `chars`, `slice`: consumes multiple charactors if it is equal to `s`.
 ```rust
-let parser = string( s: impl IntoIterator )
-let hello_parser = string("hello".chars()); // &str is not IntoIterator
+fn chars( s: &'a str );
+fn slice( s: &'a [T] );
+let hello_parser = chars("hello");
+let hello_parser = slice("hello".bytes());
 ```
 `Output`: `()`
 
@@ -302,7 +304,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 
 ### `iter`: capture a [begin, end) iterator range on input string
 ```rust
-let hello_parser = rp::string("hello".chars());
+let hello_parser = rp::chars("hello");
 let digit_parser = rp::range('0'..='9').void_();
 let parser = hello_parser.seq(
   digit_parser.repeat(3..=3)
@@ -337,7 +339,7 @@ RustyParser provides `BoxedParser`, `RCedParser`, `RefCelledParser` which are Pa
 ### `boxed`: a `Box<dyn Parser>` wrapper
 
 ```rust
-let hello_parser = rp::string("hello".chars());
+let hello_parser = rp::chars("hello");
 let digit_parser = rp::range('0'..='9').void_(); // force the output to be ()
 
 // this will wrap the parser into Box< dyn Parser >
@@ -368,7 +370,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 Since it provides internal mutability.
 
 ```rust
-let hello_parser = rp::string("hello".chars());
+let hello_parser = rp::chars("hello");
 let digit_parser = rp::range('0'..='9').void_();
 
 // this will wrap the parser into Box< dyn Parser >
@@ -403,7 +405,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `RCedParser` is used to share the same parser.
 
 ```rust
-let hello_parser = rp::string("hello".chars());
+let hello_parser = rp::chars("hello");
 let digit_parser = rp::range('0'..='9').void_();
 
 // this will wrap the parser into Box< dyn Parser >

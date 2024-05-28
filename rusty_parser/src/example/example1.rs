@@ -187,7 +187,7 @@ fn void_example() {
 
 #[test]
 fn box_example() {
-    let hello_parser = rp::string("hello".chars());
+    let hello_parser = rp::chars("hello");
     let digit_parser = rp::range('0'..='9').void_();
 
     // this will wrap the parser into Box< dyn Parser >
@@ -214,7 +214,7 @@ fn box_example() {
 
 #[test]
 fn refcell_example() {
-    let hello_parser = rp::string("hello".chars());
+    let hello_parser = rp::chars("hello");
     let digit_parser = rp::range('0'..='9').void_();
 
     // this will wrap the parser into Box< dyn Parser >
@@ -247,7 +247,7 @@ fn refcell_example() {
 
 #[test]
 fn rc_example() {
-    let hello_parser = rp::string("hello".chars());
+    let hello_parser = rp::chars("hello");
     let digit_parser = rp::range('0'..='9').void_();
 
     // this will wrap the parser into Box< dyn Parser >
@@ -285,7 +285,7 @@ fn rc_example() {
 
 #[test]
 fn iter_example() {
-    let hello_parser = rp::string("hello".chars());
+    let hello_parser = rp::chars("hello");
     let digit_parser = rp::range('0'..='9').void_();
     let parser = hello_parser.seq(digit_parser.repeat(3..=3)).iter();
 
