@@ -384,41 +384,41 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
-### `rced`: a `Rc<Parser>` wrapper
+### `rc`: a `Rc<Parser>` wrapper
 `RCedParser` is used to share the same parser.
 
 ```rust
 let hello_parser = rp::chars("hello");
-let digit_parser = rp::range('0'..='9').void_();
+let digit_parser = rp::void_(rp::range('0'..='9'));
 
 // this will wrap the parser into Box< dyn Parser >
-let boxed_parser = hello_parser.boxed();
-let refcelled_parser = boxed_parser.refcelled();
+let boxed_parser = rp::box_(hello_parser);
+let refcelled_parser = rp::refcell(boxed_parser);
 // Note. refcelled_parser is immutable
 
-let rced_parser1 = refcelled_parser.rced();
-let rced_parser2 = rp::RCed::clone(&rced_parser1);
+let rced_parser1 = rp::rc(refcelled_parser);
+let rced_parser2 = rp::Rc::clone(&rced_parser1);
 // rced_parser2 is now pointing to the same parser as rced_parser1
 
 let target_string = "hello0123";
 
-let res_hello = rced_parser1.parse(target_string.chars());
+let res_hello = rp::parse(&rced_parser1, target_string.chars());
 // success
 assert_eq!(res_hello.output, Some(()));
 assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
 // now change rced_parser1 to digit_parser
-rced_parser1               // RCedParser
-    .rced_parser()         // &Rc<RefCelledParser>
-    .refcelled_parser()    // &RefCell<BoxedParser>
-    .borrow_mut()          // RefMut<BoxedParser> --> &mut BoxedParser
+rced_parser1                       // RCedParser
+    .rced_parser()                 // &Rc<RefCelledParser>
+    .refcelled_parser()            // &RefCell<BoxedParser>
+    .borrow_mut()                  // RefMut<BoxedParser> --> &mut BoxedParser
     .assign(digit_parser.clone()); // assign new parser
 
 // Thanks to Deref, you can call borrow_mut().assign() directly
 rced_parser1.borrow_mut().assign(digit_parser);
 
 // rced_parser2 should also be digit_parser
-let res_digit = rced_parser2.parse(res_hello.it);
+let res_digit = rp::parse(&rced_parser2, res_hello.it);
 // success
 assert_eq!(res_digit.output, Some(()));
 assert_eq!(res_digit.it.collect::<String>(), "123");

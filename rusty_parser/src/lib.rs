@@ -119,13 +119,16 @@ pub use wrapper::map::map;
 /// change Parser's Output to Iterator Pair [begin, end)
 pub use wrapper::iter_range::iter;
 
-/// RefCell\<Parser\> wrapper
+/// create RefCell\<Parser\> wrapper
 pub use wrapper::refcelled::refcell;
 
-/// Rc\<Parser\> wrapper
+/// create Rc\<Parser\> wrapper
 pub use wrapper::rced::rc;
 
-/// Box\< dyn Parser \> wrapper for Parser
+/// Rc\<Parser\> wrapper
+pub use wrapper::rced::RcedParser as Rc;
+
+/// create Box\< dyn Parser \> wrapper for Parser
 pub use wrapper::boxed::box_;
 
 /// Dictionary using trie
