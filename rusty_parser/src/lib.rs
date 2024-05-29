@@ -97,6 +97,9 @@ pub use wrapper::refcelled::refcell;
 /// Rc<Parser> wrapper
 pub use wrapper::rced::rc;
 
+/// Or combinator of parsers
+pub use wrapper::or_::or_;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
@@ -142,6 +145,6 @@ macro_rules! or_ {
 
     // N arguments
     ($first:expr, $($rest:expr),+) => {
-        $first.or_($crate::or_!($($rest),+))
+        $crate::or_( $first, $crate::or_!($($rest),+) )
     };
 }

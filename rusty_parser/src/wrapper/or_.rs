@@ -82,6 +82,18 @@ where
     }
 }
 
+pub fn or_<It, ParserA, ParserB>(
+    parser_a: ParserA,
+    parser_b: ParserB,
+) -> OrParser<ParserA, ParserB, It>
+where
+    It: InputIteratorTrait,
+    ParserA: Parser<It>,
+    ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
+{
+    OrParser::new(parser_a, parser_b)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
