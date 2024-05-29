@@ -168,7 +168,42 @@ fn void_example() {
     assert_eq!(res.it.collect::<String>(), "bcd");
 }
 
+#[test]
+fn iter_example() {
+    let hello_parser = rp::chars("hello");
+    let digit_parser = rp::void_(rp::range('0'..='9'));
+
+    let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
+
+    //                   <------> parsed range
+    let target_string = "hello0123";
+    //                   |       ^ end
+    //                   ^ begin
+    let res = rp::parse(&parser, target_string.chars());
+    assert_eq!(res.output.is_some(), true);
+
+    let (begin, end) = res.output.unwrap();
+    assert_eq!(begin.collect::<String>(), "hello0123");
+    assert_eq!(end.collect::<String>(), "3");
+}
+
 /*
+#[test]
+fn custom_parser_example() {
+    let parser = rp::parser(|it: &mut std::str::Chars| {
+        if it.take(5).eq("hello".chars()) {
+            Some((0,))
+        } else {
+            // no need to move the iterator back
+            None
+        }
+    });
+
+    let target_string = "hello0123";
+    let res = parser.parse(target_string.chars());
+    assert_eq!(res.output, Some((0,)));
+    assert_eq!(res.it.collect::<String>(), "0123");
+}
 #[test]
 fn box_example() {
     let hello_parser = rp::chars("hello");
@@ -267,38 +302,5 @@ fn rc_example() {
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
 
-#[test]
-fn iter_example() {
-    let hello_parser = rp::chars("hello");
-    let digit_parser = rp::range('0'..='9').void_();
-    let parser = hello_parser.seq(digit_parser.repeat(3..=3)).iter();
-
-    //                   <------> parsed range
-    let target_string = "hello0123";
-    //                   |       ^ end
-    //                   ^ begin
-    let res = parser.parse(target_string.chars());
-    assert_eq!(res.output.is_some(), true);
-    let (begin, end) = res.output.unwrap();
-    assert_eq!(begin.collect::<String>(), "hello0123");
-    assert_eq!(end.collect::<String>(), "3");
-}
-
-#[test]
-fn custom_parser_example() {
-    let parser = rp::parser(|it: &mut std::str::Chars| {
-        if it.take(5).eq("hello".chars()) {
-            Some((0,))
-        } else {
-            // no need to move the iterator back
-            None
-        }
-    });
-
-    let target_string = "hello0123";
-    let res = parser.parse(target_string.chars());
-    assert_eq!(res.output, Some((0,)));
-    assert_eq!(res.it.collect::<String>(), "0123");
-}
 
 */

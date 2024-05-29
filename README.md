@@ -290,17 +290,17 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 ### `iter`: capture a [begin, end) iterator range on input string
 ```rust
 let hello_parser = rp::chars("hello");
-let digit_parser = rp::range('0'..='9').void_();
-let parser = hello_parser.seq(
-  digit_parser.repeat(3..=3)
-).iter();
+let digit_parser = rp::void_(rp::range('0'..='9'));
+
+let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
 
 //                   <------> parsed range
 let target_string = "hello0123";
 //                   |       ^ end
 //                   ^ begin
-let res = parser.parse(target_string.chars());
+let res = rp::parse(&parser, target_string.chars());
 assert_eq!(res.output.is_some(), true);
+
 let (begin, end) = res.output.unwrap();
 assert_eq!(begin.collect::<String>(), "hello0123");
 assert_eq!(end.collect::<String>(), "3");
