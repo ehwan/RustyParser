@@ -76,6 +76,14 @@ where
     }
 }
 
+pub fn rc<ParserType, It>(parser: ParserType) -> RcedParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    RcedParser::new(parser)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

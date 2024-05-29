@@ -94,6 +94,9 @@ pub use wrapper::reference::ref_;
 /// RefCell<Parser> wrapper
 pub use wrapper::refcelled::refcell;
 
+/// Rc<Parser> wrapper
+pub use wrapper::rced::rc;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
