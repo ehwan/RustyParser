@@ -203,34 +203,32 @@ fn custom_parser_example() {
     assert_eq!(res.output, Some((0,)));
     assert_eq!(res.it.collect::<String>(), "0123");
 }
-/*
 #[test]
 fn box_example() {
     let hello_parser = rp::chars("hello");
-    let digit_parser = rp::range('0'..='9').void_();
+    let digit_parser = rp::void_(rp::range('0'..='9'));
 
     // this will wrap the parser into Box< dyn Parser >
-    let mut boxed_parser = hello_parser.boxed();
+    let mut boxed_parser = rp::box_(hello_parser);
     // Note. boxed_parser is mutable
 
     let target_string = "hello0123";
 
-    let res_hello = boxed_parser.parse(target_string.chars());
+    let res_hello = rp::parse(&boxed_parser, target_string.chars());
     // success
     assert_eq!(res_hello.output, Some(()));
     assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
     // now change boxed_parser to digit_parser
-    boxed_parser = digit_parser.boxed();
-    // this is same as:
-    // boxed_parser.assign(digit_parser);
+    boxed_parser.assign(digit_parser);
 
-    let res_digit = boxed_parser.parse(res_hello.it);
+    let res_digit = rp::parse(&boxed_parser, res_hello.it);
     // success
     assert_eq!(res_digit.output, Some(()));
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
 
+/*
 #[test]
 fn refcell_example() {
     let hello_parser = rp::chars("hello");
