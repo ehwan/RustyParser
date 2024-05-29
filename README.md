@@ -252,9 +252,9 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 let a_parser = rp::one('a');
 
 // repeat 'a' 3 to 5 times (inclusive)
-let multiple_a_parser = a_parser.repeat(3..=5);
+let multiple_a_parser = rp::repeat(a_parser.clone(), 3..=5);
+let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
 
-let res = multiple_a_parser.parse("aaaabcd".chars());
 // four 'a' is parsed
 assert_eq!(res.output, Some((vec!['a', 'a', 'a', 'a',],)));
 assert_eq!(res.it.collect::<String>(), "bcd");
