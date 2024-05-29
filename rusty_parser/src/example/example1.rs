@@ -127,20 +127,20 @@ fn or_example() {
     assert_eq!(res.it.clone().collect::<String>(), "cd");
 }
 
-/*
 #[test]
 fn map_example() {
     let a_parser = rp::one('a');
 
     // map the output
-    // (Charactor Type You Entered,)  -->  (i32, )
-    let int_parser = a_parser.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
+    // <Output of 'a'> (char,) -> (i32,)
+    let int_parser = rp::map(a_parser, |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
 
-    let res = int_parser.parse("abcd".chars());
+    let res = rp::parse(&int_parser, "abcd".chars());
     assert_eq!(res.output, Some((0,)));
     assert_eq!(res.it.collect::<String>(), "bcd");
 }
 
+/*
 #[test]
 fn repeat_example() {
     let a_parser = rp::one('a');
