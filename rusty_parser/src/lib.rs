@@ -17,6 +17,25 @@ pub use core::result::ParseResult;
 /// a trait alias that Input Iterator must hold
 use crate::core::iterator_bound::InputIteratorTrait;
 
+pub fn parse<ParserType, It>(
+    parser: &ParserType,
+    it: It,
+) -> ParseResult<<ParserType as Parser<It>>::Output, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    parser.parse(it)
+}
+
+pub fn match_pattern<ParserType, It>(parser: &ParserType, it: It) -> ParseResult<(), It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    parser.match_pattern(it)
+}
+
 /// Check one character is equal to the given character.
 pub fn one<CharType>(ch: CharType) -> leaf::singleeq::SingleEqualParser<CharType> {
     leaf::singleeq::SingleEqualParser::new(ch)
