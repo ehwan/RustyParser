@@ -3,29 +3,17 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone, Copy)]
-pub struct VoidParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+pub struct VoidParser<ParserType> {
     parser: ParserType,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, It> VoidParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> VoidParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self {
-            parser: parser,
-            _phantom: std::marker::PhantomData,
-        }
+        Self { parser: parser }
     }
 }
 
-impl<ParserType, It> Parser<It> for VoidParser<ParserType, It>
+impl<ParserType, It> Parser<It> for VoidParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
