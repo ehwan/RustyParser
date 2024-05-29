@@ -42,7 +42,7 @@ fn main() {
     let paren_expr = rp::seq!(
         rp::one('(').void_(),
         whitespaces.clone(),
-        rp::RCed::clone(&expr),
+        rp::Rc::clone(&expr),
         whitespaces.clone(),
         rp::one(')').void_()
     );
@@ -53,12 +53,12 @@ fn main() {
     // expr1: expr0 ((*|/) expr0)*
     let mul_or_div_op = rp::one('*').or_(rp::one('/'));
     let mul_or_div = rp::seq!(
-        rp::RCed::clone(&expr0),
+        rp::Rc::clone(&expr0),
         rp::seq!(
             whitespaces.clone(),
             mul_or_div_op,
             whitespaces.clone(),
-            rp::RCed::clone(&expr0)
+            rp::Rc::clone(&expr0)
         )
         .repeat(0..)
     )
@@ -78,12 +78,12 @@ fn main() {
     // expr2: expr1 ((+|-) expr1)*
     let add_or_sub_op = rp::one('+').or_(rp::one('-'));
     let add_or_sub = rp::seq!(
-        rp::RCed::clone(&expr1),
+        rp::Rc::clone(&expr1),
         rp::seq!(
             whitespaces.clone(),
             add_or_sub_op,
             whitespaces.clone(),
-            rp::RCed::clone(&expr1)
+            rp::Rc::clone(&expr1)
         )
         .repeat(0..)
     )
@@ -101,11 +101,11 @@ fn main() {
     expr2.borrow_mut().assign(add_or_sub);
 
     // @TODO: simplify this
-    expr.borrow_mut().assign(rp::RCed::clone(&expr2));
+    expr.borrow_mut().assign(rp::Rc::clone(&expr2));
 
     let line_parser = rp::seq!(
         whitespaces.clone(),
-        rp::RCed::clone(&expr),
+        rp::Rc::clone(&expr),
         whitespaces.clone(),
         rp::end()
     );
