@@ -72,6 +72,14 @@ where
     }
 }
 
+pub fn refcell<ParserType, It>(parser: ParserType) -> RefCelledParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    RefCelledParser::new(parser)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
