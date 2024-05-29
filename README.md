@@ -272,17 +272,15 @@ This is useful when you only want to check if the pattern is matched or not.
 For more information, see `match_pattern(...)` above.
 
 ```rust
-let a_parser = rp::one('a');
-let a_parser = a_parser.map(|(_,)| -> (i32,) {
-    // some expensive operations....
+let expensive_parser = rp::one('a');
+let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
+    // some expensive operations.... for data parsing
     panic!("This should not be called");
 });
-let multiple_a_parser = a_parser.repeat(3..=5);
-let multiple_a_void_parser = multiple_a_parser.void_();
 
 // ignore the output of parser
 // this internally calls 'match_pattern(...)' instead of 'parse(...)'
-let res = multiple_a_void_parser.parse("aaaabcd".chars());
+let res = rp::match_pattern(&expensive_parser, "abcd".chars());
 assert_eq!(res.output, Some(()));
 assert_eq!(res.it.collect::<String>(), "bcd");
 ```
