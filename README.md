@@ -82,19 +82,18 @@ fn example1() {
 ```
 
 ## Structures
-Every Parser implements `trait Parser<It>`.
-`It` is the type of the iterator that the Parser will work on.
+Define pattern, combine them, and parse the input string.
 
-`trait Parser` has associate type `Output` which is the type of the output, the extracted data from the input string.
-
-`trait Parser` has following methods.
+RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
  ```rust 
- fn parse(&self, it: It) -> ParseResult<Self::Output, It>;
- fn match_pattern(&self, it: It) -> ParseResult<(), It>;
+ // mod rusty_parser {
+ fn parse<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
+ fn match_pattern<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(), It>;
+ // }
  ```
- 
- which takes an iterator and returns `ParseResult<Self::Output, It>`.
+`parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
+
  `match_pattern(...)` is used 
  when you only want to check if the pattern is matched or not, without extracting data. 
  For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::insert` inside.
@@ -119,7 +118,7 @@ where
 ```
 
 Note that `Output` must be a Tuple 
-(including null-tuple `()`). 
+(include null-tuple `()`). 
 Even if the Parser extracts only one element, the output must be a Tuple.
 
 Since the `parse(...)` internally clones the iterator, 
