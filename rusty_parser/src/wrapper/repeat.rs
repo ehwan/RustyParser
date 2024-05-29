@@ -127,6 +127,22 @@ where
     }
 }
 
+pub fn repeat<ParserType, RangeType, Idx, It>(
+    parser: ParserType,
+    range: RangeType,
+) -> RepeatParser<ParserType, RangeType, Idx, It>
+where
+    It: InputIteratorTrait,
+    RangeType: RangeBounds<Idx>,
+    ParserType: Parser<It>,
+    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
+    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
+    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
+{
+    RepeatParser::new(parser, range)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

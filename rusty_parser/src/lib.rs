@@ -85,6 +85,9 @@ pub use wrapper::void::void_;
 /// concatenate two parser
 pub use wrapper::seq::seq;
 
+/// repeat parser for given range ( this matches as long as possible )
+pub use wrapper::repeat::repeat;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
