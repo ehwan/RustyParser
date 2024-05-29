@@ -91,10 +91,10 @@ pub use wrapper::repeat::repeat;
 /// parser reference wrapper
 pub use wrapper::reference::ref_;
 
-/// RefCell<Parser> wrapper
+/// RefCell\<Parser\> wrapper
 pub use wrapper::refcelled::refcell;
 
-/// Rc<Parser> wrapper
+/// Rc\<Parser\> wrapper
 pub use wrapper::rced::rc;
 
 /// Or combinator of parsers
@@ -113,13 +113,6 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// Dictionary using trie
 /// implementation uses HashMap; O(1) search
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
-
-/// Box\<dyn Parser\> wrapper
-pub use wrapper::boxed::BoxedParser as Boxed;
-/// Rc\<Parser\> wrapper
-pub use wrapper::rced::RcedParser as RCed;
-/// RefCell\<Parser\> wrapper
-pub use wrapper::refcelled::RefCelledParser as RefCelled;
 
 // ================== useful macros below ==================
 
