@@ -108,7 +108,7 @@ where
     }
 
     // refcelled
-    fn refcelled(self) -> crate::wrapper::refcelled::RefCelledParser<Self, It>
+    fn refcelled(self) -> crate::wrapper::refcelled::RefCelledParser<Self>
     where
         Self: Sized,
     {
