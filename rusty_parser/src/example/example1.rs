@@ -101,36 +101,33 @@ fn seq_example() {
     assert_eq!(res.it.collect::<String>(), "cd");
 }
 
-/*
 #[test]
 fn or_example() {
     let a_parser = rp::one('a');
     let b_parser = rp::one('b');
 
-    // parser sequence
-    // if 'a' is not matched, then try 'b'
-    // the order is preserved; if both parser shares condition
-    let ab_parser = a_parser.or_(b_parser);
-    // let ab_parser = rp::or_!(a_parser, b_parser, ...);
+    // 'a' or 'b'
+    let ab_parser = rp::or_!(a_parser, b_parser);
 
     // 'a' is matched
-    let res = ab_parser.parse("abcd".chars());
+    let res = rp::parse(&ab_parser, "abcd".chars());
     assert_eq!(res.output, Some(('a',)));
     assert_eq!(res.it.clone().collect::<String>(), "bcd");
 
     // continue parsing from the rest
     // 'a' is not matched, but 'b' is matched
-    let res = ab_parser.parse(res.it);
+    let res = rp::parse(&ab_parser, res.it);
     assert_eq!(res.output, Some(('b',)));
     assert_eq!(res.it.clone().collect::<String>(), "cd");
 
     // continue parsing from the rest
     // 'a' is not matched, 'b' is not matched; failed
-    let res = ab_parser.parse(res.it);
+    let res = rp::parse(&ab_parser, res.it);
     assert_eq!(res.output, None);
     assert_eq!(res.it.clone().collect::<String>(), "cd");
 }
 
+/*
 #[test]
 fn map_example() {
     let a_parser = rp::one('a');
