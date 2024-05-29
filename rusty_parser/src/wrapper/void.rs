@@ -48,6 +48,14 @@ where
     }
 }
 
+pub fn void_<ParserType, It>(parser: ParserType) -> VoidParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    VoidParser::new(parser)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

@@ -78,6 +78,10 @@ pub fn fail() -> leaf::fail::Fail {
     leaf::fail::Fail::new()
 }
 
+/// change Parser's Output to ().
+/// This internally call match_pattern() instead of parse()
+pub use wrapper::void::void_;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
