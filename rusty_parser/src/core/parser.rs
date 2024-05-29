@@ -44,7 +44,7 @@ where
     }
 
     // seq
-    fn seq<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::seq::SeqParser<Self, RhsParser, It>
+    fn seq<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::seq::SeqParser<Self, RhsParser>
     where
         Self: Sized,
         RhsParser: Parser<It>,
@@ -70,7 +70,7 @@ where
     fn repeat<RangeType, Idx>(
         self,
         range: RangeType,
-    ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType, Idx, It>
+    ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType, Idx>
     where
         Self: Sized,
         RangeType: std::ops::RangeBounds<Idx>,
@@ -84,7 +84,7 @@ where
     }
 
     // void
-    fn void_(self) -> crate::wrapper::void::VoidParser<Self, It>
+    fn void_(self) -> crate::wrapper::void::VoidParser<Self>
     where
         Self: Sized,
     {
@@ -92,7 +92,7 @@ where
     }
 
     // ref
-    fn ref_<'a>(&'a self) -> crate::wrapper::reference::ReferenceParser<'a, Self, It>
+    fn ref_<'a>(&'a self) -> crate::wrapper::reference::ReferenceParser<'a, Self>
     where
         Self: Sized,
     {

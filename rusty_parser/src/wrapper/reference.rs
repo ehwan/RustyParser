@@ -4,29 +4,23 @@ use crate::core::result::ParseResult;
 
 // reference wrapper for Parser
 #[derive(Debug, Clone, Copy)]
-pub struct ReferenceParser<'a, ParserType, It>
+pub struct ReferenceParser<'a, ParserType>
 where
-    ParserType: 'a + Parser<It>,
-    It: InputIteratorTrait,
+    ParserType: 'a,
 {
     parser: &'a ParserType,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<'a, ParserType, It> ReferenceParser<'a, ParserType, It>
+impl<'a, ParserType> ReferenceParser<'a, ParserType>
 where
-    ParserType: 'a + Parser<It>,
-    It: InputIteratorTrait,
+    ParserType: 'a,
 {
     pub fn new(parser: &'a ParserType) -> Self {
-        Self {
-            parser: parser,
-            _phantom: std::marker::PhantomData,
-        }
+        Self { parser: parser }
     }
 }
 
-impl<'a, ParserType, It> Parser<It> for ReferenceParser<'a, ParserType, It>
+impl<'a, ParserType, It> Parser<It> for ReferenceParser<'a, ParserType>
 where
     ParserType: 'a + Parser<It>,
     It: InputIteratorTrait,
