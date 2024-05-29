@@ -1,6 +1,6 @@
 [package]
 name = "rusty_parser"
-version = "0.2.12"
+version = "0.3.12"
 edition = "2021"
 authors = ["ehwan <ehwank98@gmail.com>"]
 description = "A Generic Parser generator and pattern matching library written in Rust"
@@ -8,7 +8,13 @@ license = "MIT"
 readme = "../README.md"
 repository = "https://github.com/ehwan/RustyParser"
 
-keywords = ["parser", "parser-generator", "parser-combinator", "pattern", "generator"]
+keywords = [
+  "parser",
+  "parser-generator",
+  "parser-combinator",
+  "pattern",
+  "generator",
+]
 categories = ["parsing"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
