@@ -8,24 +8,14 @@ use crate::core::result::ParseResult;
 
 // Rc<Parser> wrapper
 #[derive(Debug, Clone)]
-pub struct RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+pub struct RcedParser<ParserType> {
     parser: Rc<ParserType>,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, It> RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> RcedParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self {
             parser: Rc::new(parser),
-            _phantom: std::marker::PhantomData,
         }
     }
     // get &Rc<ChildParser>
@@ -35,12 +25,11 @@ where
     pub fn clone(from: &Self) -> Self {
         Self {
             parser: Rc::clone(&from.parser),
-            _phantom: std::marker::PhantomData,
         }
     }
 }
 
-impl<ParserType, It> Parser<It> for RcedParser<ParserType, It>
+impl<ParserType, It> Parser<It> for RcedParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -55,22 +44,14 @@ where
     }
 }
 
-impl<ParserType, It> Deref for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> Deref for RcedParser<ParserType> {
     type Target = Rc<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
     }
 }
-impl<ParserType, It> DerefMut for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> DerefMut for RcedParser<ParserType> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
     }

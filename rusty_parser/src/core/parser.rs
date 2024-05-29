@@ -116,7 +116,7 @@ where
     }
 
     // RCed
-    fn rced(self) -> crate::wrapper::rced::RcedParser<Self, It>
+    fn rced(self) -> crate::wrapper::rced::RcedParser<Self>
     where
         Self: Sized,
     {
