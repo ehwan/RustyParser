@@ -68,7 +68,6 @@ fn example1() {
     assert_eq!(res.output, Some((123,)));
 }
 
-/*
 #[test]
 fn dict_example() {
     // let mut parser = rp::DictBTree::new();
@@ -79,16 +78,17 @@ fn dict_example() {
     parser.insert("world".chars(), (3,));
 
     // this will match as long as possible
-    let res = parser.parse("hello_world_abcdefg".chars());
+    let res = rp::parse(&parser, "hello_world_abcdefg".chars());
     assert_eq!(res.output, Some((2,)));
     // 'hello_world' is parsed, so the rest is "_abcdefg"
     assert_eq!(res.it.collect::<String>(), "_abcdefg");
 
     // match 'hello' only
-    let res = parser.parse("hello_wo".chars());
+    let res = rp::parse(&parser, "hello_wo".chars());
     assert_eq!(res.output, Some((1,)));
 }
 
+/*
 #[test]
 fn seq_example() {
     let a_parser = rp::one('a');
