@@ -27,12 +27,10 @@ fn example1() {
     // define pattern: [0-9]
     let digit_parser = rp::range('0'..='9');
 
-    // parse; put IntoIterator
-    let res = digit_parser.parse(target_string.chars());
+    // parse
+    let res = rp::parse(&digit_parser, target_string.chars());
 
-    // Output = (Charactor Type You Entered,)  -->  (char,)
-    // All Parser's Output must be Tuple
-    // res.output: Option< Output of the Parser >
+    // res contains the result of parsing
     assert_eq!(
         type_name_of_val(&res.output),
         type_name::<Option<(char,)>>()
@@ -46,7 +44,7 @@ fn example1() {
     // define pattern: 'a'
     let a_parser = rp::one('a');
     // this will fail
-    let res = a_parser.parse(target_string.chars());
+    let res = rp::parse(&a_parser, target_string.chars());
     assert_eq!(res.output, None);
 
     // iterator will not move if parsing failed
@@ -54,15 +52,14 @@ fn example1() {
 
     // define pattern: [0-9][0-9][0-9]
     // perform 'digit_parser', and then 'digit_parser', sequentially
-    // Output = ( Output of first Parser, Output of second Parser, )  -->  (char, char,)
+    // Output = ( Output of first Parser, Output of second Parser, ... )  -->  (char, char, char,)
     let three_digit_parser = rp::seq!(
         digit_parser.clone(), // clone() is required
         digit_parser.clone(), // clone() is required
         digit_parser
     );
 
-    // parse; put IntoIterator
-    let res = three_digit_parser.parse(target_string.chars());
+    let res = rp::parse(&three_digit_parser, target_string.chars());
     assert_eq!(
         type_name_of_val(&res.output),
         type_name::<Option<(char, char, char,)>>()
@@ -72,22 +69,15 @@ fn example1() {
     // Output mapping
     // ( char, char, char )  -->  (i32, )
     // Parser's Output must be Tuple
-    let int_parser = three_digit_parser.map(|(x, y, z)| -> (i32,) {
+    let int_parser = rp::map(three_digit_parser, |(x, y, z)| -> (i32,) {
         let x_i32 = x as i32 - '0' as i32;
         let y_i32 = y as i32 - '0' as i32;
         let z_i32 = z as i32 - '0' as i32;
         (x_i32 * 100 + y_i32 * 10 + z_i32,)
     });
 
-    let res = int_parser.parse(target_string.chars());
+    let res = rp::parse(&int_parser, target_string.chars());
     assert_eq!(res.output, Some((123,)));
-
-    // pattern matching
-    // .match_pattern only checks if the pattern is matched or not
-    // it does not try to extract data from input string (e.g. push element in Vec above)
-    // Output = always ()
-    let res = int_parser.match_pattern(target_string.chars());
-    assert_eq!(res.output, Some(()));
 }
 ```
 
