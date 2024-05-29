@@ -103,6 +103,9 @@ pub use wrapper::or_::or_;
 /// Map parser's Output to new value
 pub use wrapper::map::map;
 
+/// change Parser's Output to Iterator Pair [begin, end)
+pub use wrapper::iter_range::iter;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;

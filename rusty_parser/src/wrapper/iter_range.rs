@@ -54,6 +54,14 @@ where
     }
 }
 
+pub fn iter<ParserType, It>(parser: ParserType) -> IterParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    IterParser::new(parser)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
