@@ -100,6 +100,9 @@ pub use wrapper::rced::rc;
 /// Or combinator of parsers
 pub use wrapper::or_::or_;
 
+/// Map parser's Output to new value
+pub use wrapper::map::map;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;

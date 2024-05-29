@@ -76,6 +76,19 @@ where
     }
 }
 
+pub fn map<ParserType, MapperType, MapOutput, It>(
+    parser: ParserType,
+    callback: MapperType,
+) -> MapParser<ParserType, MapperType, MapOutput, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
+    MapOutput: Tuple,
+{
+    MapParser::new(parser, callback)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
