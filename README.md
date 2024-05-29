@@ -183,11 +183,10 @@ Both of them have their own Pros and Cons (the memory usage and time complexity 
 let a_parser = rp::one('a');
 let b_parser = rp::one('b');
 
-// parser sequence
 // 'a', and then 'b'
-let ab_parser = a_parser.seq(b_parser);
+let ab_parser = rp::seq!(a_parser, b_parser);
 
-let res = ab_parser.parse("abcd".chars());
+let res = rp::parse(&ab_parser, "abcd".chars());
 assert_eq!(res.output, Some(('a', 'b')));
 assert_eq!(res.it.collect::<String>(), "cd");
 ```
