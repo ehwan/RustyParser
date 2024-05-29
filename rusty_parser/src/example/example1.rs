@@ -228,21 +228,20 @@ fn box_example() {
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
 
-/*
 #[test]
 fn refcell_example() {
     let hello_parser = rp::chars("hello");
-    let digit_parser = rp::range('0'..='9').void_();
+    let digit_parser = rp::void_(rp::range('0'..='9'));
 
     // this will wrap the parser into Box< dyn Parser >
-    let boxed_parser = hello_parser.boxed();
-    let refcelled_parser = boxed_parser.refcelled();
+    let boxed_parser = rp::box_(hello_parser);
+    let refcelled_parser = rp::refcell(boxed_parser);
     // Note. refcelled_parser is immutable
     // but you can change the parser(the Boxed Parser) inside it
 
     let target_string = "hello0123";
 
-    let res_hello = refcelled_parser.parse(target_string.chars());
+    let res_hello = rp::parse(&refcelled_parser, target_string.chars());
     // success
     assert_eq!(res_hello.output, Some(()));
     assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
@@ -256,12 +255,13 @@ fn refcell_example() {
     // Thanks to Deref, you can call borrow_mut().assign() directly
     refcelled_parser.borrow_mut().assign(digit_parser);
 
-    let res_digit = refcelled_parser.parse(res_hello.it);
+    let res_digit = rp::parse(&refcelled_parser, res_hello.it);
     // success
     assert_eq!(res_digit.output, Some(()));
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
 
+/*
 #[test]
 fn rc_example() {
     let hello_parser = rp::chars("hello");
