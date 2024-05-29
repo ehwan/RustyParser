@@ -41,6 +41,14 @@ where
     }
 }
 
+pub fn ref_<'a, ParserType, It>(parser: &'a ParserType) -> ReferenceParser<'a, ParserType, It>
+where
+    ParserType: 'a + Parser<It>,
+    It: InputIteratorTrait,
+{
+    ReferenceParser::new(parser)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
