@@ -110,12 +110,6 @@ pub use wrapper::repeat::repeat;
 /// parser reference wrapper
 pub use wrapper::reference::ref_;
 
-/// RefCell\<Parser\> wrapper
-pub use wrapper::refcelled::refcell;
-
-/// Rc\<Parser\> wrapper
-pub use wrapper::rced::rc;
-
 /// Or combinator of parsers
 pub use wrapper::or_::or_;
 
@@ -124,6 +118,15 @@ pub use wrapper::map::map;
 
 /// change Parser's Output to Iterator Pair [begin, end)
 pub use wrapper::iter_range::iter;
+
+/// RefCell\<Parser\> wrapper
+pub use wrapper::refcelled::refcell;
+
+/// Rc\<Parser\> wrapper
+pub use wrapper::rced::rc;
+
+/// Box\< dyn Parser \> wrapper for Parser
+pub use wrapper::boxed::box_;
 
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search

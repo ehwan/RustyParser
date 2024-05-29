@@ -49,11 +49,20 @@ where
     type Output = Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        self.parser.as_ref().parse(it)
+        self.parser.parse(it)
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        self.parser.as_ref().match_pattern(it)
+        self.parser.match_pattern(it)
     }
+}
+
+pub fn box_<'a, It, Output, ParserType>(parser: ParserType) -> BoxedParser<'a, Output, It>
+where
+    It: InputIteratorTrait,
+    Output: Tuple,
+    ParserType: Parser<It, Output = Output> + 'a,
+{
+    BoxedParser::new(parser)
 }
 
 #[cfg(test)]
