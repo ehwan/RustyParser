@@ -97,6 +97,20 @@ where
     }
 }
 
+pub fn seq<ParserA, ParserB, It>(
+    parser_a: ParserA,
+    parser_b: ParserB,
+) -> SeqParser<ParserA, ParserB, It>
+where
+    It: InputIteratorTrait,
+    ParserA: Parser<It>,
+    ParserB: Parser<It>,
+    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
+    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
+{
+    SeqParser::new(parser_a, parser_b)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;

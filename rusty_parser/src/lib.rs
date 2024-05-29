@@ -82,6 +82,9 @@ pub fn fail() -> leaf::fail::Fail {
 /// This internally call match_pattern() instead of parse()
 pub use wrapper::void::void_;
 
+/// concatenate two parser
+pub use wrapper::seq::seq;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
@@ -111,7 +114,7 @@ macro_rules! seq {
 
     // N arguments
     ($first:expr, $($rest:expr),+) => {
-        $first.seq($crate::seq!($($rest),+))
+        $crate::seq($first, $crate::seq!($($rest),+))
     };
 }
 
