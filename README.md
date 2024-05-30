@@ -283,8 +283,8 @@ assert_eq!(res.output.unwrap(), (None,));
 
 ## For complex, highly recursive pattern
 
-By default, all the 'parser-generating' member functions consumes `self` and returns a new Parser. 
-And `Parser::parse(&self)` takes immutable reference of Self.
+By default, all the 'parser-generating' functions consumes input Parser and returns a new instance.
+These processes create new generic Parser object entirely at compile-time.
 
 However, in some cases, you may want to define a recursive parser.
 Which involves 'reference-of-parser' or 'virtual-class-like' structure.
@@ -292,9 +292,16 @@ Which involves 'reference-of-parser' or 'virtual-class-like' structure.
 Luckily, Rust std provides wrapper for these cases.
 `Rc`, `RefCell`, `Box` are the most common ones.
 
-RustyParser provides `BoxedParser`, `RCedParser`, `RefCelledParser` which are Parser Wrapper for `Box`, `Rc`, `RefCell`.
+RustyParser provides `box_*`, `rc`, `refcell` which are Parser wrapper for `Box`, `Rc`, `RefCell`.
 
-### `box_`: a `Box<dyn Parser>` wrapper
+### `box_chars`, `box_slice`: a `Box<dyn Parser>` wrapper
+
+this function wraps the input parser into `Box<dyn Parser>`.
+You can dynamically assign ***any parsers*** with same `Output` type.
+
+#### Note
+Currently only implemented for `std::str::Chars` and `std::slice::Iter`.
+Once you wrap the parser through `box_chars` or `box_slice`, you can only use those iterator for `parse(...)`.
 
 ```rust
 let hello_parser = rp::chars("hello");
@@ -321,7 +328,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `Output`: the `Output` of child parser
 
 ### `refcell`: a `RefCell<Parser>` wrapper
-`RefCelledParser` is useful if it is combined with `BoxedParser` or `RCedParser`.
+`refcell` is useful if it is combined with `box_*` or `rc`.
 Since it provides internal mutability.
 
 ```rust
@@ -353,7 +360,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `Output`: the `Output` of child parser
 
 ### `rc`: a `Rc<Parser>` wrapper
-`RCedParser` is used to share the same parser.
+`rc` is used to share the same parser.
 
 ```rust
 let hello_parser = rp::chars("hello");
