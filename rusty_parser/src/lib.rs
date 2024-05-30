@@ -125,12 +125,6 @@ pub use wrapper::refcelled::refcell;
 /// create Rc\<Parser\> wrapper
 pub use wrapper::rced::rc;
 
-/// Rc\<Parser\> wrapper
-pub use wrapper::rced::RcedParser as Rc;
-
-/// create Box\< dyn Parser \> wrapper for Parser
-pub use wrapper::boxed::box_;
-
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
@@ -138,6 +132,16 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// Dictionary using trie
 /// implementation uses HashMap; O(1) search
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
+
+/// Box\<Parser\> wrapper;
+/// `Parser` can be dyn Parser if you specified.
+pub use wrapper::boxed::BoxedParser as Box;
+
+/// Rc\<Parser\> wrapper;
+pub use wrapper::rced::RcedParser as Rc;
+
+/// RefCell\<Parser\> wrapper;
+pub use wrapper::refcelled::RefCelledParser as RefCell;
 
 // ================== useful macros below ==================
 

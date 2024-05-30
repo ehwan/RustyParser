@@ -1,68 +1,71 @@
 use std::boxed::Box;
+use std::ops::Deref;
+use std::ops::DerefMut;
 
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
-use crate::core::tuple::Tuple;
 
-// Box< dyn Parser > wrapper for Parser
-// this can take any Parser type with fixed Output
-#[derive()]
-pub struct BoxedParser<'a, Output, It>
+pub struct BoxedParser<ParserType, It>
 where
     It: InputIteratorTrait,
-    Output: Tuple,
+    ParserType: Parser<It> + ?Sized,
 {
-    parser: Box<dyn Parser<It, Output = Output> + 'a>,
+    parser: std::boxed::Box<ParserType>,
     _phantom: std::marker::PhantomData<It>,
 }
 
-impl<'a, Output, It> BoxedParser<'a, Output, It>
+impl<ParserType, It> BoxedParser<ParserType, It>
 where
     It: InputIteratorTrait,
-    Output: Tuple,
+    ParserType: Parser<It> + ?Sized,
 {
-    pub fn new<ParserType>(parser: ParserType) -> Self
-    where
-        ParserType: Parser<It, Output = Output> + 'a,
-    {
+    pub fn new(parser: Box<ParserType>) -> Self {
         Self {
-            parser: Box::new(parser),
+            parser: parser,
             _phantom: std::marker::PhantomData,
         }
     }
 
-    // assign new parser
-    pub fn assign<ParserType>(&mut self, parser: ParserType)
-    where
-        ParserType: Parser<It, Output = Output> + 'a,
-    {
-        self.parser = Box::new(parser);
+    pub fn assign(&mut self, parser: Box<ParserType>) {
+        self.parser = parser;
     }
 }
-
-impl<'a, Output, It> Parser<It> for BoxedParser<'a, Output, It>
+impl<ParserType, It> Parser<It> for BoxedParser<ParserType, It>
 where
     It: InputIteratorTrait,
-    Output: Tuple,
+    ParserType: Parser<It> + ?Sized,
 {
-    type Output = Output;
+    type Output = <ParserType as Parser<It>>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         self.parser.parse(it)
     }
+
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         self.parser.match_pattern(it)
     }
 }
 
-pub fn box_<'a, It, Output, ParserType>(parser: ParserType) -> BoxedParser<'a, Output, It>
+impl<ParserType, It> Deref for BoxedParser<ParserType, It>
 where
     It: InputIteratorTrait,
-    Output: Tuple,
-    ParserType: Parser<It, Output = Output> + 'a,
+    ParserType: Parser<It>,
 {
-    BoxedParser::new(parser)
+    type Target = Box<ParserType>;
+
+    fn deref(&self) -> &Self::Target {
+        &self.parser
+    }
+}
+impl<ParserType, It> DerefMut for BoxedParser<ParserType, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    fn deref_mut(&mut self) -> &mut Self::Target {
+        &mut self.parser
+    }
 }
 
 #[cfg(test)]
@@ -77,16 +80,18 @@ mod test {
         let a_parser = SingleEqualParser::new('a');
 
         let str = "1a2b3c4d5e6f7g8h9i0j";
-
-        let mut boxed_digit_parser = BoxedParser::new(digit_parser);
-        let res = boxed_digit_parser.parse(str.chars());
+        let mut boxed: BoxedParser<
+            dyn Parser<std::str::Chars<'_>, Output = (char,)>,
+            std::str::Chars<'_>,
+        > = BoxedParser::new(Box::new(digit_parser));
+        let res = boxed.parse(str.chars());
         let rest: String = res.it.clone().collect();
         assert_eq!(res.output, Some(('1',)));
         assert_eq!(rest, "a2b3c4d5e6f7g8h9i0j");
 
         // set another parser to same variable
-        boxed_digit_parser = BoxedParser::new(a_parser);
-        let res = boxed_digit_parser.parse(res.it);
+        boxed.parser = Box::new(a_parser);
+        let res = boxed.parse(res.it);
         let rest: String = res.it.collect();
         assert_eq!(res.output, Some(('a',)));
         assert_eq!(rest, "2b3c4d5e6f7g8h9i0j");

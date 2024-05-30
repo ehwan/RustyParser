@@ -100,27 +100,27 @@ where
     }
 
     // boxed
-    fn boxed<'a>(self) -> crate::wrapper::boxed::BoxedParser<'a, Self::Output, It>
+    fn box_(self) -> std::boxed::Box<Self>
     where
-        Self: Sized + 'a,
+        Self: Sized,
     {
-        crate::wrapper::boxed::BoxedParser::new(self)
+        std::boxed::Box::new(self)
     }
 
     // refcelled
-    fn refcelled(self) -> crate::wrapper::refcelled::RefCelledParser<Self, It>
+    fn refcell(self) -> std::cell::RefCell<Self>
     where
         Self: Sized,
     {
-        crate::wrapper::refcelled::RefCelledParser::new(self)
+        std::cell::RefCell::new(self)
     }
 
     // RCed
-    fn rced(self) -> crate::wrapper::rced::RcedParser<Self, It>
+    fn rc(self) -> std::rc::Rc<Self>
     where
         Self: Sized,
     {
-        crate::wrapper::rced::RcedParser::new(self)
+        std::rc::Rc::new(self)
     }
 
     // iterator range
