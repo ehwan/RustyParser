@@ -92,7 +92,7 @@ where
     }
 
     // ref
-    fn ref_<'a>(&'a self) -> crate::wrapper::reference::ReferenceParser<'a, Self, It>
+    fn ref_<'a>(&'a self) -> crate::wrapper::reference::ReferenceParser<'a, Self>
     where
         Self: Sized,
     {
