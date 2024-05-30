@@ -108,7 +108,7 @@ where
     }
 
     // iterator range
-    fn iter(self) -> crate::wrapper::iter_range::IterParser<Self, It>
+    fn iter(self) -> crate::wrapper::iter_range::IterParser<Self>
     where
         Self: Sized,
     {

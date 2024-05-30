@@ -5,29 +5,17 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone, Copy)]
-pub struct IterParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+pub struct IterParser<ParserType> {
     parser: ParserType,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, It> IterParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> IterParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self {
-            parser: parser,
-            _phantom: std::marker::PhantomData,
-        }
+        Self { parser: parser }
     }
 }
 
-impl<ParserType, It> Parser<It> for IterParser<ParserType, It>
+impl<ParserType, It> Parser<It> for IterParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -54,7 +42,7 @@ where
     }
 }
 
-pub fn iter<ParserType, It>(parser: ParserType) -> IterParser<ParserType, It>
+pub fn iter<ParserType, It>(parser: ParserType) -> IterParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
