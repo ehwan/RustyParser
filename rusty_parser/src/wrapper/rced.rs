@@ -1,46 +1,28 @@
 use std::ops::Deref;
 use std::ops::DerefMut;
-use std::rc::Rc;
 
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-// Rc<Parser> wrapper
-#[derive(Debug, Clone)]
-pub struct RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
-    parser: Rc<ParserType>,
-    _phantom: std::marker::PhantomData<It>,
+pub struct RcedParser<ParserType> {
+    parser: std::rc::Rc<ParserType>,
 }
 
-impl<ParserType, It> RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> RcedParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self {
-            parser: Rc::new(parser),
-            _phantom: std::marker::PhantomData,
+            parser: std::rc::Rc::new(parser),
         }
     }
-    // get &Rc<ChildParser>
-    pub fn rced_parser(&self) -> &Rc<ParserType> {
-        &self.parser
-    }
-    pub fn clone(from: &Self) -> Self {
+    pub fn clone(&self) -> Self {
         Self {
-            parser: Rc::clone(&from.parser),
-            _phantom: std::marker::PhantomData,
+            parser: std::rc::Rc::clone(&self.parser),
         }
     }
 }
 
-impl<ParserType, It> Parser<It> for RcedParser<ParserType, It>
+impl<ParserType, It> Parser<It> for RcedParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -48,32 +30,28 @@ where
     type Output = <ParserType as Parser<It>>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        self.parser.as_ref().parse(it)
+        self.parser.parse(it)
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        self.parser.as_ref().match_pattern(it)
+        self.parser.match_pattern(it)
     }
 }
 
-impl<ParserType, It> Deref for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
-    type Target = Rc<ParserType>;
+impl<ParserType> Deref for RcedParser<ParserType> {
+    type Target = std::rc::Rc<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
     }
 }
-impl<ParserType, It> DerefMut for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> DerefMut for RcedParser<ParserType> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
     }
+}
+
+pub fn rc<ParserType>(parser: ParserType) -> RcedParser<ParserType> {
+    RcedParser::new(parser)
 }
 
 #[cfg(test)]
@@ -81,17 +59,17 @@ mod test {
     use super::*;
     use crate::{
         leaf::{singleeq::SingleEqualParser, singlerange::SingleRangeParser},
-        wrapper::{boxed::BoxedParser, refcelled::RefCelledParser},
+        wrapper::boxed::DynBoxChars,
+        wrapper::refcelled::RefCelledParser,
     };
 
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let digit_boxed = BoxedParser::new(digit_parser);
+        let digit_boxed: DynBoxChars<(char,)> = DynBoxChars::new(digit_parser);
         let digit_refcelled = RefCelledParser::new(digit_boxed);
 
         let a_parser = SingleEqualParser::new('a');
-        let a_boxed = BoxedParser::new(a_parser);
 
         // let 2 parsers point to the same parser
         let rced1 = RcedParser::new(digit_refcelled);
@@ -105,12 +83,7 @@ mod test {
         assert_eq!(rest, "23456abcd");
 
         // now change rcde1 to a_parser
-        *(rced1.rced_parser().refcelled_parser().borrow_mut()) = a_boxed;
-        //           ^            ^                  ^
-        //           |            |                  |
-        //           |            |              Box<Parser>
-        //           |     &RefCell<Box<Parser>>
-        //      &Rc<RefCell<Box<Parser>>>
+        rced1.borrow_mut().assign(a_parser);
 
         // since rced1 and rced2 point to the same parser, rced2 should also be a_parser
         let res = rced2.parse(str.chars());

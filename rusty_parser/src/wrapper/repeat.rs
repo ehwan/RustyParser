@@ -7,43 +7,33 @@ use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
 #[derive(Debug, Clone, Copy)]
-pub struct RepeatParser<ParserType, RangeType, Idx, It>
+pub struct RepeatParser<ParserType, RangeType, Idx>
 where
-    It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
-    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
-    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
 {
     parser: ParserType,
     range: RangeType,
-    _phantom: std::marker::PhantomData<It>,
-    _phantom2: std::marker::PhantomData<Idx>,
+    _phantom: std::marker::PhantomData<Idx>,
 }
 
-impl<ParserType, RangeType, Idx, It> RepeatParser<ParserType, RangeType, Idx, It>
+impl<ParserType, RangeType, Idx> RepeatParser<ParserType, RangeType, Idx>
 where
-    It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
-    ParserType: Parser<It>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
-    <ParserType as Parser<It>>::Output: VectorOutputSpecialize,
-    <<ParserType as Parser<It>>::Output as VectorOutputSpecialize>::Output: Tuple,
 {
     pub fn new(parser: ParserType, range: RangeType) -> Self {
         Self {
             parser: parser,
             range: range,
             _phantom: std::marker::PhantomData,
-            _phantom2: std::marker::PhantomData,
         }
     }
 }
 
-impl<ParserType, RangeType, Idx, It> Parser<It> for RepeatParser<ParserType, RangeType, Idx, It>
+impl<ParserType, RangeType, Idx, It> Parser<It> for RepeatParser<ParserType, RangeType, Idx>
 where
     It: InputIteratorTrait,
     RangeType: RangeBounds<Idx>,
@@ -125,6 +115,18 @@ where
             }
         }
     }
+}
+
+pub fn repeat<ParserType, RangeType, Idx>(
+    parser: ParserType,
+    range: RangeType,
+) -> RepeatParser<ParserType, RangeType, Idx>
+where
+    RangeType: RangeBounds<Idx>,
+    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
+    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+{
+    RepeatParser::new(parser, range)
 }
 
 #[cfg(test)]

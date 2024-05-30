@@ -6,37 +6,21 @@ use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
 #[derive(Debug, Clone, Copy)]
-pub struct SeqParser<ParserA, ParserB, It>
-where
-    It: InputIteratorTrait,
-    ParserA: Parser<It>,
-    ParserB: Parser<It>,
-    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
-    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
-{
-    pub parser_a: ParserA,
-    pub parser_b: ParserB,
-    _phantom: std::marker::PhantomData<It>,
+pub struct SeqParser<ParserA, ParserB> {
+    parser_a: ParserA,
+    parser_b: ParserB,
 }
 
-impl<ParserA, ParserB, It> SeqParser<ParserA, ParserB, It>
-where
-    It: InputIteratorTrait,
-    ParserA: Parser<It>,
-    ParserB: Parser<It>,
-    <ParserA as Parser<It>>::Output: AppendTupleToTuple<<ParserB as Parser<It>>::Output>,
-    <<ParserA as Parser<It>>::Output as AppendTupleToTuple<<ParserB as Parser<It>>::Output>>::Output: Tuple,
-{
+impl<ParserA, ParserB> SeqParser<ParserA, ParserB> {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
             parser_a: parser_a,
             parser_b: parser_b,
-            _phantom: std::marker::PhantomData,
         }
     }
 }
 
-impl<ParserA, ParserB, It> Parser<It> for SeqParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> Parser<It> for SeqParser<ParserA, ParserB>
 where
     It: InputIteratorTrait,
     ParserA: Parser<It>,
@@ -95,6 +79,10 @@ where
             }
         }
     }
+}
+
+pub fn seq<ParserA, ParserB>(parser_a: ParserA, parser_b: ParserB) -> SeqParser<ParserA, ParserB> {
+    SeqParser::new(parser_a, parser_b)
 }
 
 #[cfg(test)]

@@ -7,26 +7,25 @@ use crate::core::tuple::Tuple;
 // Callback function's return value would be new value of the parser
 
 #[derive(Debug, Clone, Copy)]
-pub struct MapParser<ParserType, MapperType, MapOutput, It>
+pub struct MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
 where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
-    MapOutput: Tuple,
+    ClosureInput: Tuple,
+    ClosureType: Fn(ClosureInput) -> ClosureOutput,
+    ClosureOutput: Tuple,
 {
     parser: ParserType,
-    callback: MapperType,
-    _phantom: std::marker::PhantomData<It>,
+    callback: ClosureType,
+    _phantom: std::marker::PhantomData<(ClosureInput, ClosureOutput)>,
 }
 
-impl<ParserType, MapperType, MapOutput, It> MapParser<ParserType, MapperType, MapOutput, It>
+impl<ParserType, ClosureType, ClosureInput, ClosureOutput>
+    MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
 where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
-    MapOutput: Tuple,
+    ClosureInput: Tuple,
+    ClosureType: Fn(ClosureInput) -> ClosureOutput,
+    ClosureOutput: Tuple,
 {
-    pub fn new(parser: ParserType, callback: MapperType) -> Self {
+    pub fn new(parser: ParserType, callback: ClosureType) -> Self {
         Self {
             parser: parser,
             callback: callback,
@@ -35,15 +34,16 @@ where
     }
 }
 
-impl<ParserType, MapperType, MapOutput, It> Parser<It>
-    for MapParser<ParserType, MapperType, MapOutput, It>
+impl<ParserType, ClosureType, ClosureInput, ClosureOutput, It> Parser<It>
+    for MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
 where
     It: InputIteratorTrait,
-    ParserType: Parser<It>,
-    MapperType: Fn(<ParserType as Parser<It>>::Output) -> MapOutput,
-    MapOutput: Tuple,
+    ClosureInput: Tuple,
+    ParserType: Parser<It, Output = ClosureInput>,
+    ClosureType: Fn(<ParserType as Parser<It>>::Output) -> ClosureOutput,
+    ClosureOutput: Tuple,
 {
-    type Output = MapOutput;
+    type Output = ClosureOutput;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.parse(it);
@@ -76,6 +76,18 @@ where
     }
 }
 
+pub fn map<ParserType, ClosureType, ClosureInput, ClosureOutput>(
+    parser: ParserType,
+    callback: ClosureType,
+) -> MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
+where
+    ClosureType: Fn(ClosureInput) -> ClosureOutput,
+    ClosureInput: Tuple,
+    ClosureOutput: Tuple,
+{
+    MapParser::new(parser, callback)
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -84,7 +96,8 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser = MapParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
+        let callback_parser =
+            MapParser::new(digit_parser, |val: (char,)| -> (i32,) { (val.0 as i32,) });
 
         let str = "123hello";
 
@@ -96,7 +109,8 @@ mod test {
     #[test]
     fn fail1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let callback_parser = MapParser::new(digit_parser, |val| -> (i32,) { (val.0 as i32,) });
+        let callback_parser =
+            MapParser::new(digit_parser, |val: (char,)| -> (i32,) { (val.0 as i32,) });
 
         let str = "a23hello";
 

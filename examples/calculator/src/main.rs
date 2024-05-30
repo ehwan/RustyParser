@@ -2,17 +2,16 @@ use std::io::{stdin, stdout, Write};
 
 use rusty_parser as rp;
 
-use rp::Parser;
-
 fn main() {
+    use rp::*;
+
     // Since there are no 'null parsers' in RustyParser, we need to create a dummy parser
-    // this will tell compiler that the Output of the parser is (i32,)
-    let dummy_parser = rp::constant((0,));
-    // Note. dummy_parser impl Copy
-    let expr = dummy_parser.boxed().refcelled().rced();
-    let expr0 = dummy_parser.boxed().refcelled().rced();
-    let expr1 = dummy_parser.boxed().refcelled().rced();
-    let expr2 = dummy_parser.boxed().refcelled().rced();
+    // this will tell compiler of dyn Parser's signature
+    let dummy_parser = constant((0,));
+    let expr = rc(refcell(box_chars(dummy_parser)));
+    let expr0 = rc(refcell(box_chars(dummy_parser)));
+    let expr1 = rc(refcell(box_chars(dummy_parser)));
+    let expr2 = rc(refcell(box_chars(dummy_parser)));
 
     /*
     paren_expr: '(' expr ')'
@@ -23,14 +22,16 @@ fn main() {
     lineend: '\0'
      */
 
-    let whitespaces = rp::one(' ').or_(rp::one('\n')).repeat(0..).void_();
+    let whitespaces = void_(repeat(or_!(one(' '), one('\n')), 0..));
 
     // one digit [0-9]
-    let digit = rp::range('0'..='9').map(|(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
+    let digit = map(range('0'..='9'), |(c,)| -> (i32,) {
+        (c as i32 - '0' as i32,)
+    });
 
     // number [0-9]+
     // multiple digits -> build number
-    let num = digit.repeat(1..).map(|(digits,)| -> (i32,) {
+    let num = map(repeat(digit, 1..), |(digits,)| -> (i32,) {
         let mut res = 0;
         for digit in digits {
             res = res * 10 + digit;
@@ -39,75 +40,83 @@ fn main() {
     });
 
     // '(' expression ')'
-    let paren_expr = rp::seq!(
-        rp::one('(').void_(),
+    let paren_expr = seq!(
+        void_(one('(')),
         whitespaces.clone(),
-        rp::RCed::clone(&expr),
+        Rc::clone(&expr),
         whitespaces.clone(),
-        rp::one(')').void_()
+        void_(one(')'))
     );
 
     // expr0: num | paren_expr
-    expr0.borrow_mut().assign(num.or_(paren_expr));
+    expr0.borrow_mut().assign(or_!(num, paren_expr));
 
     // expr1: expr0 ((*|/) expr0)*
-    let mul_or_div_op = rp::one('*').or_(rp::one('/'));
-    let mul_or_div = rp::seq!(
-        rp::RCed::clone(&expr0),
-        rp::seq!(
-            whitespaces.clone(),
-            mul_or_div_op,
-            whitespaces.clone(),
-            rp::RCed::clone(&expr0)
-        )
-        .repeat(0..)
-    )
-    .map(|(mut base, op_rhs_vec)| -> (i32,) {
-        for (op, rhs) in op_rhs_vec {
-            if op == '*' {
-                base = base * rhs;
-            } else {
-                base = base / rhs;
+    let mul_or_div_op = or_!(one('*'), one('/'));
+    let mul_or_div = map(
+        seq!(
+            Rc::clone(&expr0),
+            repeat(
+                seq!(
+                    whitespaces.clone(),
+                    mul_or_div_op,
+                    whitespaces.clone(),
+                    Rc::clone(&expr0)
+                ),
+                0..
+            )
+        ),
+        |(mut base, op_rhs_vec)| -> (i32,) {
+            for (op, rhs) in op_rhs_vec {
+                if op == '*' {
+                    base = base * rhs;
+                } else {
+                    base = base / rhs;
+                }
             }
-        }
-        return (base,);
-    });
+            return (base,);
+        },
+    );
 
     expr1.borrow_mut().assign(mul_or_div);
 
     // expr2: expr1 ((+|-) expr1)*
-    let add_or_sub_op = rp::one('+').or_(rp::one('-'));
-    let add_or_sub = rp::seq!(
-        rp::RCed::clone(&expr1),
-        rp::seq!(
-            whitespaces.clone(),
-            add_or_sub_op,
-            whitespaces.clone(),
-            rp::RCed::clone(&expr1)
-        )
-        .repeat(0..)
-    )
-    .map(|(mut base, op_rhs_vec)| -> (i32,) {
-        for (op, rhs) in op_rhs_vec {
-            if op == '+' {
-                base = base + rhs;
-            } else {
-                base = base - rhs;
+    let add_or_sub_op = or_!(one('+'), one('-'));
+    let add_or_sub = map(
+        seq!(
+            Rc::clone(&expr1),
+            repeat(
+                seq!(
+                    whitespaces.clone(),
+                    add_or_sub_op,
+                    whitespaces.clone(),
+                    Rc::clone(&expr1)
+                ),
+                0..
+            )
+        ),
+        |(mut base, op_rhs_vec)| -> (i32,) {
+            for (op, rhs) in op_rhs_vec {
+                if op == '+' {
+                    base = base + rhs;
+                } else {
+                    base = base - rhs;
+                }
             }
-        }
-        return (base,);
-    });
+            return (base,);
+        },
+    );
 
     expr2.borrow_mut().assign(add_or_sub);
 
     // @TODO: simplify this
-    expr.borrow_mut().assign(rp::RCed::clone(&expr2));
+    expr.borrow_mut().assign(Rc::clone(&expr2));
 
-    let line_parser = rp::seq!(
+    let line_parser = seq!(
         whitespaces.clone(),
-        rp::RCed::clone(&expr),
+        Rc::clone(&expr),
         whitespaces.clone(),
-        rp::end()
+        end()
     );
 
     loop {
@@ -116,8 +125,8 @@ fn main() {
         let mut line: String = String::new();
         stdin().read_line(&mut line).expect("Failed to read line");
 
-        let chars_vec: Vec<char> = line.chars().collect();
-        let res = line_parser.parse(chars_vec.into_iter());
+        let res = parse(&line_parser, line.chars());
+
         match res.output {
             Some((res,)) => println!("Result: {}", res),
             None => println!("Error"),

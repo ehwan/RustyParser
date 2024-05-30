@@ -17,6 +17,28 @@ pub use core::result::ParseResult;
 /// a trait alias that Input Iterator must hold
 use crate::core::iterator_bound::InputIteratorTrait;
 
+/// parse the input with the given parser
+pub fn parse<ParserType, It>(
+    parser: &ParserType,
+    it: It,
+) -> ParseResult<<ParserType as Parser<It>>::Output, It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    parser.parse(it)
+}
+
+/// match the input with the given parser
+/// This does not construct the output, just check the input is matched or not.
+pub fn match_pattern<ParserType, It>(parser: &ParserType, it: It) -> ParseResult<(), It>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    parser.match_pattern(it)
+}
+
 /// Check one character is equal to the given character.
 pub fn one<CharType>(ch: CharType) -> leaf::singleeq::SingleEqualParser<CharType> {
     leaf::singleeq::SingleEqualParser::new(ch)
@@ -78,6 +100,42 @@ pub fn fail() -> leaf::fail::Fail {
     leaf::fail::Fail::new()
 }
 
+/// change Parser's Output to ().
+/// This internally call match_pattern() instead of parse()
+pub use wrapper::void::void_;
+
+/// concatenate two parser
+pub use wrapper::seq::seq;
+
+/// repeat parser for given range ( this matches as long as possible )
+pub use wrapper::repeat::repeat;
+
+/// parser reference wrapper
+pub use wrapper::reference::ref_;
+
+/// Or combinator of parsers
+pub use wrapper::or_::or_;
+
+/// Map parser's Output to new value
+pub use wrapper::map::map;
+
+/// change Parser's Output to Iterator Pair [begin, end)
+pub use wrapper::iter_range::iter;
+
+/// create RefCell\<Parser\> wrapper
+pub use wrapper::refcelled::refcell;
+
+/// create Rc\<Parser\> wrapper
+pub use wrapper::rced::rc;
+
+/// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
+/// This can take any parser with Output of `Output`
+pub use wrapper::boxed::box_chars;
+
+/// create a Box\<dyn Parser\> wrapper for iterators of std::slice::Iter
+/// This can take any parser with Output of `Output`
+pub use wrapper::boxed::box_slice;
+
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
@@ -86,12 +144,19 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// implementation uses HashMap; O(1) search
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
-/// Box\<dyn Parser\> wrapper
-pub use wrapper::boxed::BoxedParser as Boxed;
-/// Rc\<Parser\> wrapper
-pub use wrapper::rced::RcedParser as RCed;
-/// RefCell\<Parser\> wrapper
-pub use wrapper::refcelled::RefCelledParser as RefCelled;
+/// Rc\<Parser\> wrapper;
+pub use wrapper::rced::RcedParser as Rc;
+
+/// RefCell\<Parser\> wrapper;
+pub use wrapper::refcelled::RefCelledParser as RefCell;
+
+/// a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
+/// This can take any parser with Output of `Output`
+pub use wrapper::boxed::DynBoxChars;
+
+/// a Box\<dyn Parser\> wrapper for iterators of std::slice::Iter
+/// This can take any parser with Output of `Output`
+pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================
 
@@ -107,7 +172,7 @@ macro_rules! seq {
 
     // N arguments
     ($first:expr, $($rest:expr),+) => {
-        $first.seq($crate::seq!($($rest),+))
+        $crate::seq($first, $crate::seq!($($rest),+))
     };
 }
 
@@ -123,6 +188,6 @@ macro_rules! or_ {
 
     // N arguments
     ($first:expr, $($rest:expr),+) => {
-        $first.or_($crate::or_!($($rest),+))
+        $crate::or_( $first, $crate::or_!($($rest),+) )
     };
 }
