@@ -6,24 +6,6 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-impl<ParserType, It> Parser<It> for Rc<ParserType>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
-    type Output = <ParserType as Parser<It>>::Output;
-
-    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        self.as_ref().parse(it)
-    }
-    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        self.as_ref().match_pattern(it)
-    }
-}
-
-/*
-// Rc<Parser> wrapper
-#[derive(Debug, Clone)]
 pub struct RcedParser<ParserType, It>
 where
     It: InputIteratorTrait,
@@ -44,13 +26,9 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
-    // get &Rc<ChildParser>
-    pub fn rced_parser(&self) -> &Rc<ParserType> {
-        &self.parser
-    }
-    pub fn clone(from: &Self) -> Self {
+    pub fn clone(&self) -> Self {
         Self {
-            parser: Rc::clone(&from.parser),
+            parser: Rc::clone(&self.parser),
             _phantom: std::marker::PhantomData,
         }
     }
@@ -64,10 +42,10 @@ where
     type Output = <ParserType as Parser<It>>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        self.parser.as_ref().parse(it)
+        self.parser.parse(it)
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        self.parser.as_ref().match_pattern(it)
+        self.parser.match_pattern(it)
     }
 }
 
@@ -91,9 +69,7 @@ where
         &mut self.parser
     }
 }
-*/
 
-/*
 #[cfg(test)]
 mod test {
     use super::*;
@@ -105,11 +81,11 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let digit_boxed = BoxedParser::new(digit_parser);
+        let digit_boxed: BoxedParser<dyn Parser<std::str::Chars<'_>, Output = (char,)>, _> =
+            BoxedParser::new(Box::new(digit_parser));
         let digit_refcelled = RefCelledParser::new(digit_boxed);
 
         let a_parser = SingleEqualParser::new('a');
-        let a_boxed = BoxedParser::new(a_parser);
 
         // let 2 parsers point to the same parser
         let rced1 = RcedParser::new(digit_refcelled);
@@ -123,12 +99,7 @@ mod test {
         assert_eq!(rest, "23456abcd");
 
         // now change rcde1 to a_parser
-        *(rced1.rced_parser().refcelled_parser().borrow_mut()) = a_boxed;
-        //           ^            ^                  ^
-        //           |            |                  |
-        //           |            |              Box<Parser>
-        //           |     &RefCell<Box<Parser>>
-        //      &Rc<RefCell<Box<Parser>>>
+        rced1.borrow_mut().assign(Box::new(a_parser));
 
         // since rced1 and rced2 point to the same parser, rced2 should also be a_parser
         let res = rced2.parse(str.chars());
@@ -137,5 +108,3 @@ mod test {
         assert_eq!(rest, "123456abcd");
     }
 }
-
-*/
