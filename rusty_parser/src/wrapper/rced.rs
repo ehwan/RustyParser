@@ -1,40 +1,28 @@
 use std::ops::Deref;
 use std::ops::DerefMut;
-use std::rc::Rc;
 
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-pub struct RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
-    parser: Rc<ParserType>,
-    _phantom: std::marker::PhantomData<It>,
+pub struct RcedParser<ParserType> {
+    parser: std::rc::Rc<ParserType>,
 }
 
-impl<ParserType, It> RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> RcedParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self {
-            parser: Rc::new(parser),
-            _phantom: std::marker::PhantomData,
+            parser: std::rc::Rc::new(parser),
         }
     }
     pub fn clone(&self) -> Self {
         Self {
-            parser: Rc::clone(&self.parser),
-            _phantom: std::marker::PhantomData,
+            parser: std::rc::Rc::clone(&self.parser),
         }
     }
 }
 
-impl<ParserType, It> Parser<It> for RcedParser<ParserType, It>
+impl<ParserType, It> Parser<It> for RcedParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -49,28 +37,20 @@ where
     }
 }
 
-impl<ParserType, It> Deref for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
-    type Target = Rc<ParserType>;
+impl<ParserType> Deref for RcedParser<ParserType> {
+    type Target = std::rc::Rc<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
     }
 }
-impl<ParserType, It> DerefMut for RcedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> DerefMut for RcedParser<ParserType> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
     }
 }
 
-pub fn rc<ParserType, It>(parser: ParserType) -> RcedParser<ParserType, It>
+pub fn rc<ParserType, It>(parser: ParserType) -> RcedParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
