@@ -26,6 +26,10 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
+
+    pub fn assign(&mut self, parser: Box<ParserType>) {
+        self.parser = parser;
+    }
 }
 impl<ParserType, It> Parser<It> for BoxedParser<ParserType, It>
 where
@@ -48,7 +52,7 @@ where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
 {
-    type Target = ParserType;
+    type Target = Box<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
