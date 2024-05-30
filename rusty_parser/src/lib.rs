@@ -143,6 +143,10 @@ pub use wrapper::rced::RcedParser as Rc;
 /// RefCell\<Parser\> wrapper;
 pub use wrapper::refcelled::RefCelledParser as RefCell;
 
+pub type DynBoxChars<Output> = crate::Box<dyn for<'a> Parser<std::str::Chars<'a>, Output = Output>>;
+pub type DynBoxSlice<Output, T> =
+    crate::Box<dyn for<'a> Parser<std::slice::Iter<'a, T>, Output = Output>>;
+
 // ================== useful macros below ==================
 
 /// Sequence of parsers
