@@ -6,32 +6,26 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-pub struct BoxedParser<ParserType, It>
+pub struct BoxedParser<ParserType>
 where
-    It: InputIteratorTrait,
-    ParserType: Parser<It> + ?Sized,
+    ParserType: ?Sized,
 {
     parser: std::boxed::Box<ParserType>,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, It> BoxedParser<ParserType, It>
+impl<ParserType> BoxedParser<ParserType>
 where
-    It: InputIteratorTrait,
-    ParserType: Parser<It> + ?Sized,
+    ParserType: ?Sized,
 {
     pub fn new(parser: Box<ParserType>) -> Self {
-        Self {
-            parser: parser,
-            _phantom: std::marker::PhantomData,
-        }
+        Self { parser: parser }
     }
 
     pub fn assign(&mut self, parser: Box<ParserType>) {
         self.parser = parser;
     }
 }
-impl<ParserType, It> Parser<It> for BoxedParser<ParserType, It>
+impl<ParserType, It> Parser<It> for BoxedParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It> + ?Sized,
@@ -47,22 +41,14 @@ where
     }
 }
 
-impl<ParserType, It> Deref for BoxedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> Deref for BoxedParser<ParserType> {
     type Target = Box<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
     }
 }
-impl<ParserType, It> DerefMut for BoxedParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> DerefMut for BoxedParser<ParserType> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
     }
@@ -80,10 +66,8 @@ mod test {
         let a_parser = SingleEqualParser::new('a');
 
         let str = "1a2b3c4d5e6f7g8h9i0j";
-        let mut boxed: BoxedParser<
-            dyn Parser<std::str::Chars<'_>, Output = (char,)>,
-            std::str::Chars<'_>,
-        > = BoxedParser::new(Box::new(digit_parser));
+        let mut boxed: BoxedParser<dyn Parser<std::str::Chars<'_>, Output = (char,)>> =
+            BoxedParser::new(Box::new(digit_parser));
         let res = boxed.parse(str.chars());
         let rest: String = res.it.clone().collect();
         assert_eq!(res.output, Some(('1',)));

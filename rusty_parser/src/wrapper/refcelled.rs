@@ -81,10 +81,8 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::new('0'..='9');
-        let boxed: BoxedParser<
-            dyn Parser<std::str::Chars<'_>, Output = (char,)>,
-            std::str::Chars<'_>,
-        > = BoxedParser::new(Box::new(digit_parser));
+        let boxed: BoxedParser<dyn Parser<std::str::Chars<'_>, Output = (char,)>> =
+            BoxedParser::new(Box::new(digit_parser));
         let refed = RefCelledParser::new(boxed);
 
         let str = "123456abcd";
