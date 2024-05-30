@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -39,6 +40,16 @@ where
             output: Some(()),
             it: it,
         }
+    }
+}
+
+impl<Output> IntoParser for ConstantParser<Output>
+where
+    Output: Clone + Tuple,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
     }
 }
 

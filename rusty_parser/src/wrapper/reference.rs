@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -40,6 +41,16 @@ where
     ParserType: 'a,
 {
     ReferenceParser::new(parser)
+}
+
+impl<'a, ParserType> IntoParser for ReferenceParser<'a, ParserType>
+where
+    ParserType: 'a,
+{
+    type Into = ReferenceParser<'a, ParserType>;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -76,16 +77,29 @@ where
     }
 }
 
-pub fn map<ParserType, ClosureType, ClosureInput, ClosureOutput>(
+impl<ParserType, ClosureType, ClosureInput, ClosureOutput> IntoParser
+    for MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
+where
+    ClosureInput: Tuple,
+    ClosureType: Fn(ClosureInput) -> ClosureOutput,
+    ClosureOutput: Tuple,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+pub fn map<ParserType: IntoParser, ClosureType, ClosureInput, ClosureOutput>(
     parser: ParserType,
     callback: ClosureType,
-) -> MapParser<ParserType, ClosureType, ClosureInput, ClosureOutput>
+) -> MapParser<ParserType::Into, ClosureType, ClosureInput, ClosureOutput>
 where
     ClosureType: Fn(ClosureInput) -> ClosureOutput,
     ClosureInput: Tuple,
     ClosureOutput: Tuple,
 {
-    MapParser::new(parser, callback)
+    MapParser::new(parser.into_parser(), callback)
 }
 
 #[cfg(test)]

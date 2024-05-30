@@ -1,6 +1,7 @@
 use std::ops::RangeBounds;
 
 use super::vecmerge::VectorOutputSpecialize;
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -117,16 +118,28 @@ where
     }
 }
 
-pub fn repeat<ParserType, RangeType, Idx>(
+pub fn repeat<ParserType: IntoParser, RangeType, Idx>(
     parser: ParserType,
     range: RangeType,
-) -> RepeatParser<ParserType, RangeType, Idx>
+) -> RepeatParser<ParserType::Into, RangeType, Idx>
 where
     RangeType: RangeBounds<Idx>,
     Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
     i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
 {
-    RepeatParser::new(parser, range)
+    RepeatParser::new(parser.into_parser(), range)
+}
+
+impl<ParserType, RangeType, Idx> IntoParser for RepeatParser<ParserType, RangeType, Idx>
+where
+    RangeType: RangeBounds<Idx>,
+    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
+    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+{
+    type Into = RepeatParser<ParserType, RangeType, Idx>;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
 use std::iter::Iterator;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -68,6 +69,92 @@ where
                 it: i0,
             }
         }
+    }
+}
+
+impl<CharType> IntoParser for SingleEqualParser<CharType> {
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+impl IntoParser for char {
+    type Into = SingleEqualParser<char>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for i8 {
+    type Into = SingleEqualParser<i8>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for i16 {
+    type Into = SingleEqualParser<i16>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for i32 {
+    type Into = SingleEqualParser<i32>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for i64 {
+    type Into = SingleEqualParser<i64>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for i128 {
+    type Into = SingleEqualParser<i128>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for isize {
+    type Into = SingleEqualParser<isize>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for u8 {
+    type Into = SingleEqualParser<u8>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for u16 {
+    type Into = SingleEqualParser<u16>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for u32 {
+    type Into = SingleEqualParser<u32>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for u64 {
+    type Into = SingleEqualParser<u64>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for u128 {
+    type Into = SingleEqualParser<u128>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
+    }
+}
+impl IntoParser for usize {
+    type Into = SingleEqualParser<usize>;
+    fn into_parser(self) -> Self::Into {
+        SingleEqualParser::new(self)
     }
 }
 

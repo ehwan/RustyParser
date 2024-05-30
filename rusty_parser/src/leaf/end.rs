@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -30,6 +31,13 @@ where
                 it: it,
             },
         }
+    }
+}
+
+impl IntoParser for EndParser {
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
     }
 }
 

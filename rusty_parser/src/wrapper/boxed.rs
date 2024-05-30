@@ -1,6 +1,7 @@
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
@@ -16,19 +17,19 @@ impl<Output> DynBoxChars<Output>
 where
     Output: Tuple,
 {
-    pub fn new<ParserType>(parser: ParserType) -> Self
+    pub fn new<ParserType: IntoParser>(parser: ParserType) -> Self
     where
-        ParserType: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
+        ParserType::Into: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
     {
         Self {
-            parser: std::boxed::Box::new(parser),
+            parser: std::boxed::Box::new(parser.into_parser()),
         }
     }
-    pub fn assign<ParserType>(&mut self, parser: ParserType)
+    pub fn assign<ParserType: IntoParser>(&mut self, parser: ParserType)
     where
-        ParserType: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
+        ParserType::Into: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
     {
-        self.parser = std::boxed::Box::new(parser);
+        self.parser = std::boxed::Box::new(parser.into_parser());
     }
 }
 
@@ -65,6 +66,15 @@ where
         &mut self.parser
     }
 }
+impl<Output> IntoParser for DynBoxChars<Output>
+where
+    Output: Tuple,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
 
 pub struct DynBoxSlice<Output, T>
 where
@@ -77,19 +87,19 @@ impl<Output, T> DynBoxSlice<Output, T>
 where
     Output: Tuple,
 {
-    pub fn new<ParserType>(parser: ParserType) -> Self
+    pub fn new<ParserType: IntoParser>(parser: ParserType) -> Self
     where
-        ParserType: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+        ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
     {
         Self {
-            parser: std::boxed::Box::new(parser),
+            parser: std::boxed::Box::new(parser.into_parser()),
         }
     }
-    pub fn assign<ParserType>(&mut self, parser: ParserType)
+    pub fn assign<ParserType: IntoParser>(&mut self, parser: ParserType)
     where
-        ParserType: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+        ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
     {
-        self.parser = std::boxed::Box::new(parser);
+        self.parser = std::boxed::Box::new(parser.into_parser());
     }
 }
 
@@ -132,25 +142,30 @@ where
         &mut self.parser
     }
 }
-
-pub fn box_chars<ParserType, Output>(parser: ParserType) -> DynBoxChars<Output>
+impl<Output, T> IntoParser for DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    ParserType: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+pub fn box_chars<ParserType: IntoParser, Output>(parser: ParserType) -> DynBoxChars<Output>
+where
+    Output: Tuple,
+    ParserType::Into: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
 {
     DynBoxChars::new(parser)
 }
-pub fn box_slice<ParserType, Output, T>(parser: ParserType) -> DynBoxSlice<Output, T>
+pub fn box_slice<ParserType: IntoParser, Output, T>(parser: ParserType) -> DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    ParserType: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+    ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
 {
     DynBoxSlice::new(parser)
 }
-
-// pub fn box_chars<ParserType>(parser: ParserType) -> DynBoxChars<ParserType> {
-//     BoxedParser::new(Box::new(parser))
-// }
 
 #[cfg(test)]
 mod test {

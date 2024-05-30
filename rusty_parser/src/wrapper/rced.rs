@@ -1,6 +1,7 @@
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -50,8 +51,16 @@ impl<ParserType> DerefMut for RcedParser<ParserType> {
     }
 }
 
-pub fn rc<ParserType>(parser: ParserType) -> RcedParser<ParserType> {
-    RcedParser::new(parser)
+pub fn rc<ParserType: IntoParser>(parser: ParserType) -> RcedParser<ParserType::Into> {
+    RcedParser::new(parser.into_parser())
+}
+
+impl<ParserType> IntoParser for RcedParser<ParserType> {
+    type Into = Self;
+
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

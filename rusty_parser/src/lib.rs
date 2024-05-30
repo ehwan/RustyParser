@@ -5,6 +5,14 @@ pub(crate) mod wrapper;
 
 use std::ops::RangeBounds;
 
+/// Trait for converting possible types to Parser
+pub use crate::core::into_parser::IntoParser;
+
+/// convert the given type to Parser ( if it impl IntoParser )
+pub fn into_parser<ParserType: IntoParser>(parser: ParserType) -> ParserType::Into {
+    parser.into_parser()
+}
+
 /// Parser trait
 /// all parsers must implement this trait
 pub use core::parser::Parser;
@@ -15,7 +23,7 @@ pub use core::parser::Parser;
 pub use core::result::ParseResult;
 
 /// a trait alias that Input Iterator must hold
-use crate::core::iterator_bound::InputIteratorTrait;
+pub use crate::core::iterator_bound::InputIteratorTrait;
 
 /// parse the input with the given parser
 pub fn parse<ParserType, It>(

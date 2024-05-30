@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -70,8 +71,19 @@ where
     }
 }
 
-pub fn or_<ParserA, ParserB>(parser_a: ParserA, parser_b: ParserB) -> OrParser<ParserA, ParserB> {
-    OrParser::new(parser_a, parser_b)
+pub fn or_<ParserA: IntoParser, ParserB: IntoParser>(
+    parser_a: ParserA,
+    parser_b: ParserB,
+) -> OrParser<ParserA::Into, ParserB::Into> {
+    OrParser::new(parser_a.into_parser(), parser_b.into_parser())
+}
+
+impl<ParserA, ParserB> IntoParser for OrParser<ParserA, ParserB> {
+    type Into = OrParser<ParserA, ParserB>;
+
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

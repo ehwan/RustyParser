@@ -1,5 +1,6 @@
 use std::ops::RangeBounds;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -83,6 +84,62 @@ where
                 it: i0,
             }
         }
+    }
+}
+
+impl<RangeType, Idx> IntoParser for SingleRangeParser<RangeType, Idx>
+where
+    Idx: PartialOrd + PartialEq,
+    RangeType: RangeBounds<Idx>,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+impl<Idx> IntoParser for std::ops::Range<Idx>
+where
+    Idx: PartialOrd + PartialEq,
+{
+    type Into = SingleRangeParser<std::ops::Range<Idx>, Idx>;
+    fn into_parser(self) -> Self::Into {
+        SingleRangeParser::new(self)
+    }
+}
+impl<Idx> IntoParser for std::ops::RangeFrom<Idx>
+where
+    Idx: PartialOrd + PartialEq,
+{
+    type Into = SingleRangeParser<std::ops::RangeFrom<Idx>, Idx>;
+    fn into_parser(self) -> Self::Into {
+        SingleRangeParser::new(self)
+    }
+}
+impl<Idx> IntoParser for std::ops::RangeTo<Idx>
+where
+    Idx: PartialOrd + PartialEq,
+{
+    type Into = SingleRangeParser<std::ops::RangeTo<Idx>, Idx>;
+    fn into_parser(self) -> Self::Into {
+        SingleRangeParser::new(self)
+    }
+}
+impl<Idx> IntoParser for std::ops::RangeInclusive<Idx>
+where
+    Idx: PartialOrd + PartialEq,
+{
+    type Into = SingleRangeParser<std::ops::RangeInclusive<Idx>, Idx>;
+    fn into_parser(self) -> Self::Into {
+        SingleRangeParser::new(self)
+    }
+}
+impl<Idx> IntoParser for std::ops::RangeToInclusive<Idx>
+where
+    Idx: PartialOrd + PartialEq,
+{
+    type Into = SingleRangeParser<std::ops::RangeToInclusive<Idx>, Idx>;
+    fn into_parser(self) -> Self::Into {
+        SingleRangeParser::new(self)
     }
 }
 

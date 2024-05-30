@@ -176,11 +176,8 @@ Both of them have their own Pros and Cons (the memory usage and time complexity 
 
 ### `seq`: sequence of parsers
 ```rust
-let a_parser = rp::one('a');
-let b_parser = rp::one('b');
-
 // 'a', and then 'b'
-let ab_parser = rp::seq!(a_parser, b_parser);
+let ab_parser = rp::seq!('a', 'b'); // IntoParser for char
 
 let res = rp::parse(&ab_parser, "abcd".chars());
 assert_eq!(res.output, Some(('a', 'b')));
@@ -197,11 +194,8 @@ and `(R0, R1, ...)` are the outputs of the second parser.
 ### `or_`: or combinator
 
 ```rust
-let a_parser = rp::one('a');
-let b_parser = rp::one('b');
-
 // 'a' or 'b'
-let ab_parser = rp::or_!(a_parser, b_parser);
+let ab_parser = rp::or_!('a', 'b'); // IntoParser for char
 
 // 'a' is matched
 let res = rp::parse(&ab_parser, "abcd".chars());
@@ -230,11 +224,9 @@ Note that the output of both parsers must be the same type.
 
 ### `map`: map the output of the parser
 ```rust
-let a_parser = rp::one('a');
-
 // map the output
 // <Output of 'a'> (char,) -> (i32,)
-let int_parser = rp::map(a_parser, |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
+let int_parser = rp::map('a', |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
 
 let res = rp::parse(&int_parser, "abcd".chars());
 assert_eq!(res.output, Some((0,)));
@@ -245,10 +237,8 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 ### `repeat`: repeat the parser multiple times
 
 ```rust
-let a_parser = rp::one('a');
-
 // repeat 'a' 3 to 5 times (inclusive)
-let multiple_a_parser = rp::repeat(a_parser.clone(), 3..=5);
+let multiple_a_parser = rp::repeat('a', 3..=5); // IntoParser for char
 let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
 
 // four 'a' is parsed
@@ -263,9 +253,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 
 ### `optional`: success whether the pattern is matched or not
 ```rust
-let a_parser = rp::one('a'); // (char,)
-
-let a_optional_parser = rp::optional(a_parser); // (Option<char>,)
+let a_optional_parser = rp::optional('a'); // (Option<char>,)
 
 let res = rp::parse(&a_optional_parser, "abcd".chars()); // success
 assert_eq!(res.output.is_some(), true);
@@ -305,7 +293,7 @@ Once you wrap the parser through `box_chars` or `box_slice`, you can only use th
 
 ```rust
 let hello_parser = rp::chars("hello");
-let digit_parser = rp::void_(rp::range('0'..='9'));
+let digit_parser = rp::void_('0'..='9');
 
 // this will wrap the Parser<Output=()> into Box< dyn Parser >
 let mut boxed_parser = rp::box_chars(hello_parser);
@@ -333,9 +321,8 @@ Since it provides internal mutability.
 
 ```rust
 let hello_parser = rp::chars("hello");
-let digit_parser = rp::void_(rp::range('0'..='9'));
+let digit_parser = rp::void_('0'..='9');
 
-// this will wrap the parser into Box< dyn Parser >
 // this will wrap the Parser<Output=()> into Box< dyn Parser >
 let boxed_parser = rp::box_chars(hello_parser);
 let refcelled_parser = rp::refcell(boxed_parser);
@@ -349,6 +336,7 @@ let res_hello = rp::parse(&refcelled_parser, target_string.chars());
 assert_eq!(res_hello.output, Some(()));
 assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
 
+// now change refcelled_parser to digit_parser
 // Thanks to Deref, you can call borrow_mut().assign() directly
 refcelled_parser.borrow_mut().assign(digit_parser);
 
@@ -364,7 +352,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 
 ```rust
 let hello_parser = rp::chars("hello");
-let digit_parser = rp::void_(rp::range('0'..='9'));
+let digit_parser = rp::void_('0'..='9');
 
 // this will wrap the Parser<Output=()> into Box< dyn Parser >
 let boxed_parser = rp::box_chars(hello_parser);
@@ -449,10 +437,11 @@ let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
     // some expensive operations.... for data parsing
     panic!("This should not be called");
 });
+let expensive_parser = rp::void_(expensive_parser);
 
 // ignore the output of parser
 // this internally calls 'match_pattern(...)' instead of 'parse(...)'
-let res = rp::match_pattern(&expensive_parser, "abcd".chars());
+let res = rp::parse(&expensive_parser, "abcd".chars());
 assert_eq!(res.output, Some(()));
 assert_eq!(res.it.collect::<String>(), "bcd");
 ```
@@ -461,10 +450,8 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 
 ### `iter`: capture a [begin, end) iterator range on input string
 ```rust
-let hello_parser = rp::chars("hello");
-let digit_parser = rp::void_(rp::range('0'..='9'));
-
-let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
+// 'hello', and then 3 digits
+let parser = rp::iter(rp::seq!("hello", rp::repeat('0'..='9', 3..=3))); // IntoParser for &str -> str.chars()
 
 //                   <------> parsed range
 let target_string = "hello0123";

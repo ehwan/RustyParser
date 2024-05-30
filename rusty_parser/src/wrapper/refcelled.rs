@@ -2,6 +2,7 @@ use std::cell::RefCell;
 use std::ops::Deref;
 use std::ops::DerefMut;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -46,8 +47,16 @@ impl<ParserType> DerefMut for RefCelledParser<ParserType> {
     }
 }
 
-pub fn refcell<ParserType>(parser: ParserType) -> RefCelledParser<ParserType> {
-    RefCelledParser::new(parser)
+pub fn refcell<ParserType: IntoParser>(parser: ParserType) -> RefCelledParser<ParserType::Into> {
+    RefCelledParser::new(parser.into_parser())
+}
+
+impl<ParserType> IntoParser for RefCelledParser<ParserType> {
+    type Into = Self;
+
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

@@ -1,5 +1,6 @@
 use super::tuplemerge::AppendTupleToTuple;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -81,8 +82,19 @@ where
     }
 }
 
-pub fn seq<ParserA, ParserB>(parser_a: ParserA, parser_b: ParserB) -> SeqParser<ParserA, ParserB> {
-    SeqParser::new(parser_a, parser_b)
+pub fn seq<ParserA: IntoParser, ParserB: IntoParser>(
+    parser_a: ParserA,
+    parser_b: ParserB,
+) -> SeqParser<ParserA::Into, ParserB::Into> {
+    SeqParser::new(parser_a.into_parser(), parser_b.into_parser())
+}
+
+impl<ParserA, ParserB> IntoParser for SeqParser<ParserA, ParserB> {
+    type Into = SeqParser<ParserA, ParserB>;
+
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

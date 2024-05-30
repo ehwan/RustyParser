@@ -22,12 +22,10 @@ fn main() {
     lineend: '\0'
      */
 
-    let whitespaces = void_(repeat(or_!(one(' '), one('\n')), 0..));
+    let whitespaces = void_(repeat(or_!(' ', '\n'), 0..));
 
     // one digit [0-9]
-    let digit = map(range('0'..='9'), |(c,)| -> (i32,) {
-        (c as i32 - '0' as i32,)
-    });
+    let digit = map('0'..='9', |(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
 
     // number [0-9]+
     // multiple digits -> build number
@@ -41,18 +39,18 @@ fn main() {
 
     // '(' expression ')'
     let paren_expr = seq!(
-        void_(one('(')),
+        void_('('),
         whitespaces.clone(),
         Rc::clone(&expr),
         whitespaces.clone(),
-        void_(one(')'))
+        void_(')')
     );
 
     // expr0: num | paren_expr
     expr0.borrow_mut().assign(or_!(num, paren_expr));
 
     // expr1: expr0 ((*|/) expr0)*
-    let mul_or_div_op = or_!(one('*'), one('/'));
+    let mul_or_div_op = or_!('*', '/');
     let mul_or_div = map(
         seq!(
             Rc::clone(&expr0),
@@ -81,7 +79,7 @@ fn main() {
     expr1.borrow_mut().assign(mul_or_div);
 
     // expr2: expr1 ((+|-) expr1)*
-    let add_or_sub_op = or_!(one('+'), one('-'));
+    let add_or_sub_op = or_!('+', '-');
     let add_or_sub = map(
         seq!(
             Rc::clone(&expr1),

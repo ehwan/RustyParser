@@ -1,5 +1,6 @@
 use std::marker::PhantomData;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -52,6 +53,18 @@ where
                 it: i0,
             }
         }
+    }
+}
+
+impl<ParseClosure, ClosureOutput, It> IntoParser for CustomParser<ParseClosure, ClosureOutput, It>
+where
+    It: InputIteratorTrait,
+    ParseClosure: Fn(&mut It) -> Option<ClosureOutput>,
+    ClosureOutput: Tuple,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
     }
 }
 

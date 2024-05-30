@@ -1,3 +1,4 @@
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -36,8 +37,15 @@ where
     }
 }
 
-pub fn void_<ParserType>(parser: ParserType) -> VoidParser<ParserType> {
-    VoidParser::new(parser)
+pub fn void_<ParserType: IntoParser>(parser: ParserType) -> VoidParser<ParserType::Into> {
+    VoidParser::new(parser.into_parser())
+}
+
+impl<ParserType> IntoParser for VoidParser<ParserType> {
+    type Into = VoidParser<ParserType>;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
 }
 
 #[cfg(test)]

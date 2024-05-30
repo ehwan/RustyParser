@@ -87,11 +87,8 @@ fn dict_example() {
 
 #[test]
 fn seq_example() {
-    let a_parser = rp::one('a');
-    let b_parser = rp::one('b');
-
     // 'a', and then 'b'
-    let ab_parser = rp::seq!(a_parser, b_parser);
+    let ab_parser = rp::seq!('a', 'b'); // IntoParser for char
 
     let res = rp::parse(&ab_parser, "abcd".chars());
     assert_eq!(res.output, Some(('a', 'b')));
@@ -100,11 +97,8 @@ fn seq_example() {
 
 #[test]
 fn or_example() {
-    let a_parser = rp::one('a');
-    let b_parser = rp::one('b');
-
     // 'a' or 'b'
-    let ab_parser = rp::or_!(a_parser, b_parser);
+    let ab_parser = rp::or_!('a', 'b'); // IntoParser for char
 
     // 'a' is matched
     let res = rp::parse(&ab_parser, "abcd".chars());
@@ -126,11 +120,9 @@ fn or_example() {
 
 #[test]
 fn map_example() {
-    let a_parser = rp::one('a');
-
     // map the output
     // <Output of 'a'> (char,) -> (i32,)
-    let int_parser = rp::map(a_parser, |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) });
+    let int_parser = rp::map('a', |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
 
     let res = rp::parse(&int_parser, "abcd".chars());
     assert_eq!(res.output, Some((0,)));
@@ -139,10 +131,8 @@ fn map_example() {
 
 #[test]
 fn repeat_example() {
-    let a_parser = rp::one('a');
-
     // repeat 'a' 3 to 5 times (inclusive)
-    let multiple_a_parser = rp::repeat(a_parser.clone(), 3..=5);
+    let multiple_a_parser = rp::repeat('a', 3..=5); // IntoParser for char
     let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
 
     // four 'a' is parsed
@@ -157,20 +147,19 @@ fn void_example() {
         // some expensive operations.... for data parsing
         panic!("This should not be called");
     });
+    let expensive_parser = rp::void_(expensive_parser);
 
     // ignore the output of parser
     // this internally calls 'match_pattern(...)' instead of 'parse(...)'
-    let res = rp::match_pattern(&expensive_parser, "abcd".chars());
+    let res = rp::parse(&expensive_parser, "abcd".chars());
     assert_eq!(res.output, Some(()));
     assert_eq!(res.it.collect::<String>(), "bcd");
 }
 
 #[test]
 fn iter_example() {
-    let hello_parser = rp::chars("hello");
-    let digit_parser = rp::void_(rp::range('0'..='9'));
-
-    let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
+    // 'hello', and then 3 digits
+    let parser = rp::iter(rp::seq!("hello", rp::repeat('0'..='9', 3..=3))); // IntoParser for &str -> str.chars()
 
     //                   <------> parsed range
     let target_string = "hello0123";
@@ -203,7 +192,7 @@ fn custom_parser_example() {
 #[test]
 fn box_example() {
     let hello_parser = rp::chars("hello");
-    let digit_parser = rp::void_(rp::range('0'..='9'));
+    let digit_parser = rp::void_('0'..='9');
 
     // this will wrap the Parser<Output=()> into Box< dyn Parser >
     let mut boxed_parser = rp::box_chars(hello_parser);
@@ -227,7 +216,7 @@ fn box_example() {
 #[test]
 fn refcell_example() {
     let hello_parser = rp::chars("hello");
-    let digit_parser = rp::void_(rp::range('0'..='9'));
+    let digit_parser = rp::void_('0'..='9');
 
     // this will wrap the Parser<Output=()> into Box< dyn Parser >
     let boxed_parser = rp::box_chars(hello_parser);
@@ -255,7 +244,7 @@ fn refcell_example() {
 #[test]
 fn rc_example() {
     let hello_parser = rp::chars("hello");
-    let digit_parser = rp::void_(rp::range('0'..='9'));
+    let digit_parser = rp::void_('0'..='9');
 
     // this will wrap the Parser<Output=()> into Box< dyn Parser >
     let boxed_parser = rp::box_chars(hello_parser);
@@ -285,9 +274,7 @@ fn rc_example() {
 
 #[test]
 fn optional_example() {
-    let a_parser = rp::one('a'); // (char,)
-
-    let a_optional_parser = rp::optional(a_parser); // (Option<char>,)
+    let a_optional_parser = rp::optional('a'); // (Option<char>,)
 
     let res = rp::parse(&a_optional_parser, "abcd".chars()); // success
     assert_eq!(res.output.is_some(), true);

@@ -1,6 +1,7 @@
 use std::iter::IntoIterator;
 use std::iter::Iterator;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -61,6 +62,32 @@ where
             output: Some(()),
             it: it,
         };
+    }
+}
+
+impl<SliceIter> IntoParser for SliceEqualParser<SliceIter>
+where
+    SliceIter: IntoIterator + Clone,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+impl<'a> IntoParser for &'a str {
+    type Into = SliceEqualParser<std::str::Chars<'a>>;
+    fn into_parser(self) -> Self::Into {
+        SliceEqualParser::new(self.chars())
+    }
+}
+impl<'a, T> IntoParser for &'a [T]
+where
+    T: Clone,
+{
+    type Into = SliceEqualParser<std::slice::Iter<'a, T>>;
+    fn into_parser(self) -> Self::Into {
+        SliceEqualParser::new(self.iter())
     }
 }
 

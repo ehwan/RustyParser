@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 use std::iter::Iterator;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -114,6 +115,17 @@ where
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         self.trie
             .match_longest(it.clone(), ParseResult { output: None, it })
+    }
+}
+
+impl<Output, CharType> IntoParser for DictBTreeParser<Output, CharType>
+where
+    Output: Clone + Tuple,
+    CharType: Ord,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
     }
 }
 

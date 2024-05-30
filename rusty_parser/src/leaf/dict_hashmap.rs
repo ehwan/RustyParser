@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use std::hash::Hash;
 use std::iter::Iterator;
 
+use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
@@ -68,6 +69,17 @@ where
             }
         }
         longest_matched
+    }
+}
+
+impl<CharType, Output> IntoParser for DictHashMapParser<Output, CharType>
+where
+    CharType: Hash + Eq,
+    Output: Clone + Tuple,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
     }
 }
 
