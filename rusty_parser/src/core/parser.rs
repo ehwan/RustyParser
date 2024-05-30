@@ -70,7 +70,7 @@ where
     fn repeat<RangeType, Idx>(
         self,
         range: RangeType,
-    ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType, Idx, It>
+    ) -> crate::wrapper::repeat::RepeatParser<Self, RangeType, Idx>
     where
         Self: Sized,
         RangeType: std::ops::RangeBounds<Idx>,
