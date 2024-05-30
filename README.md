@@ -1,5 +1,7 @@
 # RustyParser
-A Generic Parser generator and Pattern Matching Library written in Rust
+A Generic compile-time Parser generator and Pattern Matching Library written in Rust
+
+Define pattern, combine them, and parse.
 
 ## Example
  - **[Calculator](examples/calculator)**
