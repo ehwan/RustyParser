@@ -44,7 +44,7 @@ where
     }
 
     // seq
-    fn seq<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::seq::SeqParser<Self, RhsParser, It>
+    fn seq<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::seq::SeqParser<Self, RhsParser>
     where
         Self: Sized,
         RhsParser: Parser<It>,
