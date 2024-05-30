@@ -144,7 +144,7 @@ fn repeat_example() {
 fn void_example() {
     let expensive_parser = rp::one('a');
     let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
-        // some expensive operations.... for data parsing
+        // some expensive operations.... for data extracting
         panic!("This should not be called");
     });
     let expensive_parser = rp::void_(expensive_parser);
@@ -255,6 +255,8 @@ fn rc_example() {
     // rced_parser2 is now pointing to the same parser as rced_parser1
 
     let target_string = "hello0123";
+
+    rp::slice(&[1, 2, 3]);
 
     let res_hello = rp::parse(&rced_parser1, target_string.chars());
     // success

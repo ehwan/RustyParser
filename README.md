@@ -84,16 +84,14 @@ Define pattern, combine them, and parse the input string.
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
  ```rust 
- // mod rusty_parser {
  fn parse<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
  fn match_pattern<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(), It>;
- // }
  ```
 `parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
 
  `match_pattern(...)` is used 
  when you only want to check if the pattern is matched or not, without extracting data. 
- For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::insert` inside.
+ For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::push` inside.
 
 
 `ParseResult` is a struct representing the result of parsing.
@@ -143,7 +141,7 @@ let digit_parser = range( '0'..='9' )
 fn chars( s: &'a str );
 fn slice( s: &'a [T] );
 let hello_parser = chars("hello");
-let hello_parser = slice("hello".bytes());
+let hello_parser = slice(&[104 101 108 108 111]);
 ```
 `Output`: `()`
 
@@ -166,9 +164,9 @@ assert_eq!(res.it.collect::<String>(), "_abcdefg");
 let res = rp::parse(&parser, "hello_wo".chars());
 assert_eq!(res.output, Some((1,)));
 ```
-`Output`: generic type you support
+`Output`: generic type you inserted
 
-There are two types of Dictionary: `DictBTree` and `DictHashMap`, for Trie implementation.
+There are two types of Dictionary: `DictBTree` and `DictHashMap` for Trie implementation.
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
 
 
@@ -183,7 +181,7 @@ let res = rp::parse(&ab_parser, "abcd".chars());
 assert_eq!(res.output, Some(('a', 'b')));
 assert_eq!(res.it.collect::<String>(), "cd");
 ```
-or you can use macro `seq!`
+you can use macro `seq!`
 ```rust
 let parser = rp::seq!( parser_a, and_then_b, and_then_c, ... );
 ```
@@ -214,18 +212,19 @@ let res = rp::parse(&ab_parser, res.it);
 assert_eq!(res.output, None);
 assert_eq!(res.it.clone().collect::<String>(), "cd");
 ```
-or you can use macro `or_!` macro
+you can use macro `or_!`
 ```rust
 let parser = rp::or!( parser_a, else_b, else_c, ... );
 ```
 `Output`: `Output` of the first and second parser.
+
 Note that the output of both parsers must be the same type.
 
 
 ### `map`: map the output of the parser
 ```rust
-// map the output
-// <Output of 'a'> (char,) -> (i32,)
+// <Output of 'a'>: (char,)
+// map (char,) -> (i32,)
 let int_parser = rp::map('a', |(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
 
 let res = rp::parse(&int_parser, "abcd".chars());
@@ -265,7 +264,7 @@ assert_eq!(res.output.unwrap(), (None,));
 ```
 `Output`:
  - if `Output` of the origin parser is `(T0,)`, then `Output` is `(Option<T0>,)`
- - otherwise, `Output` is `Option<Output of the Origin Parser>`
+ - otherwise, `Output` is `( Option<Output of the Origin Parser>, )`
 
 
 
@@ -316,8 +315,8 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `Output`: the `Output` of child parser
 
 ### `refcell`: a `RefCell<Parser>` wrapper
-`refcell` is useful if it is combined with `box_*` or `rc`.
-Since it provides internal mutability.
+`refcell` is useful when it is combined with `box_*` or `rc`,
+since it provides internal mutability.
 
 ```rust
 let hello_parser = rp::chars("hello");
@@ -434,7 +433,7 @@ For more information, see `match_pattern(...)` above.
 ```rust
 let expensive_parser = rp::one('a');
 let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
-    // some expensive operations.... for data parsing
+    // some expensive operations.... for data extracting
     panic!("This should not be called");
 });
 let expensive_parser = rp::void_(expensive_parser);
@@ -448,7 +447,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 `Output`: `()`
 
 
-### `iter`: capture a [begin, end) iterator range on input string
+### `iter`: capture a [begin, end) iterator pair consumed by the parser
 ```rust
 // 'hello', and then 3 digits
 let parser = rp::iter(rp::seq!("hello", rp::repeat('0'..='9', 3..=3))); // IntoParser for &str -> str.chars()
