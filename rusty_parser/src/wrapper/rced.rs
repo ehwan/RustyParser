@@ -6,6 +6,22 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
+impl<ParserType, It> Parser<It> for Rc<ParserType>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    type Output = <ParserType as Parser<It>>::Output;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        self.as_ref().parse(it)
+    }
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        self.as_ref().match_pattern(it)
+    }
+}
+
+/*
 // Rc<Parser> wrapper
 #[derive(Debug, Clone)]
 pub struct RcedParser<ParserType, It>
@@ -75,7 +91,9 @@ where
         &mut self.parser
     }
 }
+*/
 
+/*
 #[cfg(test)]
 mod test {
     use super::*;
@@ -119,3 +137,5 @@ mod test {
         assert_eq!(rest, "123456abcd");
     }
 }
+
+*/

@@ -3,8 +3,24 @@ use std::boxed::Box;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
-use crate::core::tuple::Tuple;
 
+impl<ParserType, It> Parser<It> for Box<ParserType>
+where
+    ParserType: Parser<It>,
+    It: InputIteratorTrait,
+{
+    type Output = ParserType::Output;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        self.as_ref().parse(it)
+    }
+
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        self.as_ref().match_pattern(it)
+    }
+}
+
+/*
 // Box< dyn Parser > wrapper for Parser
 // this can take any Parser type with fixed Output
 #[derive()]
@@ -83,3 +99,4 @@ mod test {
         assert_eq!(rest, "2b3c4d5e6f7g8h9i0j");
     }
 }
+*/

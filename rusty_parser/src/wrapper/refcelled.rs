@@ -6,6 +6,22 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
+impl<ParserType, It> Parser<It> for RefCell<ParserType>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+{
+    type Output = <ParserType as Parser<It>>::Output;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        self.borrow().parse(it)
+    }
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        self.borrow().match_pattern(it)
+    }
+}
+
+/*
 // RefCell<Parser> wrapper
 // this can be combined with BoxedParser, a Box<Parser> wrapper
 // for dynamic parser changes
@@ -71,7 +87,9 @@ where
         &mut self.parser
     }
 }
+*/
 
+/*
 #[cfg(test)]
 mod test {
     use super::*;
@@ -97,3 +115,4 @@ mod test {
         assert_eq!(rest, "23456abcd");
     }
 }
+*/
