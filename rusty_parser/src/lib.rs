@@ -128,6 +128,9 @@ pub use wrapper::refcelled::refcell;
 /// create Rc\<Parser\> wrapper
 pub use wrapper::rced::rc;
 
+/// this parser always success whether the input is matched or not
+pub use wrapper::option::optional;
+
 /// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
 /// This can take any parser with Output of `Output`
 pub use wrapper::boxed::box_chars;

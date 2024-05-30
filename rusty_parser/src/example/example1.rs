@@ -282,3 +282,18 @@ fn rc_example() {
     assert_eq!(res_digit.output, Some(()));
     assert_eq!(res_digit.it.collect::<String>(), "123");
 }
+
+#[test]
+fn optional_example() {
+    let a_parser = rp::one('a'); // (char,)
+
+    let a_optional_parser = rp::optional(a_parser); // (Option<char>,)
+
+    let res = rp::parse(&a_optional_parser, "abcd".chars()); // success
+    assert_eq!(res.output.is_some(), true);
+    assert_eq!(res.output.unwrap(), (Some('a'),));
+
+    let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
+    assert_eq!(res.output.is_some(), true);
+    assert_eq!(res.output.unwrap(), (None,));
+}

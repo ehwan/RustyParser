@@ -1,8 +1,6 @@
 # RustyParser
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
-Define pattern, combine them, and parse.
-
 ## Example
  - **[Calculator](examples/calculator)**
 
@@ -263,47 +261,24 @@ assert_eq!(res.it.collect::<String>(), "bcd");
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
  - otherwise, `Vec< Output of the Repeated Parser >`
 
-### `void_`: ignore the output of the parser
-Force the output to be `()`. 
-It internally calls `match_pattern(...)` instead of `parse(...)`. 
-This is useful when you only want to check if the pattern is matched or not. 
-For more information, see `match_pattern(...)` above.
-
+### `optional`: success whether the pattern is matched or not
 ```rust
-let expensive_parser = rp::one('a');
-let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
-    // some expensive operations.... for data parsing
-    panic!("This should not be called");
-});
+let a_parser = rp::one('a'); // (char,)
 
-// ignore the output of parser
-// this internally calls 'match_pattern(...)' instead of 'parse(...)'
-let res = rp::match_pattern(&expensive_parser, "abcd".chars());
-assert_eq!(res.output, Some(()));
-assert_eq!(res.it.collect::<String>(), "bcd");
-```
-`Output`: `()`
+let a_optional_parser = rp::optional(a_parser); // (Option<char>,)
 
-
-### `iter`: capture a [begin, end) iterator range on input string
-```rust
-let hello_parser = rp::chars("hello");
-let digit_parser = rp::void_(rp::range('0'..='9'));
-
-let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
-
-//                   <------> parsed range
-let target_string = "hello0123";
-//                   |       ^ end
-//                   ^ begin
-let res = rp::parse(&parser, target_string.chars());
+let res = rp::parse(&a_optional_parser, "abcd".chars()); // success
 assert_eq!(res.output.is_some(), true);
+assert_eq!(res.output.unwrap(), (Some('a'),));
 
-let (begin, end) = res.output.unwrap();
-assert_eq!(begin.collect::<String>(), "hello0123");
-assert_eq!(end.collect::<String>(), "3");
+let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
+assert_eq!(res.output.is_some(), true);
+assert_eq!(res.output.unwrap(), (None,));
 ```
-`Output`: `(It, It)`
+`Output`:
+ - if `Output` of the origin parser is `(T0,)`, then `Output` is `(Option<T0>,)`
+ - otherwise, `Output` is `Option<Output of the Origin Parser>`
+
 
 
 ## For complex, highly recursive pattern
@@ -450,8 +425,49 @@ let parser = rp::constant( (1, 2, 3) );
 let end_parser = rp::end();
 ```
 
-
 ### `fail`: This parser will always fail
 ```rust
 let parser = rp::fail();
 ```
+
+### `void_`: ignore the output of the parser
+Force the output to be `()`. 
+It internally calls `match_pattern(...)` instead of `parse(...)`. 
+This is useful when you only want to check if the pattern is matched or not. 
+For more information, see `match_pattern(...)` above.
+
+```rust
+let expensive_parser = rp::one('a');
+let expensive_parser = rp::map(expensive_parser, |(_,)| -> (i32,) {
+    // some expensive operations.... for data parsing
+    panic!("This should not be called");
+});
+
+// ignore the output of parser
+// this internally calls 'match_pattern(...)' instead of 'parse(...)'
+let res = rp::match_pattern(&expensive_parser, "abcd".chars());
+assert_eq!(res.output, Some(()));
+assert_eq!(res.it.collect::<String>(), "bcd");
+```
+`Output`: `()`
+
+
+### `iter`: capture a [begin, end) iterator range on input string
+```rust
+let hello_parser = rp::chars("hello");
+let digit_parser = rp::void_(rp::range('0'..='9'));
+
+let parser = rp::iter(rp::seq!(hello_parser, rp::repeat(digit_parser, 3..=3)));
+
+//                   <------> parsed range
+let target_string = "hello0123";
+//                   |       ^ end
+//                   ^ begin
+let res = rp::parse(&parser, target_string.chars());
+assert_eq!(res.output.is_some(), true);
+
+let (begin, end) = res.output.unwrap();
+assert_eq!(begin.collect::<String>(), "hello0123");
+assert_eq!(end.collect::<String>(), "3");
+```
+`Output`: `(It, It)`
