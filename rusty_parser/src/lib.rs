@@ -86,6 +86,16 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// implementation uses HashMap; O(1) search
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
+/// Box\<Parser\> wrapper;
+/// `Parser` can be dyn Parser if you specified.
+pub use wrapper::boxed::BoxedParser as Box;
+
+/// Rc\<Parser\> wrapper;
+pub use wrapper::rced::RcedParser as Rc;
+
+/// RefCell\<Parser\> wrapper;
+pub use wrapper::refcelled::RefCelledParser as RefCell;
+
 // ================== useful macros below ==================
 
 /// Sequence of parsers
