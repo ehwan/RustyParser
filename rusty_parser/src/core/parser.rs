@@ -84,7 +84,7 @@ where
     }
 
     // void
-    fn void_(self) -> crate::wrapper::void::VoidParser<Self, It>
+    fn void_(self) -> crate::wrapper::void::VoidParser<Self>
     where
         Self: Sized,
     {
