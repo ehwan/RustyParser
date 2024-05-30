@@ -58,7 +58,7 @@ where
     }
 
     // or
-    fn or_<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::or_::OrParser<Self, RhsParser, It>
+    fn or_<RhsParser>(self, rhs: RhsParser) -> crate::wrapper::or_::OrParser<Self, RhsParser>
     where
         Self: Sized,
         RhsParser: Parser<It, Output = Self::Output>,

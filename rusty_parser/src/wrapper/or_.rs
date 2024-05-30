@@ -3,33 +3,21 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone, Copy)]
-pub struct OrParser<ParserA, ParserB, It>
-where
-    It: InputIteratorTrait,
-    ParserA: Parser<It>,
-    ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
-{
+pub struct OrParser<ParserA, ParserB> {
     parser_a: ParserA,
     parser_b: ParserB,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserA, ParserB, It> OrParser<ParserA, ParserB, It>
-where
-    It: InputIteratorTrait,
-    ParserA: Parser<It>,
-    ParserB: Parser<It, Output = <ParserA as Parser<It>>::Output>,
-{
+impl<ParserA, ParserB> OrParser<ParserA, ParserB> {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
         Self {
             parser_a: parser_a,
             parser_b: parser_b,
-            _phantom: std::marker::PhantomData,
         }
     }
 }
 
-impl<ParserA, ParserB, It> Parser<It> for OrParser<ParserA, ParserB, It>
+impl<ParserA, ParserB, It> Parser<It> for OrParser<ParserA, ParserB>
 where
     It: InputIteratorTrait,
     ParserA: Parser<It>,
@@ -82,10 +70,7 @@ where
     }
 }
 
-pub fn or_<It, ParserA, ParserB>(
-    parser_a: ParserA,
-    parser_b: ParserB,
-) -> OrParser<ParserA, ParserB, It>
+pub fn or_<It, ParserA, ParserB>(parser_a: ParserA, parser_b: ParserB) -> OrParser<ParserA, ParserB>
 where
     It: InputIteratorTrait,
     ParserA: Parser<It>,
