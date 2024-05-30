@@ -34,7 +34,7 @@ where
     fn map<ClosureType, ClosureOutput>(
         self,
         map: ClosureType,
-    ) -> crate::wrapper::map::MapParser<Self, ClosureType, ClosureOutput, It>
+    ) -> crate::wrapper::map::MapParser<Self, ClosureType>
     where
         Self: Sized,
         ClosureType: Fn(Self::Output) -> ClosureOutput,
