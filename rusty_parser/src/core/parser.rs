@@ -107,22 +107,6 @@ where
         std::boxed::Box::new(self)
     }
 
-    // refcelled
-    fn refcell(self) -> std::cell::RefCell<Self>
-    where
-        Self: Sized,
-    {
-        std::cell::RefCell::new(self)
-    }
-
-    // RCed
-    fn rc(self) -> std::rc::Rc<Self>
-    where
-        Self: Sized,
-    {
-        std::rc::Rc::new(self)
-    }
-
     // iterator range
     fn iter(self) -> crate::wrapper::iter_range::IterParser<Self, It>
     where

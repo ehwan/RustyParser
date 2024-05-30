@@ -6,29 +6,19 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-pub struct RefCelledParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+pub struct RefCelledParser<ParserType> {
     parser: RefCell<ParserType>,
-    _phantom: std::marker::PhantomData<It>,
 }
 
-impl<ParserType, It> RefCelledParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> RefCelledParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self {
             parser: RefCell::new(parser),
-            _phantom: std::marker::PhantomData,
         }
     }
 }
 
-impl<ParserType, It> Parser<It> for RefCelledParser<ParserType, It>
+impl<ParserType, It> Parser<It> for RefCelledParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -43,28 +33,20 @@ where
     }
 }
 
-impl<ParserType, It> Deref for RefCelledParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> Deref for RefCelledParser<ParserType> {
     type Target = RefCell<ParserType>;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
     }
 }
-impl<ParserType, It> DerefMut for RefCelledParser<ParserType, It>
-where
-    It: InputIteratorTrait,
-    ParserType: Parser<It>,
-{
+impl<ParserType> DerefMut for RefCelledParser<ParserType> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
     }
 }
 
-pub fn refcell<ParserType, It>(parser: ParserType) -> RefCelledParser<ParserType, It>
+pub fn refcell<ParserType, It>(parser: ParserType) -> RefCelledParser<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
