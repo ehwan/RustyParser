@@ -11,13 +11,6 @@ pub enum JsonValue {
     Array(Vec<JsonValue>),
     Object(HashMap<String, JsonValue>),
 }
-fn map_iter_pair_to_string<'a, 'b>(
-    (beg, end): (std::str::Chars<'a>, std::str::Chars<'b>),
-) -> (JsonValue,) {
-    let size = beg.as_str().len() - end.as_str().len();
-    let captured = beg.take(size);
-    (JsonValue::String(captured.collect()),)
-}
 
 use rusty_parser::{self as rp, IntoParser};
 
@@ -71,8 +64,8 @@ fn main() {
     let character = ('\u{0020}'..='\u{10FFFF}').not('"').not('\\');
     let character = rp::or_!(character, escape);
 
-    let string = rp::seq!('"'.void_(), character.repeat(0..).iter(), '"'.void_())
-        .map(map_iter_pair_to_string);
+    let string = rp::seq!('"'.void_(), character.repeat(0..).string(), '"'.void_())
+        .map(|(s,): (String,)| (JsonValue::String(s),));
 
     value.borrow_mut().assign(rp::or_!(
         null,
