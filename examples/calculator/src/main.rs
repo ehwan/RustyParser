@@ -22,7 +22,7 @@ fn main() {
     lineend: '\0'
      */
 
-    let whitespaces = or!(' ', '\n').repeat(0..).void_();
+    let whitespaces = or!(' ', '\n').repeat(0..).void();
 
     // one digit [0-9]
     let digit = ('0'..='9')
@@ -41,11 +41,11 @@ fn main() {
 
     // '(' expression ')'
     let paren_expr = seq!(
-        '('.void_(),
+        '('.void(),
         whitespaces.clone(),
         Rc::clone(&expr),
         whitespaces.clone(),
-        ')'.void_()
+        ')'.void()
     );
 
     // expr0: num | paren_expr

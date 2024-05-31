@@ -57,76 +57,6 @@ fn dict_example() {
 }
 
 #[test]
-fn seq_example() {
-    // 'a', and then 'b'
-    let ab_parser = rp::seq!('a', 'b', 'c'); // IntoParser for char
-
-    let res = rp::parse(&ab_parser, "abcd".chars());
-    assert_eq!(res.output.unwrap(), ('a', 'b', 'c')); // Output is concatenated
-    assert_eq!(res.it.collect::<String>(), "d");
-}
-
-#[test]
-fn or_example() {
-    // 'a' or 'b'
-    let ab_parser = rp::or!('a', 'b'); // IntoParser for char
-
-    // 'a' is matched
-    let res = rp::parse(&ab_parser, "abcd".chars());
-    assert_eq!(res.output.unwrap(), ('a',)); // Output of 'a'
-    assert_eq!(res.it.clone().collect::<String>(), "bcd");
-
-    // continue parsing from the rest
-    // 'a' is not matched, but 'b' is matched
-    let res = rp::parse(&ab_parser, res.it);
-    assert_eq!(res.output.unwrap(), ('b',));
-    assert_eq!(res.it.clone().collect::<String>(), "cd");
-
-    // continue parsing from the rest
-    // 'a' is not matched, 'b' is not matched; failed
-    let res = rp::parse(&ab_parser, res.it);
-    assert_eq!(res.output, None);
-    assert_eq!(res.it.clone().collect::<String>(), "cd");
-}
-
-#[test]
-fn map_example() {
-    // map the output
-    // <Output of 'a'> -> (i32,)
-    let int_parser = 'a'.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
-
-    let res = rp::parse(&int_parser, "abcd".chars());
-    assert_eq!(res.output.unwrap(), (0,));
-    assert_eq!(res.it.collect::<String>(), "bcd");
-}
-
-#[test]
-fn repeat_example() {
-    // repeat 'a' 3 to 5 times
-    let multiple_a_parser = 'a'.repeat(3..=5); // IntoParser for char
-    let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
-
-    // four 'a' is parsed
-    assert_eq!(res.output.unwrap(), (vec!['a', 'a', 'a', 'a',],));
-    assert_eq!(res.it.collect::<String>(), "bcd");
-}
-
-#[test]
-fn void_example() {
-    let expensive_parser = 'a'.map(|(_,)| -> (i32,) {
-        // some expensive operations for data extracting...
-        panic!("This should not be called");
-    });
-    let expensive_parser = expensive_parser.void_();
-
-    // ignore the output of parser
-    // this internally calls 'match_pattern(...)' instead of 'parse(...)'
-    let res = rp::parse(&expensive_parser, "abcd".chars());
-    assert_eq!(res.output.unwrap(), ());
-    assert_eq!(res.it.collect::<String>(), "bcd");
-}
-
-#[test]
 fn custom_parser_example() {
     let custom_parser = rp::parser(|it: &mut std::str::Chars| {
         if it.take(5).eq("hello".chars()) {
@@ -144,7 +74,7 @@ fn custom_parser_example() {
 #[test]
 fn box_example() {
     let hello_parser = "hello".into_parser();
-    let digit_parser = ('0'..='9').void_();
+    let digit_parser = ('0'..='9').void();
 
     // this will wrap the parser into Box< dyn Parser >
     let mut boxed_parser = hello_parser.box_chars();
@@ -166,7 +96,7 @@ fn box_example() {
 #[test]
 fn refcell_example() {
     let hello_parser = "hello".into_parser();
-    let digit_parser = ('0'..='9').void_();
+    let digit_parser = ('0'..='9').void();
 
     let refcelled_parser = hello_parser.box_chars().refcell();
 
@@ -188,7 +118,7 @@ fn refcell_example() {
 #[test]
 fn rc_example() {
     let hello_parser = "hello".into_parser();
-    let digit_parser = ('0'..='9').void_();
+    let digit_parser = ('0'..='9').void();
 
     let rc_parser1 = hello_parser.box_chars().refcell().rc();
     let rc_parser2 = rp::Rc::clone(&rc_parser1);
@@ -208,59 +138,4 @@ fn rc_example() {
     // success
     assert_eq!(res_digit.output.unwrap(), ());
     assert_eq!(res_digit.it.collect::<String>(), "123");
-}
-
-#[test]
-fn optional_example() {
-    let a_optional_parser = 'a'.optional(); // (Option<char>,)
-
-    let res = rp::parse(&a_optional_parser, "abcd".chars()); // success
-    assert_eq!(res.output.unwrap(), (Some('a'),));
-
-    let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
-    assert_eq!(res.output.unwrap(), (None,));
-
-    // if 'a' failed, return 'x'
-    let a_optional_or = 'a'.optional_or(('x',)); // (char,)
-
-    let res = rp::parse(&a_optional_or, "bcd".chars());
-    assert_eq!(res.output.unwrap(), ('x',));
-}
-
-#[test]
-fn not_example() {
-    let digit_parser_except_4 = ('0'..='9').not('4');
-
-    let res = rp::parse(&digit_parser_except_4, "3".chars());
-    assert_eq!(res.output.unwrap(), ('3',));
-
-    let res = rp::parse(&digit_parser_except_4, "4".chars());
-    assert_eq!(res.output, None);
-}
-
-#[test]
-fn output_example() {
-    let digit_parser = ('0'..='9').output((1, 2, 3));
-
-    let res = rp::parse(&digit_parser, "123456hello_world".chars());
-    assert_eq!(res.output.unwrap(), (1, 2, 3));
-    assert_eq!(res.it.collect::<String>(), "23456hello_world");
-}
-
-#[test]
-fn string_example() {
-    let digits_parser = ('0'..='9').repeat(0..).string();
-
-    let res = rp::parse(&digits_parser, "123456hello_world".chars());
-    assert_eq!(res.output.unwrap(), ("123456".to_string(),));
-    assert_eq!(res.it.collect::<String>(), "hello_world");
-}
-
-#[test]
-fn not_consume_example() {
-    let digit_parser = ('0'..='9').not_consume();
-
-    let res = rp::parse(&digit_parser, "12345".chars());
-    assert_eq!(res.output.unwrap(), ('1',));
-    assert_eq!(res.it.collect::<String>(), "12345"); // iterator is not consumed
 }

@@ -305,7 +305,7 @@ Once you wrap the parser through `box_chars` or `box_slice`, you can only use th
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 // this will wrap the parser into Box< dyn Parser >
 let mut boxed_parser = hello_parser.box_chars();
@@ -333,7 +333,7 @@ since it provides internal mutability.
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 let refcelled_parser = hello_parser.box_chars().refcell();
 
@@ -360,7 +360,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 let rc_parser1 = hello_parser.box_chars().refcell().rc();
 let rc_parser2 = rp::Rc::clone(&rc_parser1);
@@ -434,7 +434,7 @@ let parser = rp::fail();
 
 
 
-### `void_`: ignore the output of the parser
+### `void`: ignore the output of the parser
 Force the output to be `()`. 
 It internally calls `match_pattern(...)` instead of `parse(...)`. 
 This is useful when you only want to check if the pattern is matched or not. 
@@ -445,7 +445,7 @@ let expensive_parser = 'a'.map(|(_,)| -> (i32,) {
     // some expensive operations for data extracting...
     panic!("This should not be called");
 });
-let expensive_parser = expensive_parser.void_();
+let expensive_parser = expensive_parser.void();
 
 // ignore the output of parser
 // this internally calls 'match_pattern(...)' instead of 'parse(...)'

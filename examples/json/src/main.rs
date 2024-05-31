@@ -29,7 +29,7 @@ fn string_parser() -> DynParser {
     let hex = rp::or!(digit, hex_alpha_lower, hex_alpha_upper);
 
     let unicode_char =
-        rp::seq!('u'.void_(), hex.repeat(4..=4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
+        rp::seq!('u'.void(), hex.repeat(4..=4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
             let mut res: u32 = 0;
             for hex in hexs {
                 res = res * 16 + hex as u32;
@@ -45,11 +45,11 @@ fn string_parser() -> DynParser {
         '\t'.output(('\t',)),
         unicode_char
     );
-    let escape = rp::seq!('\\'.void_(), escape);
+    let escape = rp::seq!('\\'.void(), escape);
     let character = ('\u{0020}'..='\u{10FFFF}').not('"').not('\\');
     let character = rp::or!(character, escape);
 
-    let string = rp::seq!('"'.void_(), character.repeat(0..).string(), '"'.void_())
+    let string = rp::seq!('"'.void(), character.repeat(0..).string(), '"'.void())
         .map(|(s,): (String,)| (JsonValue::String(s),));
 
     return DynParser::new(string);
@@ -65,7 +65,7 @@ fn number_parser() -> DynParser {
 
     let digits = rp::seq!(onenine, digit.clone().repeat(0..));
 
-    let fraction = rp::seq!('.'.void_(), digits.clone())
+    let fraction = rp::seq!('.'.void(), digits.clone())
         .map(|(leaddigit, digits): (i32, Vec<i32>)| -> (f64,) {
             let mut base10: f64 = 0.01;
             let mut res: f64 = leaddigit as f64 * 0.1;
@@ -80,7 +80,7 @@ fn number_parser() -> DynParser {
     let sign = rp::or!('+', '-').optional_or(('+',));
 
     let exponent = rp::seq!(
-        rp::or!('e', 'E').void_(),
+        rp::or!('e', 'E').void(),
         rp::seq!(
             sign,
             digits
@@ -161,13 +161,13 @@ fn main() {
         rp::Rc::clone(&object)
     ));
 
-    let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void_();
+    let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void();
 
     let element = rp::seq!(ws.clone(), rp::Rc::clone(&value), ws.clone()).rc();
 
     let elements = rp::seq!(
         element.clone(),
-        rp::seq!(','.void_(), element.clone()).repeat(0..)
+        rp::seq!(','.void(), element.clone()).repeat(0..)
     )
     .map(
         |(first, rest): (JsonValue, Vec<JsonValue>)| -> (JsonValue,) {
@@ -181,16 +181,16 @@ fn main() {
     );
 
     array.borrow_mut().assign(rp::seq!(
-        '['.void_(),
+        '['.void(),
         rp::or!(elements, ws.clone().output((JsonValue::Array(Vec::new()),))),
-        ']'.void_()
+        ']'.void()
     ));
 
     let member = rp::seq!(
         ws.clone(),
         string_parser(),
         ws.clone(),
-        ':'.void_(),
+        ':'.void(),
         element.clone()
     )
     .rc();
@@ -198,7 +198,7 @@ fn main() {
     let members =
         rp::seq!(
             member.clone(),
-            rp::seq!(','.void_(), member.clone()).repeat(0..)
+            rp::seq!(','.void(), member.clone()).repeat(0..)
         )
         .map(
             |(first_key, first_value, rest): (
@@ -227,12 +227,12 @@ fn main() {
         );
 
     object.borrow_mut().assign(rp::seq!(
-        '{'.void_(),
+        '{'.void(),
         rp::or!(
             members,
             ws.clone().output((JsonValue::Object(HashMap::new()),))
         ),
-        '}'.void_()
+        '}'.void()
     ));
 
     let json = rp::seq!(element, rp::end());
