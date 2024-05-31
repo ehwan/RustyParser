@@ -127,7 +127,7 @@ fn slice( s: &'a [T] );
 let hello_parser = chars("hello");
 let hello_parser = "hello".into_parser()
 
-let hello_parser = slice(&[104 101 108 108 111]);
+let hello_parser = slice(&[104, 101, 108, 108, 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`

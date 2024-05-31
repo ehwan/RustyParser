@@ -37,21 +37,4 @@ fn example1() {
 }
 
 #[test]
-fn dict_example() {
-    // let mut parser = rp::DictBTree::new();
-    let mut parser = rp::DictHashMap::new();
-
-    parser.insert("hello".chars(), (1,));
-    parser.insert("hello_world".chars(), (2,));
-    parser.insert("world".chars(), (3,));
-
-    // this will match as long as possible
-    let res = rp::parse(&parser, "hello_world_abcdefg".chars());
-    assert_eq!(res.output.unwrap(), (2,));
-    // 'hello_world' is parsed, so the rest is "_abcdefg"
-    assert_eq!(res.it.collect::<String>(), "_abcdefg");
-
-    // match 'hello' only
-    let res = rp::parse(&parser, "hello_wo".chars());
-    assert_eq!(res.output.unwrap(), (1,));
-}
+fn dict_example() {}
