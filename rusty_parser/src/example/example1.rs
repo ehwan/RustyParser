@@ -240,3 +240,14 @@ fn optional_example() {
     let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
     assert_eq!(res.output.unwrap(), (None,));
 }
+
+#[test]
+fn not_example() {
+    let digit_parser_except_4 = ('0'..='9').not('4');
+
+    let res = rp::parse(&digit_parser_except_4, "3".chars());
+    assert_eq!(res.output.unwrap(), ('3',));
+
+    let res = rp::parse(&digit_parser_except_4, "4".chars());
+    assert_eq!(res.output, None);
+}

@@ -241,6 +241,19 @@ assert_eq!(res.output.unwrap(), (None,));
  - if `Output` of the origin parser is `(T0,)`, then `Output` is `(Option<T0>,)`
  - otherwise, `Output` is `( Option<Output of the Origin Parser>, )`
 
+### `not`: match for Pattern1 to success and Pattern2 to fail
+```rust
+// all digit but not 4
+let digit_parser_except_4 = ('0'..='9').not('4');
+
+let res = rp::parse(&digit_parser_except_4, "3".chars());
+assert_eq!(res.output.unwrap(), ('3',));
+
+let res = rp::parse(&digit_parser_except_4, "4".chars());
+assert_eq!(res.output, None);
+```
+`Output`: `Output` of the first parser
+
 
 
 ## For complex, highly recursive pattern

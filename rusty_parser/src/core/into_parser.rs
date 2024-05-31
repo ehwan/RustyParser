@@ -117,4 +117,16 @@ pub trait IntoParser {
     {
         crate::wrapper::boxed::DynBoxSlice::new(self)
     }
+
+    /// match for parser1 parser2, parser1 must success and parser2 must fail
+    /// This is equivalent to `not(parser1, parser2)`
+    fn not<RhsParser: IntoParser>(
+        self,
+        rhs: RhsParser,
+    ) -> crate::wrapper::not::NotParser<Self::Into, RhsParser::Into>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::not::NotParser::new(self.into_parser(), rhs.into_parser())
+    }
 }
