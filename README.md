@@ -107,6 +107,8 @@ the iterator must be cheaply clonable.
  ```
 `Output`: `(Iterator::Item,)`
 
+--------
+
 ### `range`: consumes one charactor if it is in the range `r`.
 ```rust
 let parser = range( r: impl std::ops::RangeBounds )
@@ -115,6 +117,8 @@ let digit_parser = range( '0'..='9' )
 let digit_parser = ('0'..='9').into_parser()
 ```
 `Output`: `(Iterator::Item,)`
+
+--------
 
 ### `chars`, `slice`: consumes multiple charactors if it is equal to `s`.
 ```rust
@@ -128,6 +132,9 @@ let hello_parser = slice(&[104 101 108 108 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
+
+--------
+
 
 ### Dictionary: build Trie from a list of strings
 ```rust
@@ -154,7 +161,9 @@ There are two types of Dictionary: `DictBTree` and `DictHashMap` for Trie implem
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
 
 
-### Combinators
+
+
+## Combinators
 
 ### `seq`: sequence of parsers
 ```rust
@@ -169,6 +178,8 @@ assert_eq!(res.it.collect::<String>(), "d");
 `Output`: `( L0, L1, ..., R0, R1, ... )` 
 where `(L0, L1, ...)` are the outputs of the first parser, 
 and `(R0, R1, ...)` are the outputs of the second parser.
+
+------
 
 ### `or_`: or combinator
 
@@ -196,6 +207,9 @@ assert_eq!(res.it.clone().collect::<String>(), "cd");
 `Output`: `Output` of the first and second parser.
 
 Note that the output of both parsers must be the same type.
+
+
+------
 
 
 ### `map`: map the output of the parser
@@ -227,6 +241,9 @@ assert_eq!(res.it.collect::<String>(), "bcd");
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
  - otherwise, `Vec< Output of the Repeated Parser >`
 
+------
+
+
 ### `optional`, `optional_or`: success whether the pattern is matched or not
 ```rust
 let a_optional_parser = 'a'.optional(); // (Option<char>,)
@@ -250,6 +267,9 @@ assert_eq!(res.output.unwrap(), ('x',));
  `Output` for `optional_or`:
   <`Output` of the origin parser>. 
   The value given to `optional_or` must match with the `Output` of the origin parser.
+
+------
+
 
 ### `not`: match for Pattern1 to success and Pattern2 to fail
 ```rust
@@ -310,6 +330,9 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
+------
+
+
 ### `refcell`: a `RefCell<Parser>` wrapper
 `refcell` is useful when it is combined with `box_*` or `rc`,
 since it provides internal mutability.
@@ -335,6 +358,9 @@ assert_eq!(res_digit.output.unwrap(), ());
 assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
+
+
+------
 
 ### `rc`: a `Rc<Parser>` wrapper
 `rc` is used to share the same parser.
@@ -397,17 +423,26 @@ let parser = rp::constant( (1, 2, 3) );
 ```
 `Output`: the Tuple value you provided
 
+------
+
+
 ### `end`: success if it reached to the end of input
 ```rust
 let end_parser = rp::end();
 ```
 `Output`: `()`
 
+------
+
+
 ### `fail`: This parser will always fail
 ```rust
 let parser = rp::fail();
 ```
 `Output`: `()`
+
+------
+
 
 ### `void_`: ignore the output of the parser
 Force the output to be `()`. 
@@ -430,6 +465,9 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: `()`
 
+------
+
+
 
 ### `output`: change the output of the parser
 ```rust
@@ -440,6 +478,9 @@ assert_eq!(res.output.unwrap(), (1, 2, 3));
 assert_eq!(res.it.collect::<String>(), "23456hello_world");
 ```
 `Output`: the Tuple value you provided
+
+------
+
 
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
 
