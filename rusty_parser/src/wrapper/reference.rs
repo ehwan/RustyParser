@@ -36,13 +36,6 @@ where
     }
 }
 
-pub fn ref_<'a, ParserType>(parser: &'a ParserType) -> ReferenceParser<'a, ParserType>
-where
-    ParserType: 'a,
-{
-    ReferenceParser::new(parser)
-}
-
 impl<'a, ParserType> IntoParser for ReferenceParser<'a, ParserType>
 where
     ParserType: 'a,

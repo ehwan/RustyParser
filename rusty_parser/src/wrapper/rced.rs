@@ -52,10 +52,6 @@ impl<ParserType> DerefMut for RcedParser<ParserType> {
     }
 }
 
-pub fn rc<ParserType: IntoParser>(parser: ParserType) -> RcedParser<ParserType::Into> {
-    RcedParser::new(parser.into_parser())
-}
-
 impl<ParserType> IntoParser for RcedParser<ParserType> {
     type Into = Self;
 

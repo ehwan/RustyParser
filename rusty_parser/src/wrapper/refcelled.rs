@@ -48,10 +48,6 @@ impl<ParserType> DerefMut for RefCelledParser<ParserType> {
     }
 }
 
-pub fn refcell<ParserType: IntoParser>(parser: ParserType) -> RefCelledParser<ParserType::Into> {
-    RefCelledParser::new(parser.into_parser())
-}
-
 impl<ParserType> IntoParser for RefCelledParser<ParserType> {
     type Into = Self;
 
