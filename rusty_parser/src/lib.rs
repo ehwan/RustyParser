@@ -142,6 +142,9 @@ pub use wrapper::option::optional;
 /// match for parser1 parser2, parser1 must success and parser2 must fail
 pub use wrapper::not::not;
 
+/// change Parser's Output to output
+pub use wrapper::output::output;
+
 /// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
 /// This can take any parser with Output of `Output`
 pub use wrapper::boxed::box_chars;

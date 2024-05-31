@@ -251,3 +251,12 @@ fn not_example() {
     let res = rp::parse(&digit_parser_except_4, "4".chars());
     assert_eq!(res.output, None);
 }
+
+#[test]
+fn output_example() {
+    let digit_parser = ('0'..='9').output((1, 2, 3));
+
+    let res = rp::parse(&digit_parser, "123456hello_world".chars());
+    assert_eq!(res.output.unwrap(), (1, 2, 3));
+    assert_eq!(res.it.collect::<String>(), "23456hello_world");
+}
