@@ -10,7 +10,6 @@ Creating custom parsers for various data formats.
 
 
 ## Sample Code
-[rusty_parser/src/example/example1.rs](rusty_parser/src/example/example1.rs)
 
 ```rust
 // import rusty_parser
