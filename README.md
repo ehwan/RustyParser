@@ -227,7 +227,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
  - otherwise, `Vec< Output of the Repeated Parser >`
 
-### `optional`: success whether the pattern is matched or not
+### `optional`, `optional_or`: success whether the pattern is matched or not
 ```rust
 let a_optional_parser = 'a'.optional(); // (Option<char>,)
 
@@ -236,10 +236,20 @@ assert_eq!(res.output.unwrap(), (Some('a'),));
 
 let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
 assert_eq!(res.output.unwrap(), (None,));
+
+// if 'a' failed, return 'x'
+let a_optional_or = 'a'.optional_or(('x',)); // (char,)
+
+let res = rp::parse(&a_optional_or, "bcd".chars());
+assert_eq!(res.output.unwrap(), ('x',));
 ```
-`Output`:
- - if `Output` of the origin parser is `(T0,)`, then `Output` is `(Option<T0>,)`
- - otherwise, `Output` is `( Option<Output of the Origin Parser>, )`
+`Output` for `optional`:
+ - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
+ - otherwise, `( Option<Output of the Origin Parser>, )`
+
+ `Output` for `optional_or`:
+  <`Output` of the origin parser>. 
+  The value given to `optional_or` must match with the `Output` of the origin parser.
 
 ### `not`: match for Pattern1 to success and Pattern2 to fail
 ```rust
