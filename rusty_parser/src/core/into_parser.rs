@@ -140,4 +140,22 @@ pub trait IntoParser {
     {
         crate::wrapper::output::OutputParser::new(self.into_parser(), output)
     }
+
+    /// returns &str of parsed input
+    fn str(self) -> crate::wrapper::slice::StrParser<Self::Into>
+    where
+        Self: Sized,
+        Self::Into: for<'a> crate::core::parser::Parser<std::str::Chars<'a>>,
+    {
+        crate::wrapper::slice::StrParser::new(self.into_parser())
+    }
+
+    /// returns &[T] of parsed input
+    fn slice<T>(self) -> crate::wrapper::slice::SliceParser<Self::Into>
+    where
+        Self: Sized,
+        Self::Into: for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>>,
+    {
+        crate::wrapper::slice::SliceParser::new(self.into_parser())
+    }
 }
