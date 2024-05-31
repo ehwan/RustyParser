@@ -11,6 +11,13 @@ pub enum JsonValue {
     Array(Vec<JsonValue>),
     Object(HashMap<String, JsonValue>),
 }
+fn map_iter_pair_to_string<'a, 'b>(
+    (beg, end): (std::str::Chars<'a>, std::str::Chars<'b>),
+) -> (JsonValue,) {
+    let size = beg.as_str().len() - end.as_str().len();
+    let captured = beg.take(size);
+    (JsonValue::String(captured.collect()),)
+}
 
 use rusty_parser::{self as rp, IntoParser};
 
@@ -25,7 +32,6 @@ fn main() {
     let object = dummy_parser.clone().box_chars().refcell().rc();
     let array = dummy_parser.clone().box_chars().refcell().rc();
     let number = dummy_parser.clone().box_chars().refcell().rc();
-    let string = dummy_parser.clone().box_chars().refcell().rc();
 
     let true_ = "true".map(|_| (JsonValue::Bool(true),));
     let false_ = "false".map(|_| (JsonValue::Bool(false),));
@@ -52,15 +58,27 @@ fn main() {
             }
             (char::from_u32(res).expect("invalid unicode character"),)
         });
-    let escape = rp::or_!('"', '\\', '/', '\n', '\r', '\t', unicode_char);
+    let escape = rp::or_!(
+        '"',
+        '\\',
+        '/',
+        'n'.output(('\n',)),
+        '\r'.output(('\r',)),
+        '\t'.output(('\t',)),
+        unicode_char
+    );
+    let escape = rp::seq!('\\'.void_(), escape);
     let character = ('\u{0020}'..='\u{10FFFF}').not('"').not('\\');
-    let character = rp::or_!( character, '\\'.
+    let character = rp::or_!(character, escape);
+
+    let string = rp::seq!('"'.void_(), character.repeat(0..).iter(), '"'.void_())
+        .map(map_iter_pair_to_string);
 
     value.borrow_mut().assign(rp::or_!(
         null,
         bool_,
         rp::Rc::clone(&number),
-        rp::Rc::clone(&string),
+        string,
         rp::Rc::clone(&array),
         rp::Rc::clone(&object)
     ));
