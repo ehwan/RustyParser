@@ -2,7 +2,9 @@
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
 ## Example
- - **[Calculator](examples/calculator)**
+ - **[Calculator Expresion Parser](examples/calculator)**
+
+ - **[JSON Parser](examples/json)**
 
 
 ## Sample Code
