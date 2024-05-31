@@ -117,7 +117,7 @@ let digit_parser = ('0'..='9').into_parser()
 ```
 `Output`: `(Iterator::Item,)`
 
---------
+___
 
 ### `chars`, `slice`: consumes multiple charactors if it is equal to `s`.
 ```rust
@@ -132,7 +132,7 @@ let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
 
---------
+***
 
 
 ### Dictionary: build Trie from a list of strings
@@ -242,7 +242,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
  - otherwise, `Vec< Output of the Repeated Parser >`
 
-------
+***
 
 
 ### `optional`, `optional_or`: success whether the pattern is matched or not
