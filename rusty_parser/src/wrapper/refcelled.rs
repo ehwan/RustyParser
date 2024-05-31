@@ -7,6 +7,7 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
+#[derive(Debug, Clone)]
 pub struct RefCelledParser<ParserType> {
     parser: RefCell<ParserType>,
 }
