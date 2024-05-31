@@ -22,7 +22,7 @@ fn main() {
     lineend: '\0'
      */
 
-    let whitespaces = or_!(' ', '\n').repeat(0..).void_();
+    let whitespaces = or!(' ', '\n').repeat(0..).void_();
 
     // one digit [0-9]
     let digit = map('0'..='9', |(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
@@ -47,10 +47,10 @@ fn main() {
     );
 
     // expr0: num | paren_expr
-    expr0.borrow_mut().assign(or_!(num, paren_expr));
+    expr0.borrow_mut().assign(or!(num, paren_expr));
 
     // expr1: expr0 ((*|/) expr0)*
-    let mul_or_div_op = or_!('*', '/');
+    let mul_or_div_op = or!('*', '/');
     let mul_or_div = seq!(
         Rc::clone(&expr0),
         seq!(
@@ -75,7 +75,7 @@ fn main() {
     expr1.borrow_mut().assign(mul_or_div);
 
     // expr2: expr1 ((+|-) expr1)*
-    let add_or_sub_op = or_!('+', '-');
+    let add_or_sub_op = or!('+', '-');
     let add_or_sub = seq!(
         Rc::clone(&expr1),
         seq!(

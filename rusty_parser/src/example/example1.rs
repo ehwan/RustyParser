@@ -74,7 +74,7 @@ fn seq_example() {
 #[test]
 fn or_example() {
     // 'a' or 'b'
-    let ab_parser = rp::or_!('a', 'b'); // IntoParser for char
+    let ab_parser = rp::or!('a', 'b'); // IntoParser for char
 
     // 'a' is matched
     let res = rp::parse(&ab_parser, "abcd".chars());

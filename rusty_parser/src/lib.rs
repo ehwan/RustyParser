@@ -122,7 +122,7 @@ pub use wrapper::repeat::repeat;
 pub use wrapper::reference::ref_;
 
 /// Or combinator of parsers
-pub use wrapper::or_::or_;
+pub use wrapper::or::or;
 
 /// Map parser's Output to new value
 pub use wrapper::map::map;
@@ -204,9 +204,9 @@ macro_rules! seq {
 
 /// Or combinator of parsers
 /// Example:
-/// or_!( parser_a, or_b, or_c )
+/// or!( parser_a, or_b, or_c )
 #[macro_export]
-macro_rules! or_ {
+macro_rules! or {
     // Base case: just return
     ($single:expr) => {
         $single
@@ -214,6 +214,6 @@ macro_rules! or_ {
 
     // N arguments
     ($first:expr, $($rest:expr),+) => {
-        $crate::or_( $first, $crate::or_!($($rest),+) )
+        $crate::or( $first, $crate::or!($($rest),+) )
     };
 }

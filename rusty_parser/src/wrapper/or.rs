@@ -71,7 +71,7 @@ where
     }
 }
 
-pub fn or_<ParserA: IntoParser, ParserB: IntoParser>(
+pub fn or<ParserA: IntoParser, ParserB: IntoParser>(
     parser_a: ParserA,
     parser_b: ParserB,
 ) -> OrParser<ParserA::Into, ParserB::Into> {
