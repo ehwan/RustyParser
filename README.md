@@ -1,7 +1,9 @@
 # RustyParser
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
-Creating custom parsers for various data formats.
+Define pattern, combine them, and parse the input.
+
+RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
@@ -10,7 +12,6 @@ Creating custom parsers for various data formats.
 
 
 ## Sample Code
-[rusty_parser/src/example/example1.rs](rusty_parser/src/example/example1.rs)
 
 ```rust
 // import rusty_parser
@@ -54,7 +55,7 @@ fn example1() {
 ```
 
 ## Structures
-Define pattern, combine them, and parse the input string.
+Define pattern, combine them, and parse the input.
 
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
@@ -64,7 +65,7 @@ Those generated parsers are used to parse the input string, and return the extra
  fn parse(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
  fn match_pattern(pattern:&Pattern, it:It) -> ParseResult<(), It>;
  ```
-`parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
+`parse(...)` takes a Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
 
  `match_pattern(...)` is used 
  when you only want to check if the pattern is matched or not, without extracting data. 
@@ -89,12 +90,9 @@ where
 }
 ```
 
-Note that `Output` must be a Tuple 
-(include null-tuple `()`). 
-Even if the Parser extracts only one element, the output must be a Tuple.
-
-Since the `parse(...)` internally clones the iterator, 
-the iterator must be cheaply clonable.
+ ### Note
+  - Since the `parse(...)` internally clones the iterator, the iterator must be cheaply clonable.
+  - `Output` must be `Tuple`, including `()`. If you want to return a single value, use `(Value,)`.
 
 
 ## Basic Parsers
@@ -127,7 +125,7 @@ fn slice( s: &'a [T] );
 let hello_parser = chars("hello");
 let hello_parser = "hello".into_parser()
 
-let hello_parser = slice(&[104 101 108 108 111]);
+let hello_parser = slice(&[104, 101, 108, 108, 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
@@ -173,9 +171,9 @@ assert_eq!(res.output.unwrap(), ('a', 'b', 'c')); // Output is concatenated
 assert_eq!(res.it.collect::<String>(), "d");
 ```
 
-`Output`: `( L0, L1, ..., R0, R1, ... )` 
-where `(L0, L1, ...)` are the outputs of the first parser, 
-and `(R0, R1, ...)` are the outputs of the second parser.
+`Output`: `( A0, A1, ..., B0, B1, ..., C0, C1, ... )`
+where `(A0, A1, ...)` are the output of the first parser,
+and `(B0, B1, ...)`, `(C0, C1, ...)` are the output of the following parsers.
 
 
 ### `or`: or combinator
@@ -201,9 +199,9 @@ let res = rp::parse(&ab_parser, res.it);
 assert_eq!(res.output, None);
 assert_eq!(res.it.clone().collect::<String>(), "cd");
 ```
-`Output`: `Output` of the first and second parser.
 
-Note that the output of both parsers must be the same type.
+`Output`: `Output` of the all parsers.
+Note that the output of all parsers must be the same type.
 
 
 
@@ -305,7 +303,7 @@ Once you wrap the parser through `box_chars` or `box_slice`, you can only use th
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 // this will wrap the parser into Box< dyn Parser >
 let mut boxed_parser = hello_parser.box_chars();
@@ -333,7 +331,7 @@ since it provides internal mutability.
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 let refcelled_parser = hello_parser.box_chars().refcell();
 
@@ -360,7 +358,7 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 
 ```rust
 let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void_();
+let digit_parser = ('0'..='9').void();
 
 let rc_parser1 = hello_parser.box_chars().refcell().rc();
 let rc_parser2 = rp::Rc::clone(&rc_parser1);
@@ -383,29 +381,6 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
-
-## Making your own Parser
-You can design your own Parser by
-```rust
-parser( closure: impl Fn(&mut It) -> Option<NewOutput> ) -> impl Parser<It>
-```
-
-the closure takes mutable reference of the iterator and returns `Option<NewOutput>`.
-
-```rust
-let custom_parser = rp::parser(|it: &mut std::str::Chars| {
-    if it.take(5).eq("hello".chars()) {
-        Some((0,))
-    } else {
-        // no need to move the iterator back
-        None
-    }
-});
-
-let res = rp::parse(&custom_parser, "hello0123".chars());
-assert_eq!(res.output.unwrap(), (0,));
-assert_eq!(res.it.collect::<String>(), "0123");
-```
 
 ## Others
  Trivial, but useful parsers
@@ -434,7 +409,7 @@ let parser = rp::fail();
 
 
 
-### `void_`: ignore the output of the parser
+### `void`: ignore the output of the parser
 Force the output to be `()`. 
 It internally calls `match_pattern(...)` instead of `parse(...)`. 
 This is useful when you only want to check if the pattern is matched or not. 
@@ -445,7 +420,7 @@ let expensive_parser = 'a'.map(|(_,)| -> (i32,) {
     // some expensive operations for data extracting...
     panic!("This should not be called");
 });
-let expensive_parser = expensive_parser.void_();
+let expensive_parser = expensive_parser.void();
 
 // ignore the output of parser
 // this internally calls 'match_pattern(...)' instead of 'parse(...)'

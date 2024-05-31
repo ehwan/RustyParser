@@ -49,13 +49,6 @@ where
     }
 }
 
-pub fn output<ParserType: IntoParser, Output: Tuple + Clone>(
-    parser: ParserType,
-    output: Output,
-) -> OutputParser<ParserType::Into, Output> {
-    OutputParser::new(parser.into_parser(), output)
-}
-
 impl<ParserType, OutputType> IntoParser for OutputParser<ParserType, OutputType>
 where
     OutputType: Tuple + Clone,

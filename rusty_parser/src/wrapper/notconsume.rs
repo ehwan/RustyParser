@@ -51,12 +51,6 @@ where
     }
 }
 
-pub fn not_consume<ParserType: IntoParser>(
-    parser: ParserType,
-) -> NotConsumeParser<ParserType::Into> {
-    NotConsumeParser::new(parser.into_parser())
-}
-
 impl<ParserType> IntoParser for NotConsumeParser<ParserType> {
     type Into = Self;
 
