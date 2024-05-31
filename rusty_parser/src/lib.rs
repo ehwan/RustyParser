@@ -143,6 +143,10 @@ pub use wrapper::option::optional_or;
 /// match for parser1 parser2, parser1 must success and parser2 must fail
 pub use wrapper::not::not;
 
+/// Parser will not consume the input iterator
+/// It still match and return the output
+pub use wrapper::notconsume::not_consume;
+
 /// change Parser's Output to output
 pub use wrapper::output::output;
 

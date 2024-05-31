@@ -1,6 +1,7 @@
 pub mod boxed;
 pub mod map;
 pub mod not;
+pub mod notconsume;
 pub mod option;
 pub mod or;
 pub mod output;

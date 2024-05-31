@@ -161,4 +161,13 @@ pub trait IntoParser {
     {
         crate::wrapper::slice::SliceParser::new(self.into_parser())
     }
+
+    /// Parser will not consume the input iterator
+    /// It still match and return the output
+    fn not_consume(self) -> crate::wrapper::notconsume::NotConsumeParser<Self::Into>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::notconsume::NotConsumeParser::new(self.into_parser())
+    }
 }

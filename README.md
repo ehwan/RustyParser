@@ -1,6 +1,8 @@
 # RustyParser
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
+Creating custom parsers for various data formats.
+
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
 
@@ -480,3 +482,13 @@ assert_eq!(res.output.unwrap(), ("123456".to_string(),));
 assert_eq!(res.it.collect::<String>(), "hello_world");
 ```
 `Output`: `(String,)` or `(Vec<T of Slice>,)`
+
+### `not_consume`: check if the pattern is matched or not, without consuming the input
+```rust
+let digit_parser = ('0'..='9').not_consume();
+
+let res = rp::parse(&digit_parser, "12345".chars());
+assert_eq!(res.output.unwrap(), ('1',));
+assert_eq!(res.it.collect::<String>(), "12345"); // iterator is not consumed
+```
+`Output`: `Output` of the parser

@@ -255,3 +255,12 @@ fn string_example() {
     assert_eq!(res.output.unwrap(), ("123456".to_string(),));
     assert_eq!(res.it.collect::<String>(), "hello_world");
 }
+
+#[test]
+fn not_consume_example() {
+    let digit_parser = ('0'..='9').not_consume();
+
+    let res = rp::parse(&digit_parser, "12345".chars());
+    assert_eq!(res.output.unwrap(), ('1',));
+    assert_eq!(res.it.collect::<String>(), "12345"); // iterator is not consumed
+}
