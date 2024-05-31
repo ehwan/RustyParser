@@ -3,6 +3,8 @@ A Generic compile-time Parser generator and Pattern Matching Library written in 
 
 Creating custom parsers for various data formats.
 
+RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
+
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
 

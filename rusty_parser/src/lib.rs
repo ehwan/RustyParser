@@ -2,7 +2,9 @@
 //!
 //! A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 //!
-//! Creating custom parsers for various data formats.
+//! Define pattern, combine them, and parse the input string.
+//!
+//! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 //!
 //! # Example
 //! ```rust
@@ -39,6 +41,46 @@
 //! // here, '123456' is parsed, so the rest is "hello_world"
 //! assert_eq!(res.it.collect::<String>(), "hello_world");
 //! ```
+//!
+//!
+//!
+//!
+//! Those generated parsers are used to parse the input string, and return the extracted data.
+//!  ```rust
+//!  fn parse(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
+//!  fn match_pattern(pattern:&Pattern, it:It) -> ParseResult<(), It>;
+//!  ```
+//! `parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
+//!
+//!  `match_pattern(...)` is used
+//!  when you only want to check if the pattern is matched or not, without extracting data.
+//!  For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::push` inside.
+//!
+//!
+//! `ParseResult` is a struct representing the result of parsing.
+//!
+//! ``` rust
+//! pub struct ParseResult<Output, It>
+//! where
+//!     Output: Tuple,
+//!     It: Iterator + Clone,
+//! {
+//!     // the output; extracted data
+//!     // 'None' means parsing failed
+//!     pub output: Option<Output>,
+//!
+//!     // iterator after parsing
+//!     // if parsing failed, this will be the same as the input iterator
+//!     pub it: It,
+//! }
+//! ```
+//!
+//! Note that `Output` must be a Tuple
+//! (include null-tuple `()`).
+//! Even if the Parser extracts only one element, the output must be a Tuple.
+//!
+//! Since the `parse(...)` internally clones the iterator,
+//! the iterator must be cheaply clonable.
 
 pub(crate) mod core;
 pub(crate) mod leaf;
