@@ -437,3 +437,13 @@ assert_eq!(begin.collect::<String>(), "hello0123");
 assert_eq!(end.collect::<String>(), "3");
 ```
 `Output`: `(It, It)`
+
+#### `output`: change the output of the parser
+```rust
+let digit_parser = ('0'..='9').output((1, 2, 3));
+
+let res = rp::parse(&digit_parser, "123456hello_world".chars());
+assert_eq!(res.output.unwrap(), (1, 2, 3));
+assert_eq!(res.it.collect::<String>(), "23456hello_world");
+```
+`Output`: the Tuple value you provided

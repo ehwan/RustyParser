@@ -129,4 +129,15 @@ pub trait IntoParser {
     {
         crate::wrapper::not::NotParser::new(self.into_parser(), rhs.into_parser())
     }
+
+    /// change Parser's Output to output
+    fn output<Output: crate::core::tuple::Tuple + Clone>(
+        self,
+        output: Output,
+    ) -> crate::wrapper::output::OutputParser<Self::Into, Output>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::output::OutputParser::new(self.into_parser(), output)
+    }
 }

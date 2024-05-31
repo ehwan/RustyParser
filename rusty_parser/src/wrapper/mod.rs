@@ -4,6 +4,7 @@ pub mod map;
 pub mod not;
 pub mod option;
 pub mod or_;
+pub mod output;
 pub mod rced;
 pub mod refcelled;
 pub mod reference;
