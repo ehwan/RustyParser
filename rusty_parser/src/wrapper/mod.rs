@@ -1,5 +1,4 @@
 pub mod boxed;
-pub mod iter_range;
 pub mod map;
 pub mod not;
 pub mod option;
@@ -10,6 +9,7 @@ pub mod refcelled;
 pub mod reference;
 pub mod repeat;
 pub mod seq;
+pub mod slice;
 pub mod void;
 
 pub(crate) mod optionmerge;

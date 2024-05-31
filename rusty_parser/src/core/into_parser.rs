@@ -70,14 +70,6 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalParser::new(self.into_parser())
     }
 
-    /// change Parser's Output to Iterator Pair [begin, end)
-    fn iter(self) -> crate::wrapper::iter_range::IterParser<Self::Into>
-    where
-        Self: Sized,
-    {
-        crate::wrapper::iter_range::IterParser::new(self.into_parser())
-    }
-
     /// create RefCell\<Parser\> wrapper
     fn refcell(self) -> crate::wrapper::refcelled::RefCelledParser<Self::Into>
     where
@@ -139,5 +131,25 @@ pub trait IntoParser {
         Self: Sized,
     {
         crate::wrapper::output::OutputParser::new(self.into_parser(), output)
+    }
+
+    /// returns String of parsed input
+    /// only works for parsing with std::str::Chars
+    fn string(self) -> crate::wrapper::slice::StringParser<Self::Into>
+    where
+        Self: Sized,
+        Self::Into: for<'a> crate::core::parser::Parser<std::str::Chars<'a>>,
+    {
+        crate::wrapper::slice::StringParser::new(self.into_parser())
+    }
+
+    /// returns Vec<T> of parsed input
+    /// only works for parsing with std::slice::Iter
+    fn vec<T>(self) -> crate::wrapper::slice::SliceParser<Self::Into>
+    where
+        Self: Sized,
+        Self::Into: for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>>,
+    {
+        crate::wrapper::slice::SliceParser::new(self.into_parser())
     }
 }

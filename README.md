@@ -421,24 +421,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 `Output`: `()`
 
 
-### `iter`: capture a [begin, end) iterator pair consumed by the parser
-```rust
-// 'hello', and then 3 digits
-// 'hello', and then 3 digits
-let parser = rp::seq!("hello", ('0'..='9').repeat(3..=3)).iter();
-
-//                   <------> parsed range
-let target_string = "hello0123";
-//                   |       ^ end
-//                   ^ begin
-let res = rp::parse(&parser, target_string.chars());
-let (begin, end) = res.output.unwrap();
-assert_eq!(begin.collect::<String>(), "hello0123");
-assert_eq!(end.collect::<String>(), "3");
-```
-`Output`: `(It, It)`
-
-#### `output`: change the output of the parser
+### `output`: change the output of the parser
 ```rust
 let digit_parser = ('0'..='9').output((1, 2, 3));
 
@@ -447,3 +430,16 @@ assert_eq!(res.output.unwrap(), (1, 2, 3));
 assert_eq!(res.it.collect::<String>(), "23456hello_world");
 ```
 `Output`: the Tuple value you provided
+
+### `string`, `vec`: captures the matched range into String or Vec\<T\>
+
+`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::slice::Iter`.
+
+```rust
+let digits_parser = ('0'..='9').repeat(0..).string();
+
+let res = rp::parse(&digits_parser, "123456hello_world".chars());
+assert_eq!(res.output.unwrap(), ("123456".to_string(),));
+assert_eq!(res.it.collect::<String>(), "hello_world");
+```
+`Output`: `(String,)` or `(Vec<T of Slice>,)`

@@ -127,9 +127,6 @@ pub use wrapper::or_::or_;
 /// Map parser's Output to new value
 pub use wrapper::map::map;
 
-/// change Parser's Output to Iterator Pair [begin, end)
-pub use wrapper::iter_range::iter;
-
 /// create RefCell\<Parser\> wrapper
 pub use wrapper::refcelled::refcell;
 
@@ -144,6 +141,14 @@ pub use wrapper::not::not;
 
 /// change Parser's Output to output
 pub use wrapper::output::output;
+
+/// returns String of parsed input
+/// only works for parsing with std::str::Chars
+pub use wrapper::slice::string;
+
+/// returns Vec<T> of parsed input
+/// only works for parsing with std::slice::Iter
+pub use wrapper::slice::vec;
 
 /// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
 /// This can take any parser with Output of `Output`
