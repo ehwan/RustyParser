@@ -16,4 +16,4 @@ lineend: '\0'
 whitespaces: ' ' | '\n'
 ```
 
-Source code in `src/`
+Source code in [src/main.rs](src/main.rs)
