@@ -83,11 +83,11 @@ impl<'a> IntoParser for &'a str {
 }
 impl<'a, T> IntoParser for &'a [T]
 where
-    T: Clone,
+    T: Clone + Copy,
 {
-    type Into = SliceEqualParser<std::slice::Iter<'a, T>>;
+    type Into = SliceEqualParser<std::iter::Copied<std::slice::Iter<'a, T>>>;
     fn into_parser(self) -> Self::Into {
-        SliceEqualParser::new(self.iter())
+        SliceEqualParser::new(self.iter().copied())
     }
 }
 

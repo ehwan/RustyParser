@@ -233,7 +233,7 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
     }
 
-    /// create RefCell\<Parser\> wrapper
+    /// create RefCell\<Parser\> wrapper.
     ///
     /// # Example
     /// ```rust
@@ -302,8 +302,11 @@ pub trait IntoParser {
         crate::wrapper::rced::RcedParser::new(self.into_parser())
     }
 
-    /// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
-    /// This can take any parser with Output of `Output`
+    /// create a Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.
+    ///
+    /// This can take any parser with Output of `Output`.
+    ///
+    /// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
     ///
     /// # Example
     /// ```rust
@@ -339,14 +342,45 @@ pub trait IntoParser {
         crate::wrapper::boxed::DynBoxChars::new(self)
     }
 
-    /// create a Box\<dyn Parser\> wrapper for iterators of std::slice::Iter
-    /// This can take any parser with Output of `Output`
+    /// create a Box\<dyn Parser\> wrapper for iterators of `std::iter::Copied<std::slice::Iter>`.
+    ///
+    /// This can take any parser with Output of `Output`.
+    ///
+    /// Once you wrap the parser with this, you can only use input iterator of `Copied<std::slice::Iter>`.
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
+    /// let digit_parser = ('0' as u8..='9' as u8).void();
+    ///
+    /// // this will wrap the parser into Box< dyn Parser >
+    /// let mut boxed_parser = hello_parser.box_slice();
+    ///
+    /// let res_hello = rp::parse(&boxed_parser, "hello0123".as_bytes().iter().copied());
+    /// // success
+    /// assert_eq!(res_hello.output.unwrap(), ());
+    /// assert_eq!(res_hello.it.clone().collect::<Vec<u8>>(), [ '0' as u8, '1' as u8, '2' as u8, '3' as u8 ]);
+    ///
+    /// // now change boxed_parser to digit_parser
+    /// boxed_parser.assign(digit_parser);
+    ///
+    /// let res_digit = rp::parse(&boxed_parser, res_hello.it);
+    /// // success
+    /// assert_eq!(res_digit.output.unwrap(), ());
+    /// assert_eq!(res_digit.it.collect::<Vec<u8>>(), [ '1' as u8, '2' as u8, '3' as u8 ]);
+    /// ```
     fn box_slice<Output, T>(self) -> crate::wrapper::boxed::DynBoxSlice<Output, T>
     where
         Output: crate::core::tuple::Tuple,
+        T: Clone + Copy,
         Self: Sized,
-        Self::Into:
-            for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+        Self::Into: for<'a> crate::core::parser::Parser<
+                std::iter::Copied<std::slice::Iter<'a, T>>,
+                Output = Output,
+            > + 'static,
     {
         crate::wrapper::boxed::DynBoxSlice::new(self)
     }
@@ -429,25 +463,25 @@ pub trait IntoParser {
     }
 
     /// Returns `Vec\<T\>` of parsed input.
-    /// Only works for parsing with `std::slice::Iter`.
+    /// Only works for parsing with `std::iter::Copied<std::slice::Iter>`.
     ///
     /// `Output`: `(Vec<T>,)`
     ///
     /// # Example
     /// ```rust
-    /// //use rusty_parser as rp;
-    /// //use rp::IntoParser;
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
     ///
-    /// //let digits_parser = ('0'..='9').repeat(0..).vec();
+    /// let digits_parser = ('0' as u8..='9' as u8).repeat(0..).vec();
     ///
-    /// //let res = rp::parse(&digits_parser, "123456hello_world".as_bytes().copied());
-    /// //assert_eq!(res.output.unwrap(), ("123456".as_bytes(),));
-    /// //assert_eq!(res.it.collect::<Vec<u8>>(), "hello_world".as_bytes());
+    /// let res = rp::parse(&digits_parser, "123456hello_world".as_bytes().iter().copied());
+    /// assert_eq!(res.output.unwrap(), ("123456".as_bytes().to_vec(),));
+    /// assert_eq!(res.it.collect::<Vec<u8>>(), "hello_world".as_bytes().to_vec());
     /// ```
     fn vec<T>(self) -> crate::wrapper::slice::SliceParser<Self::Into>
     where
         Self: Sized,
-        Self::Into: for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>>,
+        Self::Into: for<'a> crate::core::parser::Parser<std::iter::Copied<std::slice::Iter<'a, T>>>,
     {
         crate::wrapper::slice::SliceParser::new(self.into_parser())
     }

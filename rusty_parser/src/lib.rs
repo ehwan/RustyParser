@@ -173,12 +173,12 @@ pub fn chars<'a>(str: &'a str) -> leaf::sliceeq::SliceEqualParser<std::str::Char
 /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 /// ```
 pub fn slice<'a, T>(
-    str: &'a [T],
+    slice: &'a [T],
 ) -> leaf::sliceeq::SliceEqualParser<std::iter::Copied<std::slice::Iter<'a, T>>>
 where
     T: Clone + Copy,
 {
-    leaf::sliceeq::SliceEqualParser::new(str.iter().copied())
+    leaf::sliceeq::SliceEqualParser::new(slice.iter().copied())
 }
 
 /// This Parser will always success and return the clone of given output.
@@ -289,12 +289,18 @@ pub use wrapper::rced::RcedParser as Rc;
 /// RefCell\<Parser\> wrapper.
 pub use wrapper::refcelled::RefCelledParser as RefCell;
 
-/// A Box\<dyn Parser\> wrapper for iterators of std::str::Chars.
+/// A Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.
+///
 /// This can take any parser with Output of `Output`.
+///
+/// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
 pub use wrapper::boxed::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of std::slice::Iter.
+/// A Box\<dyn Parser\> wrapper for iterators of `std::iter::Copied<std::slice::Iter>`.
+///
 /// This can take any parser with Output of `Output`.
+///
+/// Once you wrap the parser with this, you can only use input iterator of `Copied<std::slice::Iter>`.
 pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================

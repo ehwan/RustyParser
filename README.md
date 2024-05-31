@@ -130,6 +130,8 @@ let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
 
+#### Note
+`slice( s: &'a [T] )` or `<SliceType>.into_parser()` internally converts `&[T]` to `Copied<std::slice::Iter>`.
 
 
 ### Dictionary: build Trie from a list of strings
@@ -298,7 +300,7 @@ this function wraps the input parser into `Box<dyn Parser>`.
 You can dynamically assign ***any parsers*** with same `Output` type.
 
 #### Note
-Currently only implemented for `std::str::Chars` and `std::slice::Iter`.
+Currently only implemented for `std::str::Chars` and `Copied<std::slice::Iter>`.
 Once you wrap the parser through `box_chars` or `box_slice`, you can only use those iterator for `parse(...)`.
 
 ```rust
@@ -447,7 +449,7 @@ assert_eq!(res.it.collect::<String>(), "23456hello_world");
 
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
 
-`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::slice::Iter`.
+`string` can be only used for `std::str::Chars`, and `vec` can be only used for `Copied<std::slice::Iter>`.
 
 ```rust
 let digits_parser = ('0'..='9').repeat(0..).string();
