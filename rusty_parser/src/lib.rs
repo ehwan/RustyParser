@@ -108,64 +108,6 @@ pub fn fail() -> leaf::fail::Fail {
     leaf::fail::Fail::new()
 }
 
-/// change Parser's Output to ().
-/// This internally call match_pattern() instead of parse()
-pub use wrapper::void::void_;
-
-/// concatenate two parser
-pub use wrapper::seq::seq;
-
-/// repeat parser for given range ( this matches as long as possible )
-pub use wrapper::repeat::repeat;
-
-/// parser reference wrapper
-pub use wrapper::reference::ref_;
-
-/// Or combinator of parsers
-pub use wrapper::or::or;
-
-/// Map parser's Output to new value
-pub use wrapper::map::map;
-
-/// create RefCell\<Parser\> wrapper
-pub use wrapper::refcelled::refcell;
-
-/// create Rc\<Parser\> wrapper
-pub use wrapper::rced::rc;
-
-/// this parser always success whether the input is matched or not
-pub use wrapper::option::optional;
-
-/// this parser always success whether the input is matched or not
-/// if failed, return the given value in parameter
-pub use wrapper::option::optional_or;
-
-/// match for parser1 parser2, parser1 must success and parser2 must fail
-pub use wrapper::not::not;
-
-/// Parser will not consume the input iterator
-/// It still match and return the output
-pub use wrapper::notconsume::not_consume;
-
-/// change Parser's Output to output
-pub use wrapper::output::output;
-
-/// returns String of parsed input
-/// only works for parsing with std::str::Chars
-pub use wrapper::slice::string;
-
-/// returns Vec<T> of parsed input
-/// only works for parsing with std::slice::Iter
-pub use wrapper::slice::vec;
-
-/// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
-/// This can take any parser with Output of `Output`
-pub use wrapper::boxed::box_chars;
-
-/// create a Box\<dyn Parser\> wrapper for iterators of std::slice::Iter
-/// This can take any parser with Output of `Output`
-pub use wrapper::boxed::box_slice;
-
 /// Dictionary using trie
 /// implementation uses BTreeMap; O(log(N)) search
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
@@ -189,6 +131,12 @@ pub use wrapper::boxed::DynBoxChars;
 pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================
+
+/// A binary or combinator
+pub use wrapper::or::or;
+
+/// A binary seq combinator
+pub use wrapper::seq::seq;
 
 /// Sequence of parsers
 /// Example:

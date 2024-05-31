@@ -25,7 +25,9 @@ fn main() {
     let whitespaces = or!(' ', '\n').repeat(0..).void_();
 
     // one digit [0-9]
-    let digit = map('0'..='9', |(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
+    let digit = ('0'..='9')
+        .into_parser()
+        .map(|(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
 
     // number [0-9]+
     // multiple digits -> build number
@@ -39,11 +41,11 @@ fn main() {
 
     // '(' expression ')'
     let paren_expr = seq!(
-        void_('('),
+        '('.void_(),
         whitespaces.clone(),
         Rc::clone(&expr),
         whitespaces.clone(),
-        void_(')')
+        ')'.void_()
     );
 
     // expr0: num | paren_expr
