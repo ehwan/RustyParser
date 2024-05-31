@@ -17,6 +17,10 @@ pub trait IntoParser {
 
     /// concatenate two parser
     ///
+    /// `Output`: `( A0, A1, ..., B0, B1, ..., C0, C1, ... )`
+    /// where `(A0, A1, ...)` are the output of the first parser,
+    /// and `(B0, B1, ...)`, `(C0, C1, ...)` are the output of the following parsers.
+    ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
@@ -40,6 +44,11 @@ pub trait IntoParser {
     }
 
     /// repeat parser multiple times. This tries to match as long as possible.
+    ///
+    /// `Output`:
+    ///  - if `Output` of the repeated parser is `()`, then `Output` is `()`
+    ///  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
+    ///  - otherwise, `Vec< Output of the Repeated Parser >`
     ///
     /// # Example
     /// ```rust
@@ -68,7 +77,8 @@ pub trait IntoParser {
 
     /// or combinator for two parsers
     ///
-    ///
+    /// `Output`: `Output` of the all parsers.
+    /// Note that the output of all parsers must be the same type.
     ///
     /// # Example
     /// ```rust
@@ -107,6 +117,8 @@ pub trait IntoParser {
 
     /// Map parser's Output to new value
     ///
+    /// `Output`: return type of the closure ( must be Tuple )
+    ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
@@ -136,6 +148,8 @@ pub trait IntoParser {
     /// Change Parser's Output to ().
     /// This internally call match_pattern() instead of parse()
     ///
+    /// `Output`: `()`
+    ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
@@ -146,7 +160,7 @@ pub trait IntoParser {
     ///     panic!("This should not be called");
     /// });
     /// let expensive_parser = expensive_parser.void();
-
+    ///
     /// // ignore the output of parser
     /// // this internally calls 'match_pattern(...)' instead of 'parse(...)'
     /// let res = rp::parse(&expensive_parser, "abcd".chars());
@@ -161,6 +175,10 @@ pub trait IntoParser {
     }
 
     /// This parser always success whether the input is matched or not.
+    ///
+    /// `Output`:
+    ///  - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
+    ///  - otherwise, `( Option<Output of the Origin Parser>, )`
     ///
     /// # Example
     /// ```rust
@@ -187,7 +205,12 @@ pub trait IntoParser {
     {
         crate::wrapper::option::OptionalParser::new(self.into_parser())
     }
+
     /// This parser always success whether the input is matched or not.
+    ///
+    /// `Output`:
+    /// <`Output` of the origin parser>.
+    /// The value given to `optional_or` must match with the `Output` of the origin parser.
     ///
     /// # Example
     /// ```rust
@@ -330,6 +353,7 @@ pub trait IntoParser {
 
     /// Match for parser1 parser2, parser1 must success and parser2 must fail.
     ///
+    /// `Output`: `Output` of the first parser.
     ///
     /// # Example
     /// ```rust
@@ -356,6 +380,8 @@ pub trait IntoParser {
 
     /// Change Parser's Output to output.
     ///
+    /// `Output`: value you provided.
+    ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
@@ -380,6 +406,8 @@ pub trait IntoParser {
     /// Returns String of parsed input.
     /// Only works for parsing with `std::str::Chars`.
     ///
+    /// `Output`: `(String,)`
+    ///
     ///
     /// # Example
     /// ```rust
@@ -403,6 +431,7 @@ pub trait IntoParser {
     /// Returns `Vec\<T\>` of parsed input.
     /// Only works for parsing with `std::slice::Iter`.
     ///
+    /// `Output`: `(Vec<T>,)`
     ///
     /// # Example
     /// ```rust

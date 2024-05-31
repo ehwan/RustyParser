@@ -172,9 +172,9 @@ assert_eq!(res.output.unwrap(), ('a', 'b', 'c')); // Output is concatenated
 assert_eq!(res.it.collect::<String>(), "d");
 ```
 
-`Output`: `( L0, L1, ..., R0, R1, ... )` 
-where `(L0, L1, ...)` are the outputs of the first parser, 
-and `(R0, R1, ...)` are the outputs of the second parser.
+`Output`: `( A0, A1, ..., B0, B1, ..., C0, C1, ... )`
+where `(A0, A1, ...)` are the output of the first parser,
+and `(B0, B1, ...)`, `(C0, C1, ...)` are the output of the following parsers.
 
 
 ### `or`: or combinator
@@ -200,9 +200,9 @@ let res = rp::parse(&ab_parser, res.it);
 assert_eq!(res.output, None);
 assert_eq!(res.it.clone().collect::<String>(), "cd");
 ```
-`Output`: `Output` of the first and second parser.
 
-Note that the output of both parsers must be the same type.
+`Output`: `Output` of the all parsers.
+Note that the output of all parsers must be the same type.
 
 
 
