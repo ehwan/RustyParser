@@ -1,9 +1,5 @@
 use crate as rp;
 
-// for assert_eq!()
-use std::any::type_name;
-use std::any::type_name_of_val;
-
 // useful trait member functions
 use rp::IntoParser;
 
@@ -33,7 +29,6 @@ fn example1() {
     let res = rp::parse(&num_parser, "123456hello_world".chars());
 
     // res contains the result of parsing
-    assert_eq!(type_name_of_val(&res.output), type_name::<Option<(i32,)>>());
     assert_eq!(res.output.unwrap(), (123456,));
 
     // res.it: iterator after parsing

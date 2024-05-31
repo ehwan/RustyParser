@@ -8,7 +8,7 @@ A Generic compile-time Parser generator and Pattern Matching Library written in 
 
 
 ## Sample Code
-`rusty_parser/src/example/example1.rs`
+[rusty_parser/src/example/example1.rs](rusty_parser/src/example/example1.rs)
 
 ```rust
 // import rusty_parser
@@ -16,10 +16,6 @@ use rusty_parser as rp;
 
 // useful trait member functions
 use rp::IntoParser;
-
-// for assert_eq!()
-use std::any::type_name;
-use std::any::type_name_of_val;
 
 #[test]
 fn example1() {
@@ -47,7 +43,6 @@ fn example1() {
     let res = rp::parse(&num_parser, "123456hello_world".chars());
 
     // res contains the result of parsing
-    assert_eq!(type_name_of_val(&res.output), type_name::<Option<(i32,)>>());
     assert_eq!(res.output.unwrap(), (123456,));
 
     // res.it: iterator after parsing
@@ -61,9 +56,11 @@ Define pattern, combine them, and parse the input string.
 
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
+
+Those generated parsers are used to parse the input string, and return the extracted data.
  ```rust 
- fn parse<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
- fn match_pattern<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(), It>;
+ fn parse(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
+ fn match_pattern(pattern:&Pattern, it:It) -> ParseResult<(), It>;
  ```
 `parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
 
@@ -109,7 +106,7 @@ the iterator must be cheaply clonable.
  ```
 `Output`: `(Iterator::Item,)`
 
---------
+---
 
 ### `range`: consumes one charactor if it is in the range `r`.
 ```rust
@@ -225,6 +222,8 @@ assert_eq!(res.output.unwrap(), (0,));
 assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: return type of the closure ( must be Tuple )
+
+---
 
 ### `repeat`: repeat the parser multiple times
 
