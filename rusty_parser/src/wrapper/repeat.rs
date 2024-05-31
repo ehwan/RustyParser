@@ -118,18 +118,6 @@ where
     }
 }
 
-pub fn repeat<ParserType: IntoParser, RangeType, Idx>(
-    parser: ParserType,
-    range: RangeType,
-) -> RepeatParser<ParserType::Into, RangeType, Idx>
-where
-    RangeType: RangeBounds<Idx>,
-    Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
-    i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
-{
-    RepeatParser::new(parser.into_parser(), range)
-}
-
 impl<ParserType, RangeType, Idx> IntoParser for RepeatParser<ParserType, RangeType, Idx>
 where
     RangeType: RangeBounds<Idx>,

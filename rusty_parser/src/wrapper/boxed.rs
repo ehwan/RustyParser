@@ -152,21 +152,6 @@ where
     }
 }
 
-pub fn box_chars<ParserType: IntoParser, Output>(parser: ParserType) -> DynBoxChars<Output>
-where
-    Output: Tuple,
-    ParserType::Into: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
-{
-    DynBoxChars::new(parser)
-}
-pub fn box_slice<ParserType: IntoParser, Output, T>(parser: ParserType) -> DynBoxSlice<Output, T>
-where
-    Output: Tuple,
-    ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
-{
-    DynBoxSlice::new(parser)
-}
-
 #[cfg(test)]
 mod test {
     use super::*;

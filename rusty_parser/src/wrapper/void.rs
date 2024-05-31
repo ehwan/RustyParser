@@ -37,10 +37,6 @@ where
     }
 }
 
-pub fn void_<ParserType: IntoParser>(parser: ParserType) -> VoidParser<ParserType::Into> {
-    VoidParser::new(parser.into_parser())
-}
-
 impl<ParserType> IntoParser for VoidParser<ParserType> {
     type Into = VoidParser<ParserType>;
     fn into_parser(self) -> Self::Into {

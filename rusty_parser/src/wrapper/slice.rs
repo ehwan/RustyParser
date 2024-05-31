@@ -49,10 +49,6 @@ impl<ParserType> IntoParser for StringParser<ParserType> {
     }
 }
 
-pub fn string<ParserType>(parser: ParserType) -> StringParser<ParserType> {
-    StringParser::new(parser)
-}
-
 #[derive(Debug, Clone, Copy)]
 pub struct SliceParser<ParserType> {
     parser: ParserType,
@@ -102,10 +98,6 @@ impl<ParserType> IntoParser for SliceParser<ParserType> {
     fn into_parser(self) -> Self::Into {
         self
     }
-}
-
-pub fn vec<ParserType>(parser: ParserType) -> SliceParser<ParserType> {
-    SliceParser::new(parser)
 }
 
 #[cfg(test)]

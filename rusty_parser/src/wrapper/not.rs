@@ -51,13 +51,6 @@ where
     }
 }
 
-pub fn not<ParserA: IntoParser, ParserB: IntoParser>(
-    parser_a: ParserA,
-    parser_b: ParserB,
-) -> NotParser<ParserA::Into, ParserB::Into> {
-    NotParser::new(parser_a.into_parser(), parser_b.into_parser())
-}
-
 impl<ParserA, ParserB> IntoParser for NotParser<ParserA, ParserB> {
     type Into = NotParser<ParserA, ParserB>;
 

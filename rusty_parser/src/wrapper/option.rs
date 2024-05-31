@@ -56,10 +56,6 @@ where
     }
 }
 
-pub fn optional<ParserType: IntoParser>(parser: ParserType) -> OptionalParser<ParserType::Into> {
-    OptionalParser::new(parser.into_parser())
-}
-
 impl<ParserType> IntoParser for OptionalParser<ParserType> {
     type Into = OptionalParser<ParserType>;
 
@@ -125,13 +121,6 @@ where
             }
         }
     }
-}
-
-pub fn optional_or<ParserType: IntoParser, Output: Clone + Tuple>(
-    parser: ParserType,
-    output: Output,
-) -> OptionalOrParser<ParserType::Into, Output> {
-    OptionalOrParser::new(parser.into_parser(), output)
 }
 
 impl<ParserType, Output> IntoParser for OptionalOrParser<ParserType, Output>

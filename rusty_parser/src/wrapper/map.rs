@@ -90,18 +90,6 @@ where
     }
 }
 
-pub fn map<ParserType: IntoParser, ClosureType, ClosureInput, ClosureOutput>(
-    parser: ParserType,
-    callback: ClosureType,
-) -> MapParser<ParserType::Into, ClosureType, ClosureInput, ClosureOutput>
-where
-    ClosureType: Fn(ClosureInput) -> ClosureOutput,
-    ClosureInput: Tuple,
-    ClosureOutput: Tuple,
-{
-    MapParser::new(parser.into_parser(), callback)
-}
-
 #[cfg(test)]
 mod test {
     use super::*;
