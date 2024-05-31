@@ -26,7 +26,7 @@ fn string_parser() -> DynParser {
     let hex_alpha_upper = ('A'..='F')
         .into_parser()
         .map(|(c,): (char,)| (c as i32 - 'A' as i32 + 10,));
-    let hex = rp::or_!(digit, hex_alpha_lower, hex_alpha_upper);
+    let hex = rp::or!(digit, hex_alpha_lower, hex_alpha_upper);
 
     let unicode_char =
         rp::seq!('u'.void_(), hex.repeat(4..=4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
@@ -36,7 +36,7 @@ fn string_parser() -> DynParser {
             }
             (char::from_u32(res).expect("invalid unicode character"),)
         });
-    let escape = rp::or_!(
+    let escape = rp::or!(
         '"',
         '\\',
         '/',
@@ -47,7 +47,7 @@ fn string_parser() -> DynParser {
     );
     let escape = rp::seq!('\\'.void_(), escape);
     let character = ('\u{0020}'..='\u{10FFFF}').not('"').not('\\');
-    let character = rp::or_!(character, escape);
+    let character = rp::or!(character, escape);
 
     let string = rp::seq!('"'.void_(), character.repeat(0..).string(), '"'.void_())
         .map(|(s,): (String,)| (JsonValue::String(s),));
@@ -77,10 +77,10 @@ fn number_parser() -> DynParser {
         })
         .optional_or((0.0 as f64,));
 
-    let sign = rp::or_!('+', '-').optional_or(('+',));
+    let sign = rp::or!('+', '-').optional_or(('+',));
 
     let exponent = rp::seq!(
-        rp::or_('e', 'E').void_(),
+        rp::or!('e', 'E').void_(),
         rp::seq!(
             sign,
             digits
@@ -105,7 +105,7 @@ fn number_parser() -> DynParser {
 
     let integer = rp::seq!(
         '-'.optional_or(('+',)),
-        rp::or_!(
+        rp::or!(
             '0'.output((0,)),
             digits
                 .clone()
@@ -148,11 +148,11 @@ fn main() {
 
     let true_ = "true".map(|_| (JsonValue::Bool(true),));
     let false_ = "false".map(|_| (JsonValue::Bool(false),));
-    let bool_ = rp::or_(true_, false_);
+    let bool_ = rp::or(true_, false_);
 
     let null = "null".map(|_| (JsonValue::Null,));
 
-    value.borrow_mut().assign(rp::or_!(
+    value.borrow_mut().assign(rp::or!(
         null,
         bool_,
         number_parser(),
@@ -161,7 +161,7 @@ fn main() {
         rp::Rc::clone(&object)
     ));
 
-    let ws = rp::or_!(' ', '\n', '\r', '\t').repeat(0..).void_();
+    let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void_();
 
     let element = rp::seq!(ws.clone(), rp::Rc::clone(&value), ws.clone()).rc();
 
@@ -182,7 +182,7 @@ fn main() {
 
     array.borrow_mut().assign(rp::seq!(
         '['.void_(),
-        rp::or_!(elements, ws.clone().output((JsonValue::Array(Vec::new()),))),
+        rp::or!(elements, ws.clone().output((JsonValue::Array(Vec::new()),))),
         ']'.void_()
     ));
 
@@ -228,7 +228,7 @@ fn main() {
 
     object.borrow_mut().assign(rp::seq!(
         '{'.void_(),
-        rp::or_!(
+        rp::or!(
             members,
             ws.clone().output((JsonValue::Object(HashMap::new()),))
         ),
