@@ -10,6 +10,7 @@ pub mod refcelled;
 pub mod reference;
 pub mod repeat;
 pub mod seq;
+pub mod slice;
 pub mod void;
 
 pub(crate) mod optionmerge;
