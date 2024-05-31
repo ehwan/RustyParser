@@ -181,11 +181,11 @@ and `(R0, R1, ...)` are the outputs of the second parser.
 
 ------
 
-### `or_`: or combinator
+### `or`: or combinator
 
 ```rust
 // 'a' or 'b'
-let ab_parser = rp::or_!('a', 'b'); // IntoParser for char
+let ab_parser = rp::or!('a', 'b'); // IntoParser for char
 
 // 'a' is matched
 let res = rp::parse(&ab_parser, "abcd".chars());

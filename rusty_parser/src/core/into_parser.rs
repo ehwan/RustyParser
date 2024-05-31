@@ -29,14 +29,14 @@ pub trait IntoParser {
     }
 
     /// Or combinator of parsers
-    fn or_<RhsParser: IntoParser>(
+    fn or<RhsParser: IntoParser>(
         self,
         rhs: RhsParser,
-    ) -> crate::wrapper::or_::OrParser<Self::Into, RhsParser::Into>
+    ) -> crate::wrapper::or::OrParser<Self::Into, RhsParser::Into>
     where
         Self: Sized,
     {
-        crate::wrapper::or_::OrParser::new(self.into_parser(), rhs.into_parser())
+        crate::wrapper::or::OrParser::new(self.into_parser(), rhs.into_parser())
     }
 
     /// Map parser's Output to new value

@@ -2,7 +2,7 @@ pub mod boxed;
 pub mod map;
 pub mod not;
 pub mod option;
-pub mod or_;
+pub mod or;
 pub mod output;
 pub mod rced;
 pub mod refcelled;
