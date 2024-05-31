@@ -1,6 +1,7 @@
 pub mod boxed;
 pub mod iter_range;
 pub mod map;
+pub mod not;
 pub mod option;
 pub mod or_;
 pub mod rced;
