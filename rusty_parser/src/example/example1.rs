@@ -224,6 +224,12 @@ fn optional_example() {
 
     let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
     assert_eq!(res.output.unwrap(), (None,));
+
+    // if 'a' failed, return 'x'
+    let a_optional_or = 'a'.optional_or(('x',)); // (char,)
+
+    let res = rp::parse(&a_optional_or, "bcd".chars());
+    assert_eq!(res.output.unwrap(), ('x',));
 }
 
 #[test]

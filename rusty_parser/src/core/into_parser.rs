@@ -69,6 +69,15 @@ pub trait IntoParser {
     {
         crate::wrapper::option::OptionalParser::new(self.into_parser())
     }
+    fn optional_or<Output: Clone + crate::core::tuple::Tuple>(
+        self,
+        output: Output,
+    ) -> crate::wrapper::option::OptionalOrParser<Self::Into, Output>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
+    }
 
     /// create RefCell\<Parser\> wrapper
     fn refcell(self) -> crate::wrapper::refcelled::RefCelledParser<Self::Into>

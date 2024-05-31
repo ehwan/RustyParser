@@ -136,6 +136,10 @@ pub use wrapper::rced::rc;
 /// this parser always success whether the input is matched or not
 pub use wrapper::option::optional;
 
+/// this parser always success whether the input is matched or not
+/// if failed, return the given value in parameter
+pub use wrapper::option::optional_or;
+
 /// match for parser1 parser2, parser1 must success and parser2 must fail
 pub use wrapper::not::not;
 
