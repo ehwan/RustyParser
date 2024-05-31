@@ -1,6 +1,6 @@
 # Simple Calculator Expression Parser
 
-This is a simple calculator expression parser that can parse and evaluate simple arithmetic expressions.
+This is a simple calculator expression parser that can parse and evaluate arithmetic expressions.
 
 ## Rules
 ```
@@ -16,4 +16,4 @@ lineend: '\0'
 whitespaces: ' ' | '\n'
 ```
 
-Source code in `src/`
+Source code in [src/main.rs](src/main.rs)

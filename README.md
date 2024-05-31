@@ -2,11 +2,13 @@
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
 ## Example
- - **[Calculator](examples/calculator)**
+ - **[Calculator Expresion Parser](examples/calculator)**
+
+ - **[JSON Parser](examples/json)**
 
 
 ## Sample Code
-`rusty_parser/src/example/example1.rs`
+[rusty_parser/src/example/example1.rs](rusty_parser/src/example/example1.rs)
 
 ```rust
 // import rusty_parser
@@ -14,10 +16,6 @@ use rusty_parser as rp;
 
 // useful trait member functions
 use rp::IntoParser;
-
-// for assert_eq!()
-use std::any::type_name;
-use std::any::type_name_of_val;
 
 #[test]
 fn example1() {
@@ -45,7 +43,6 @@ fn example1() {
     let res = rp::parse(&num_parser, "123456hello_world".chars());
 
     // res contains the result of parsing
-    assert_eq!(type_name_of_val(&res.output), type_name::<Option<(i32,)>>());
     assert_eq!(res.output.unwrap(), (123456,));
 
     // res.it: iterator after parsing
@@ -59,9 +56,11 @@ Define pattern, combine them, and parse the input string.
 
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
+
+Those generated parsers are used to parse the input string, and return the extracted data.
  ```rust 
- fn parse<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
- fn match_pattern<Pattern,It:Iterator+Clone>(pattern:&Pattern, it:It) -> ParseResult<(), It>;
+ fn parse(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
+ fn match_pattern(pattern:&Pattern, it:It) -> ParseResult<(), It>;
  ```
 `parse(...)` takes an Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
 
@@ -107,7 +106,6 @@ the iterator must be cheaply clonable.
  ```
 `Output`: `(Iterator::Item,)`
 
---------
 
 ### `range`: consumes one charactor if it is in the range `r`.
 ```rust
@@ -118,7 +116,6 @@ let digit_parser = ('0'..='9').into_parser()
 ```
 `Output`: `(Iterator::Item,)`
 
---------
 
 ### `chars`, `slice`: consumes multiple charactors if it is equal to `s`.
 ```rust
@@ -133,7 +130,6 @@ let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
 
---------
 
 
 ### Dictionary: build Trie from a list of strings
@@ -179,7 +175,6 @@ assert_eq!(res.it.collect::<String>(), "d");
 where `(L0, L1, ...)` are the outputs of the first parser, 
 and `(R0, R1, ...)` are the outputs of the second parser.
 
-------
 
 ### `or`: or combinator
 
@@ -209,7 +204,6 @@ assert_eq!(res.it.clone().collect::<String>(), "cd");
 Note that the output of both parsers must be the same type.
 
 
-------
 
 
 ### `map`: map the output of the parser
@@ -223,6 +217,7 @@ assert_eq!(res.output.unwrap(), (0,));
 assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: return type of the closure ( must be Tuple )
+
 
 ### `repeat`: repeat the parser multiple times
 
@@ -241,7 +236,6 @@ assert_eq!(res.it.collect::<String>(), "bcd");
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
  - otherwise, `Vec< Output of the Repeated Parser >`
 
-------
 
 
 ### `optional`, `optional_or`: success whether the pattern is matched or not
@@ -268,7 +262,6 @@ assert_eq!(res.output.unwrap(), ('x',));
   <`Output` of the origin parser>. 
   The value given to `optional_or` must match with the `Output` of the origin parser.
 
-------
 
 
 ### `not`: match for Pattern1 to success and Pattern2 to fail
@@ -330,7 +323,6 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
 `Output`: the `Output` of child parser
 
-------
 
 
 ### `refcell`: a `RefCell<Parser>` wrapper
@@ -360,7 +352,6 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `Output`: the `Output` of child parser
 
 
-------
 
 ### `rc`: a `Rc<Parser>` wrapper
 `rc` is used to share the same parser.
@@ -423,7 +414,6 @@ let parser = rp::constant( (1, 2, 3) );
 ```
 `Output`: the Tuple value you provided
 
-------
 
 
 ### `end`: success if it reached to the end of input
@@ -432,7 +422,6 @@ let end_parser = rp::end();
 ```
 `Output`: `()`
 
-------
 
 
 ### `fail`: This parser will always fail
@@ -441,7 +430,6 @@ let parser = rp::fail();
 ```
 `Output`: `()`
 
-------
 
 
 ### `void_`: ignore the output of the parser
@@ -465,7 +453,6 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 ```
 `Output`: `()`
 
-------
 
 
 
@@ -479,7 +466,6 @@ assert_eq!(res.it.collect::<String>(), "23456hello_world");
 ```
 `Output`: the Tuple value you provided
 
-------
 
 
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
