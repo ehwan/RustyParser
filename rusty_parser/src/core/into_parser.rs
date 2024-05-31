@@ -1,7 +1,18 @@
 pub trait IntoParser {
+    /// Target Parser type
     type Into;
 
     /// convert self to Parser
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let hello_parser = "hello".into_parser();
+    /// let a_parser = 'a'.into_parser();
+    /// let digit_parser = ('0'..='9').into_parser();
+    /// ```
     fn into_parser(self) -> Self::Into;
 
     /// concatenate two parser
@@ -9,10 +20,11 @@ pub trait IntoParser {
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
+    /// use rp::IntoParser;
     ///
     /// // 'a', and then 'b'
     /// let ab_parser = rp::seq!('a', 'b', 'c'); // IntoParser for char
-
+    ///
     /// let res = rp::parse(&ab_parser, "abcd".chars());
     /// assert_eq!(res.output.unwrap(), ('a', 'b', 'c')); // Output is concatenated
     /// assert_eq!(res.it.collect::<String>(), "d");
@@ -199,6 +211,31 @@ pub trait IntoParser {
     }
 
     /// create RefCell\<Parser\> wrapper
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let hello_parser = "hello".into_parser();
+    /// let digit_parser = ('0'..='9').void();
+    ///
+    /// let refcelled_parser = hello_parser.box_chars().refcell();
+    ///
+    /// let res_hello = rp::parse(&refcelled_parser, "hello0123".chars());
+    /// // success
+    /// assert_eq!(res_hello.output.unwrap(), ());
+    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+    ///
+    /// // now change refcelled_parser to digit_parser
+    /// // Thanks to Deref, you can call borrow_mut().assign() directly
+    /// refcelled_parser.borrow_mut().assign(digit_parser);
+    ///
+    /// let res_digit = rp::parse(&refcelled_parser, res_hello.it);
+    /// // success
+    /// assert_eq!(res_digit.output.unwrap(), ());
+    /// assert_eq!(res_digit.it.collect::<String>(), "123");
+    /// ```
     fn refcell(self) -> crate::wrapper::refcelled::RefCelledParser<Self::Into>
     where
         Self: Sized,
@@ -206,7 +243,35 @@ pub trait IntoParser {
         crate::wrapper::refcelled::RefCelledParser::new(self.into_parser())
     }
 
-    /// create Rc\<Parser\> wrapper
+    /// Create Rc\<Parser\> wrapper.
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let hello_parser = "hello".into_parser();
+    /// let digit_parser = ('0'..='9').void();
+    ///
+    /// let rc_parser1 = hello_parser.box_chars().refcell().rc();
+    /// let rc_parser2 = rp::Rc::clone(&rc_parser1);
+    /// // rc_parser2 is now pointing to the same parser as rc_parser1
+    ///
+    /// let res_hello = rp::parse(&rc_parser1, "hello0123".chars());
+    /// // success
+    /// assert_eq!(res_hello.output.unwrap(), ());
+    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+    ///
+    /// // now change rced_parser1 to digit_parser
+    /// // Thanks to Deref, you can call borrow_mut().assign() directly
+    /// rc_parser1.borrow_mut().assign(digit_parser);
+    ///
+    /// // rced_parser2 should also be digit_parser
+    /// let res_digit = rp::parse(&rc_parser2, res_hello.it);
+    /// // success
+    /// assert_eq!(res_digit.output.unwrap(), ());
+    /// assert_eq!(res_digit.it.collect::<String>(), "123");
+    /// ```
     fn rc(self) -> crate::wrapper::rced::RcedParser<Self::Into>
     where
         Self: Sized,
@@ -216,6 +281,31 @@ pub trait IntoParser {
 
     /// create a Box\<dyn Parser\> wrapper for iterators of std::str::Chars
     /// This can take any parser with Output of `Output`
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let hello_parser = "hello".into_parser();
+    /// let digit_parser = ('0'..='9').void();
+    ///
+    /// // this will wrap the parser into Box< dyn Parser >
+    /// let mut boxed_parser = hello_parser.box_chars();
+    ///
+    /// let res_hello = rp::parse(&boxed_parser, "hello0123".chars());
+    /// // success
+    /// assert_eq!(res_hello.output.unwrap(), ());
+    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
+    ///
+    /// // now change boxed_parser to digit_parser
+    /// boxed_parser.assign(digit_parser);
+    ///
+    /// let res_digit = rp::parse(&boxed_parser, res_hello.it);
+    /// // success
+    /// assert_eq!(res_digit.output.unwrap(), ());
+    /// assert_eq!(res_digit.it.collect::<String>(), "123");
+    /// ```
     fn box_chars<Output>(self) -> crate::wrapper::boxed::DynBoxChars<Output>
     where
         Output: crate::core::tuple::Tuple,
@@ -238,8 +328,7 @@ pub trait IntoParser {
         crate::wrapper::boxed::DynBoxSlice::new(self)
     }
 
-    /// match for parser1 parser2, parser1 must success and parser2 must fail
-    /// This is equivalent to `not(parser1, parser2)`
+    /// Match for parser1 parser2, parser1 must success and parser2 must fail.
     ///
     ///
     /// # Example
@@ -265,7 +354,7 @@ pub trait IntoParser {
         crate::wrapper::not::NotParser::new(self.into_parser(), rhs.into_parser())
     }
 
-    /// change Parser's Output to output
+    /// Change Parser's Output to output.
     ///
     /// # Example
     /// ```rust
@@ -288,8 +377,8 @@ pub trait IntoParser {
         crate::wrapper::output::OutputParser::new(self.into_parser(), output)
     }
 
-    /// returns String of parsed input
-    /// only works for parsing with std::str::Chars
+    /// Returns String of parsed input.
+    /// Only works for parsing with `std::str::Chars`.
     ///
     ///
     /// # Example
@@ -311,8 +400,21 @@ pub trait IntoParser {
         crate::wrapper::slice::StringParser::new(self.into_parser())
     }
 
-    /// returns Vec<T> of parsed input
-    /// only works for parsing with std::slice::Iter
+    /// Returns `Vec\<T\>` of parsed input.
+    /// Only works for parsing with `std::slice::Iter`.
+    ///
+    ///
+    /// # Example
+    /// ```rust
+    /// //use rusty_parser as rp;
+    /// //use rp::IntoParser;
+    ///
+    /// //let digits_parser = ('0'..='9').repeat(0..).vec();
+    ///
+    /// //let res = rp::parse(&digits_parser, "123456hello_world".as_bytes().copied());
+    /// //assert_eq!(res.output.unwrap(), ("123456".as_bytes(),));
+    /// //assert_eq!(res.it.collect::<Vec<u8>>(), "hello_world".as_bytes());
+    /// ```
     fn vec<T>(self) -> crate::wrapper::slice::SliceParser<Self::Into>
     where
         Self: Sized,
@@ -321,8 +423,8 @@ pub trait IntoParser {
         crate::wrapper::slice::SliceParser::new(self.into_parser())
     }
 
-    /// Parser will not consume the input iterator
-    /// It still match and return the output
+    /// Parser will not consume the input iterator.
+    /// It still match and return the output.
     ///
     /// # Example
     /// ```rust
