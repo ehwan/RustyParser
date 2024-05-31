@@ -384,29 +384,6 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 `Output`: the `Output` of child parser
 
 
-## Making your own Parser
-You can design your own Parser by
-```rust
-parser( closure: impl Fn(&mut It) -> Option<NewOutput> ) -> impl Parser<It>
-```
-
-the closure takes mutable reference of the iterator and returns `Option<NewOutput>`.
-
-```rust
-let custom_parser = rp::parser(|it: &mut std::str::Chars| {
-    if it.take(5).eq("hello".chars()) {
-        Some((0,))
-    } else {
-        // no need to move the iterator back
-        None
-    }
-});
-
-let res = rp::parse(&custom_parser, "hello0123".chars());
-assert_eq!(res.output.unwrap(), (0,));
-assert_eq!(res.it.collect::<String>(), "0123");
-```
-
 ## Others
  Trivial, but useful parsers
 

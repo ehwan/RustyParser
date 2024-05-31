@@ -78,18 +78,6 @@ where
     leaf::sliceeq::SliceEqualParser::new(str.iter().copied())
 }
 
-/// This Parser will use the closure to parse the input.
-pub fn parser<ParseClosure, ClosureOutput, It>(
-    parse_closure: ParseClosure,
-) -> leaf::custom::CustomParser<ParseClosure, ClosureOutput, It>
-where
-    It: InputIteratorTrait,
-    ParseClosure: Fn(&mut It) -> Option<ClosureOutput>,
-    ClosureOutput: core::tuple::Tuple,
-{
-    leaf::custom::CustomParser::new(parse_closure)
-}
-
 /// This Parser will always success and return the clone of given output.
 pub fn constant<Output>(output: Output) -> leaf::constant::ConstantParser<Output>
 where

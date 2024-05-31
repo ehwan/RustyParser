@@ -1,5 +1,4 @@
 pub mod constant;
-pub mod custom;
 pub mod dict_btree;
 pub mod dict_hashmap;
 pub mod end;
