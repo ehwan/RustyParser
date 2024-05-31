@@ -175,8 +175,32 @@ fn main() {
 
     let ws = rp::or_!(' ', '\n', '\r', '\t').repeat(0..).void_();
 
-    // let element = rp::seq!(ws.clone(), rp::Rc::clone(&value), ws.clone());
+    let element = rp::seq!(ws.clone(), rp::Rc::clone(&value), ws.clone()).rc();
 
-    // let elements =
-    // rp::seq!( element.clone(), (',' .void_(), element.clone()).repeat(0..) )
+    let elements = rp::seq!(
+        element.clone(),
+        rp::seq!(','.void_(), element.clone()).repeat(0..)
+    )
+    .map(
+        |(first, rest): (JsonValue, Vec<JsonValue>)| -> (JsonValue,) {
+            let mut res = Vec::with_capacity(rest.len() + 1);
+            res.push(first);
+            for r in rest {
+                res.push(r);
+            }
+            (JsonValue::Array(res),)
+        },
+    );
+
+    array
+        .borrow_mut()
+        .assign(rp::seq!('['.void_(), elements, ']'.void_()));
+
+    let member = rp::seq!(
+        ws.clone(),
+        string_parser(),
+        ws.clone(),
+        ':'.void_(),
+        element.clone()
+    );
 }
