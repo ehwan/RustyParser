@@ -132,21 +132,6 @@ fn void_example() {
 }
 
 #[test]
-fn iter_example() {
-    // 'hello', and then 3 digits
-    let parser = rp::seq!("hello", ('0'..='9').repeat(3..=3)).iter();
-
-    //                   <------> parsed range
-    let target_string = "hello0123";
-    //                   |       ^ end
-    //                   ^ begin
-    let res = rp::parse(&parser, target_string.chars());
-    let (begin, end) = res.output.unwrap();
-    assert_eq!(begin.collect::<String>(), "hello0123");
-    assert_eq!(end.collect::<String>(), "3");
-}
-
-#[test]
 fn custom_parser_example() {
     let custom_parser = rp::parser(|it: &mut std::str::Chars| {
         if it.take(5).eq("hello".chars()) {
@@ -259,4 +244,13 @@ fn output_example() {
     let res = rp::parse(&digit_parser, "123456hello_world".chars());
     assert_eq!(res.output.unwrap(), (1, 2, 3));
     assert_eq!(res.it.collect::<String>(), "23456hello_world");
+}
+
+#[test]
+fn string_example() {
+    let digits_parser = ('0'..='9').repeat(0..).string();
+
+    let res = rp::parse(&digits_parser, "123456hello_world".chars());
+    assert_eq!(res.output.unwrap(), ("123456".to_string(),));
+    assert_eq!(res.it.collect::<String>(), "hello_world");
 }
