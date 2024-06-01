@@ -12,8 +12,8 @@ keywords = [
   "parser",
   "parser-generator",
   "parser-combinator",
-  "pattern",
-  "generator",
+  "context-free-grammar",
+  "grammar",
 ]
 categories = ["parsing"]
 

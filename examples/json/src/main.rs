@@ -28,14 +28,13 @@ fn string_parser() -> DynParser {
         .map(|(c,): (char,)| (c as i32 - 'A' as i32 + 10,));
     let hex = rp::or!(digit, hex_alpha_lower, hex_alpha_upper);
 
-    let unicode_char =
-        rp::seq!('u'.void(), hex.repeat(4..=4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
-            let mut res: u32 = 0;
-            for hex in hexs {
-                res = res * 16 + hex as u32;
-            }
-            (char::from_u32(res).expect("invalid unicode character"),)
-        });
+    let unicode_char = rp::seq!('u'.void(), hex.repeat(4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
+        let mut res: u32 = 0;
+        for hex in hexs {
+            res = res * 16 + hex as u32;
+        }
+        (char::from_u32(res).expect("invalid unicode character"),)
+    });
     let escape = rp::or!(
         '"',
         '\\',
@@ -49,8 +48,17 @@ fn string_parser() -> DynParser {
     let character = ('\u{0020}'..='\u{10FFFF}').not('"').not('\\');
     let character = rp::or!(character, escape);
 
-    let string = rp::seq!('"'.void(), character.repeat(0..).string(), '"'.void())
-        .map(|(s,): (String,)| (JsonValue::String(s),));
+    let string = rp::seq!(
+        '"'.void(),
+        character
+            .repeat(0..)
+            .map(|(chars,): (Vec<char>,)| -> (String,) {
+                let res = chars.into_iter().collect::<String>();
+                (res,)
+            },),
+        '"'.void()
+    )
+    .map(|(s,): (String,)| (JsonValue::String(s),));
 
     return DynParser::new(string);
 }
