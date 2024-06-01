@@ -1,6 +1,6 @@
-use std::collections::HashMap;
 use std::string::String;
 use std::vec::Vec;
+use std::{collections::HashMap, io::Write};
 
 #[derive(Debug, Clone)]
 pub enum JsonValue {
@@ -233,9 +233,20 @@ fn main() {
 
     loop {
         let mut line = String::new();
-        std::io::stdin().read_line(&mut line).unwrap();
+        print!("Enter JSON: ");
+        std::io::stdout().flush().expect("Failed to flush stdout");
+        std::io::stdin()
+            .read_line(&mut line)
+            .expect("Failed to read line");
 
         let res = rp::parse(&json, line.chars());
-        println!("{:?}", res.output);
+        match res.output {
+            Some((json_value,)) => {
+                println!("{:?}", json_value);
+            }
+            None => {
+                println!("Failed to parse JSON");
+            }
+        }
     }
 }
