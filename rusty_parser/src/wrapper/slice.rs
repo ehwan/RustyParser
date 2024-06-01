@@ -50,32 +50,32 @@ impl<ParserType> IntoParser for StringParser<ParserType> {
 }
 
 #[derive(Debug, Clone, Copy)]
-pub struct SliceParser<ParserType> {
+pub struct VecParser<ParserType> {
     parser: ParserType,
 }
 
-impl<ParserType> SliceParser<ParserType> {
+impl<ParserType> VecParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self { parser }
     }
 }
-impl<'a, T, ParserType> Parser<std::slice::Iter<'a, T>> for SliceParser<ParserType>
+impl<'a, T, ParserType> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>> for VecParser<ParserType>
 where
-    ParserType: Parser<std::slice::Iter<'a, T>>,
-    T: Clone + Copy,
+    ParserType: Parser<std::iter::Cloned<std::slice::Iter<'a, T>>>,
+    T: Clone,
 {
     type Output = (Vec<T>,);
 
     fn parse(
         &self,
-        it: std::slice::Iter<'a, T>,
-    ) -> ParseResult<Self::Output, std::slice::Iter<'a, T>> {
+        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
+    ) -> ParseResult<Self::Output, std::iter::Cloned<std::slice::Iter<'a, T>>> {
         let i0 = it.clone();
         let res = self.parser.match_pattern(it);
         if res.output.is_some() {
             let len = i0.len() - res.it.len();
             ParseResult {
-                output: Some((i0.take(len).cloned().collect(),)),
+                output: Some((i0.take(len).collect(),)),
                 it: res.it,
             }
         } else {
@@ -87,14 +87,14 @@ where
     }
     fn match_pattern(
         &self,
-        it: std::slice::Iter<'a, T>,
-    ) -> ParseResult<(), std::slice::Iter<'a, T>> {
+        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
+    ) -> ParseResult<(), std::iter::Cloned<std::slice::Iter<'a, T>>> {
         self.parser.match_pattern(it)
     }
 }
 
-impl<ParserType> IntoParser for SliceParser<ParserType> {
-    type Into = SliceParser<ParserType>;
+impl<ParserType> IntoParser for VecParser<ParserType> {
+    type Into = VecParser<ParserType>;
     fn into_parser(self) -> Self::Into {
         self
     }

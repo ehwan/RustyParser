@@ -7,4 +7,4 @@ pub mod end;
 pub mod fail;
 pub mod singleeq;
 pub mod singlerange;
-pub mod sliceeq;
+pub mod stringeq;

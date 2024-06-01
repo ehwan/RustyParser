@@ -3,7 +3,7 @@ A Generic compile-time Parser generator and Pattern Matching Library written in 
 
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
-This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::slice::Iter`.
+This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::iter::Cloned<std::slice::Iter>`.
 
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
@@ -117,16 +117,31 @@ let digit_parser = ('0'..='9').into_parser()
 `Output`: `(Iterator::Item,)`
 
 
-### `chars`, `slice`: consumes multiple charactors if it is equal to `s`.
-```rust
-fn chars( s: &'a str );
-fn slice( s: &'a [T] );
+### `str`, `slice`: consumes multiple charactors if it is equal to `s`.
 
-let hello_parser = chars("hello");
-let hello_parser = "hello".into_parser()
+For borrowing-safety, the lifetime of str or slice must be 'static.
+
+To use with other lifetime, you should use `string()` or `vec()` instead. Those functions will clone the items in `String`, `Vec`.
+
+```rust
+// must be 'static
+let hello_parser = str("hello");
+let hello_parser = "hello".into_parser();
 
 let hello_parser = slice(&[104, 101, 108, 108, 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
+```
+`Output`: `()`
+
+### `string`, `vec`: consumes multiple charactors if it is equal to `s`.
+This will copy all the characters into `String` or `Vec`, so lifetime belongs to the parser itself.
+
+```rust
+let hello_parser = string("hello".to_string());
+let hello_parser = "hello".to_string().into_parser();
+
+let hello_parser = vec(vec![104, 101, 108, 108, 111]);
+let hello_parser = (vec![104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
 
@@ -315,7 +330,7 @@ this function wraps the parser into `Box<dyn Parser>`.
 You can dynamically assign ***any parsers*** with same `Output` type.
 
 #### Note
-Currently only implemented for `std::str::Chars` and `std::slice::Iter`.
+Currently only implemented for `std::str::Chars` and `std::iter::Cloned<std::slice::Iter>`.
 Once you wrap the parser through `box_chars` or `box_slice`, you can only use corresponding iterator in `parse(...)`.
 
 ```rust
@@ -464,7 +479,8 @@ assert_eq!(res.it.collect::<String>(), "23456hello_world");
 
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
 
-`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::slice::Iter`.
+#### Note
+`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::iter::Cloned<std::slice::Iter>`.
 
 ```rust
 let digits_parser = ('0'..='9').repeat(0..).string();
@@ -474,9 +490,6 @@ assert_eq!(res.output.unwrap(), ("123456".to_string(),));
 assert_eq!(res.it.collect::<String>(), "hello_world");
 ```
 `Output`: `(String,)` or `(Vec<T of Slice>,)`
-
-#### Note
-`vec` internally `clone()` the items.
 
 ### `not_consume`: check if the pattern is matched or not, without consuming the input
 ```rust

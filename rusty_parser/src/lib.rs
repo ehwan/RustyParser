@@ -4,7 +4,7 @@
 //!
 //! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 //!
-//! This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::slice::Iter`.
+//! This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::iter::Cloned<std::slice::Iter>`.
 //!
 //! # Example
 //! ```rust
@@ -145,6 +145,10 @@ where
 
 /// This Parser will compare the input string starts with the given string.
 ///
+/// for borrowing-safety, the lifetime of str must be 'static.
+/// for non-static string, use `string()` instead.
+///
+///
 /// `Output`: `()`
 ///
 /// # Example
@@ -152,14 +156,36 @@ where
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let hello_parser = rp::chars("hello");
+/// let hello_parser = rp::str("hello");
 /// let hello_parser = "hello".into_parser();
 /// ```
-pub fn chars(str: &str) -> leaf::sliceeq::SliceEqualParser<std::str::Chars<'_>> {
-    leaf::sliceeq::SliceEqualParser::new(str.chars())
+pub fn str(str: &'static str) -> leaf::stringeq::StaticStrEqualParser {
+    leaf::stringeq::StaticStrEqualParser::new(str)
 }
 
-/// This Parser will compare the input string starts with the given slice
+/// This Parser will compare the input string starts with the given string.
+///
+/// This will copy all the characters into `String`, so lifetime belongs to the parser itself.
+///
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::string("hello".to_string());
+/// let hello_parser = "hello".to_string().into_parser();
+/// ```
+pub fn string(str: String) -> leaf::stringeq::StringEqualParser {
+    leaf::stringeq::StringEqualParser::new(str)
+}
+
+/// This Parser will compare the input starts with the given slice
+///
+/// for borrowing-safety, the lifetime of slice must be 'static.
+/// for non-static slice, use `vec()` instead.
 ///
 /// `Output`: `()`
 ///
@@ -171,11 +197,27 @@ pub fn chars(str: &str) -> leaf::sliceeq::SliceEqualParser<std::str::Chars<'_>> 
 /// let hello_parser = rp::slice(&[104, 101, 108, 108, 111]);
 /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 /// ```
-pub fn slice<T>(slice: &[T]) -> leaf::sliceeq::SliceEqualParser<std::slice::Iter<'_, T>>
-where
-    T: Clone + Copy,
-{
-    leaf::sliceeq::SliceEqualParser::new(slice.iter())
+pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<T> {
+    leaf::stringeq::SliceEqualParser::new(slice)
+}
+
+/// This Parser will compare the input starts with the given slice
+///
+/// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
+///
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::vec(vec![104, 101, 108, 108, 111]);
+/// let hello_parser = (vec![104, 101, 108, 108, 111]).into_parser();
+/// ```
+pub fn vec<T>(v: Vec<T>) -> leaf::stringeq::VecEqualParser<T> {
+    leaf::stringeq::VecEqualParser::new(v)
 }
 
 /// This Parser will always success and return the clone of given output.
@@ -333,11 +375,11 @@ pub use wrapper::refcelled::RefCelledParser as RefCell;
 /// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
 pub use wrapper::boxed::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of `std::slice::Iter`.
+/// A Box\<dyn Parser\> wrapper for iterators of `std::iter::Cloned<std::slice::Iter>`.
 ///
 /// This can take any parser with Output of `Output`.
 ///
-/// Once you wrap the parser with this, you can only use input iterator of `std::slice::Iter`.
+/// Once you wrap the parser with this, you can only use input iterator of `std::iter::Cloned<std::slice::Iter>`.
 pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================

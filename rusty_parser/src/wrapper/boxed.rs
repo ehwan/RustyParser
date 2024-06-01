@@ -79,19 +79,22 @@ where
 pub struct DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
-    parser: std::boxed::Box<dyn for<'a> Parser<std::slice::Iter<'a, T>, Output = Output>>,
+    parser: std::boxed::Box<
+        dyn for<'a> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>, Output = Output>,
+    >,
 }
 
 impl<Output, T> DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
     pub fn new<ParserType: IntoParser>(parser: ParserType) -> Self
     where
-        ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+        ParserType::Into:
+            for<'a> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>, Output = Output> + 'static,
     {
         Self {
             parser: std::boxed::Box::new(parser.into_parser()),
@@ -99,30 +102,31 @@ where
     }
     pub fn assign<ParserType: IntoParser>(&mut self, parser: ParserType)
     where
-        ParserType::Into: for<'a> Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
+        ParserType::Into:
+            for<'a> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>, Output = Output> + 'static,
     {
         self.parser = std::boxed::Box::new(parser.into_parser());
     }
 }
 
-impl<'a, Output, T> Parser<std::slice::Iter<'a, T>> for DynBoxSlice<Output, T>
+impl<'a, Output, T> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>> for DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
     type Output = Output;
 
     fn parse(
         &self,
-        it: std::slice::Iter<'a, T>,
-    ) -> ParseResult<Self::Output, std::slice::Iter<'a, T>> {
+        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
+    ) -> ParseResult<Self::Output, std::iter::Cloned<std::slice::Iter<'a, T>>> {
         self.parser.parse(it)
     }
 
     fn match_pattern(
         &self,
-        it: std::slice::Iter<'a, T>,
-    ) -> ParseResult<(), std::slice::Iter<'a, T>> {
+        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
+    ) -> ParseResult<(), std::iter::Cloned<std::slice::Iter<'a, T>>> {
         self.parser.match_pattern(it)
     }
 }
@@ -130,9 +134,11 @@ where
 impl<Output, T> Deref for DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
-    type Target = std::boxed::Box<dyn for<'a> Parser<std::slice::Iter<'a, T>, Output = Output>>;
+    type Target = std::boxed::Box<
+        dyn for<'a> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>, Output = Output>,
+    >;
 
     fn deref(&self) -> &Self::Target {
         &self.parser
@@ -141,7 +147,7 @@ where
 impl<Output, T> DerefMut for DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
     fn deref_mut(&mut self) -> &mut Self::Target {
         &mut self.parser
@@ -150,12 +156,14 @@ where
 impl<Output, T> IntoParser for DynBoxSlice<Output, T>
 where
     Output: Tuple,
-    T: Clone + Copy,
+    T: Clone,
 {
     type Into = Self;
     fn into_parser(self) -> Self::Into {
         self
     }
+
+    // TODO no boxed here
 }
 
 #[cfg(test)]
