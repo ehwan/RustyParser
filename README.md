@@ -133,6 +133,24 @@ let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 #### Note
 `slice( s: &'a [T] )` or `<SliceType>.into_parser()` internally converts `&[T]` to `Copied<std::slice::Iter>`.
 
+### `check`: check single charactor with a closure
+The closure must be: `Fn(&Iterator::Item) -> bool`
+
+```rust
+let parser = check( |ch:&char| ch.is_alphabetic() );
+```
+
+`Output`: `(Iterator::Item,)`
+
+
+### `any`: Match any character.
+
+```rust
+let parser = any();
+```
+
+`Output`: `(Iterator::Item,)`
+
 
 ### Dictionary: build Trie from a list of strings
 ```rust

@@ -228,6 +228,44 @@ pub fn fail() -> leaf::fail::Fail {
     leaf::fail::Fail::new()
 }
 
+/// Check single item with the given closure.
+///
+/// The closure must be: `Fn(&Iterator::Item) -> bool`
+///
+/// `Output`: `(Iterator::Item,)`
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let parser = rp::check( |ch:&char| ch.is_alphabetic() );
+/// let parser = rp::check( |ch:&i32| ch == &1 );
+/// let res = rp::parse( &parser, (&[1,2,3]).iter().copied() );
+/// ```
+pub fn check<CheckItem, Input>(
+    closure: CheckItem,
+) -> leaf::check::SingleCheckParser<CheckItem, Input>
+where
+    CheckItem: Fn(&Input) -> bool,
+{
+    leaf::check::SingleCheckParser::new(closure)
+}
+
+/// This parser will match any character.
+///
+/// `Output`: `(Iterator::Item,)`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let parser = rp::any();
+/// ```
+pub fn any() -> leaf::any::AnyParser {
+    leaf::any::AnyParser::new()
+}
+
 /// Dictionary using trie, implementation uses BTreeMap; O(log(N)) search.
 ///
 /// `Output`: Output you inserted
