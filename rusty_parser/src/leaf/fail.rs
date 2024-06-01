@@ -3,7 +3,7 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct Fail {}
 
 impl Fail {
@@ -19,17 +19,11 @@ where
     type Output = ();
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        ParseResult {
-            output: None,
-            it: it,
-        }
+        ParseResult { output: None, it }
     }
 
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        ParseResult {
-            output: None,
-            it: it,
-        }
+        ParseResult { output: None, it }
     }
 }
 

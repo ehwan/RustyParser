@@ -17,7 +17,7 @@ where
     // than actually parsing the data
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let res = self.parse(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             ParseResult {
                 output: Some(()),
                 it: res.it,

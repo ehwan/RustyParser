@@ -9,7 +9,7 @@ pub struct StringParser<ParserType> {
 
 impl<ParserType> StringParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self { parser: parser }
+        Self { parser }
     }
 }
 
@@ -22,7 +22,7 @@ where
     fn parse(&self, it: std::str::Chars<'a>) -> ParseResult<Self::Output, std::str::Chars<'a>> {
         let i0 = it.clone();
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             // this is length in bytes
             let len = i0.as_str().len() - res.it.as_str().len();
             ParseResult {
@@ -56,7 +56,7 @@ pub struct SliceParser<ParserType> {
 
 impl<ParserType> SliceParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self { parser: parser }
+        Self { parser }
     }
 }
 impl<'a, T, ParserType> Parser<std::slice::Iter<'a, T>> for SliceParser<ParserType>
@@ -72,7 +72,7 @@ where
     ) -> ParseResult<Self::Output, std::slice::Iter<'a, T>> {
         let i0 = it.clone();
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             let len = i0.len() - res.it.len();
             ParseResult {
                 output: Some((i0.take(len).cloned().collect(),)),
@@ -108,7 +108,7 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let digit_parser = SeqParser::new(digit_parser, digit_parser);
         let digit_parser = StringParser::new(digit_parser);
 
         let str = "123456abcd";
@@ -119,7 +119,7 @@ mod test {
     #[test]
     fn fail() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let digit_parser = SeqParser::new(digit_parser, digit_parser);
         let digit_parser = StringParser::new(digit_parser);
 
         let str = "ab3456abcd";

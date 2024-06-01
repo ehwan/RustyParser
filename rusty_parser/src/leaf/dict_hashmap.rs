@@ -8,7 +8,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct HashTrieNode<CharType, Output>
 where
     CharType: Hash + Eq,
@@ -85,7 +85,7 @@ where
 
 // Dictionary using trie
 // implementation uses HashMap; O(1) search
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DictHashMapParser<Output, CharType>
 where
     CharType: Hash + Eq,

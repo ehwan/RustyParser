@@ -17,7 +17,7 @@ where
     Output: Clone + Tuple,
 {
     pub fn new(output: Output) -> Self {
-        Self { output: output }
+        Self { output }
     }
 }
 
@@ -31,14 +31,14 @@ where
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         ParseResult {
             output: Some(self.output.clone()),
-            it: it,
+            it,
         }
     }
 
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         ParseResult {
             output: Some(()),
-            it: it,
+            it,
         }
     }
 }

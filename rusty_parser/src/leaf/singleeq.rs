@@ -12,9 +12,7 @@ pub struct SingleEqualParser<TargetCharacterType> {
 
 impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
     pub fn new(character: TargetCharacterType) -> Self {
-        SingleEqualParser {
-            character: character,
-        }
+        SingleEqualParser { character }
     }
 }
 
@@ -32,7 +30,7 @@ where
             if val == self.character {
                 ParseResult {
                     output: Some((val,)),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {
@@ -55,7 +53,7 @@ where
             if val == self.character {
                 ParseResult {
                     output: Some(()),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {

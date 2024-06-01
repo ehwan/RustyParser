@@ -60,7 +60,7 @@ fn string_parser() -> DynParser {
     )
     .map(|(s,): (String,)| (JsonValue::String(s),));
 
-    return DynParser::new(string);
+    DynParser::new(string)
 }
 
 fn number_parser() -> DynParser {
@@ -83,7 +83,7 @@ fn number_parser() -> DynParser {
             }
             (res,)
         })
-        .optional_or((0.0 as f64,));
+        .optional_or((0.0_f64,));
 
     let sign = rp::or!('+', '-').optional_or(('+',));
 
@@ -138,7 +138,7 @@ fn number_parser() -> DynParser {
         },
     );
 
-    return DynParser::new(number);
+    DynParser::new(number)
 }
 
 fn main() {

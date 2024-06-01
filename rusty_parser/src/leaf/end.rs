@@ -4,7 +4,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 // parser that success if reached end of input
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct EndParser {}
 
 impl EndParser {
@@ -22,13 +22,10 @@ where
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let mut i0 = it.clone();
         match i0.next() {
-            Some(_) => ParseResult {
-                output: None,
-                it: it,
-            },
+            Some(_) => ParseResult { output: None, it },
             None => ParseResult {
                 output: Some(()),
-                it: it,
+                it,
             },
         }
     }

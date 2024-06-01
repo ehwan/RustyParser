@@ -257,6 +257,6 @@ where
     Idx: Clone + Copy + PartialEq,
 {
     fn contains(&self, count: &Idx) -> bool {
-        return *self == *count;
+        *self == *count
     }
 }

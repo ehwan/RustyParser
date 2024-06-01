@@ -36,7 +36,7 @@ fn main() {
         for digit in digits {
             res = res * 10 + digit;
         }
-        return (res,);
+        (res,)
     });
 
     // '(' expression ')'
@@ -60,12 +60,12 @@ fn main() {
     .map(|(mut base, op_rhs_vec)| -> (i32,) {
         for (op, rhs) in op_rhs_vec {
             if op == '*' {
-                base = base * rhs;
+                base *= rhs;
             } else {
-                base = base / rhs;
+                base /= rhs;
             }
         }
-        return (base,);
+        (base,)
     });
 
     expr1.borrow_mut().assign(mul_or_div);
@@ -79,12 +79,12 @@ fn main() {
     .map(|(mut base, op_rhs_vec)| -> (i32,) {
         for (op, rhs) in op_rhs_vec {
             if op == '+' {
-                base = base + rhs;
+                base += rhs;
             } else {
-                base = base - rhs;
+                base -= rhs;
             }
         }
-        return (base,);
+        (base,)
     });
 
     expr2.borrow_mut().assign(add_or_sub);

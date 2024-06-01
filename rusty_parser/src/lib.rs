@@ -155,7 +155,7 @@ where
 /// let hello_parser = rp::chars("hello");
 /// let hello_parser = "hello".into_parser();
 /// ```
-pub fn chars<'a>(str: &'a str) -> leaf::sliceeq::SliceEqualParser<std::str::Chars<'a>> {
+pub fn chars(str: &str) -> leaf::sliceeq::SliceEqualParser<std::str::Chars<'_>> {
     leaf::sliceeq::SliceEqualParser::new(str.chars())
 }
 
@@ -171,7 +171,7 @@ pub fn chars<'a>(str: &'a str) -> leaf::sliceeq::SliceEqualParser<std::str::Char
 /// let hello_parser = rp::slice(&[104, 101, 108, 108, 111]);
 /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 /// ```
-pub fn slice<'a, T>(slice: &'a [T]) -> leaf::sliceeq::SliceEqualParser<std::slice::Iter<'a, T>>
+pub fn slice<T>(slice: &[T]) -> leaf::sliceeq::SliceEqualParser<std::slice::Iter<'_, T>>
 where
     T: Clone + Copy,
 {

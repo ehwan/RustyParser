@@ -28,8 +28,8 @@ where
 {
     pub fn new(parser: ParserType, callback: ClosureType) -> Self {
         Self {
-            parser: parser,
-            callback: callback,
+            parser,
+            callback,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -62,18 +62,7 @@ where
         }
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
-            ParseResult {
-                output: Some(()),
-                it: res.it,
-            }
-        } else {
-            ParseResult {
-                output: None,
-                it: res.it,
-            }
-        }
+        self.parser.match_pattern(it)
     }
 }
 

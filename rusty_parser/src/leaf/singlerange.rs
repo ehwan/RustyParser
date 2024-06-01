@@ -21,7 +21,7 @@ where
 {
     pub fn new(range: RangeType) -> Self {
         SingleRangeParser {
-            range: range,
+            range,
             _phantom: std::marker::PhantomData,
         }
     }
@@ -51,7 +51,7 @@ where
             if self.range.contains(&val) {
                 ParseResult {
                     output: Some((val,)),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {
@@ -74,7 +74,7 @@ where
             if self.range.contains(&val) {
                 ParseResult {
                     output: Some(()),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {

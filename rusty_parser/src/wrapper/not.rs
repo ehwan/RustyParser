@@ -11,10 +11,7 @@ pub struct NotParser<ParserA, ParserB> {
 
 impl<ParserA, ParserB> NotParser<ParserA, ParserB> {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
-        Self {
-            parser_a: parser_a,
-            parser_b: parser_b,
-        }
+        Self { parser_a, parser_b }
     }
 }
 
@@ -29,24 +26,24 @@ where
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
         if self.parser_b.match_pattern(it).output.is_some() {
-            return ParseResult {
+            ParseResult {
                 output: None,
                 it: i0,
-            };
+            }
         } else {
-            return self.parser_a.parse(i0);
+            self.parser_a.parse(i0)
         }
     }
 
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let i0 = it.clone();
         if self.parser_b.match_pattern(it).output.is_some() {
-            return ParseResult {
+            ParseResult {
                 output: None,
                 it: i0,
-            };
+            }
         } else {
-            return self.parser_a.match_pattern(i0);
+            self.parser_a.match_pattern(i0)
         }
     }
 }

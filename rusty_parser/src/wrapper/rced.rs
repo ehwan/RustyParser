@@ -6,7 +6,7 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct RcedParser<ParserType> {
     parser: std::rc::Rc<ParserType>,
 }
@@ -15,11 +15,6 @@ impl<ParserType> RcedParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
         Self {
             parser: std::rc::Rc::new(parser),
-        }
-    }
-    pub fn clone(&self) -> Self {
-        Self {
-            parser: std::rc::Rc::clone(&self.parser),
         }
     }
 }
@@ -39,6 +34,13 @@ where
     }
 }
 
+impl<ParserType> Clone for RcedParser<ParserType> {
+    fn clone(&self) -> Self {
+        Self {
+            parser: std::rc::Rc::clone(&self.parser),
+        }
+    }
+}
 impl<ParserType> Deref for RcedParser<ParserType> {
     type Target = std::rc::Rc<ParserType>;
 

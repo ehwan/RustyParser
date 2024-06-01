@@ -8,7 +8,7 @@ use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
 // Build Trie using BTreeMap
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 struct BTreeTrieNode<CharType, Output>
 where
     CharType: Ord,
@@ -76,7 +76,7 @@ where
 
 // Dictionary using trie
 // implementation uses BTreeMap; O(log(N)) search
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DictBTreeParser<Output, CharType>
 where
     Output: Clone + Tuple,

@@ -10,7 +10,7 @@ pub struct NotConsumeParser<ParserType> {
 
 impl<ParserType> NotConsumeParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self { parser: parser }
+        Self { parser }
     }
 }
 
@@ -37,7 +37,7 @@ where
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let i0 = it.clone();
-        if let Some(_) = self.parser.match_pattern(it).output {
+        if self.parser.match_pattern(it).output.is_some() {
             ParseResult {
                 output: Some(()),
                 it: i0,

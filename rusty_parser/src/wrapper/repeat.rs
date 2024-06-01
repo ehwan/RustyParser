@@ -22,17 +22,14 @@ where
     RangeType: RangeBound<RepeatCountType>,
 {
     pub fn new(parser: ParserType, range: RangeType) -> Self {
-        Self {
-            parser: parser,
-            range: range,
-        }
+        Self { parser, range }
     }
     pub fn from<RangeType_>(parser: ParserType, range: RangeType_) -> Self
     where
         RangeType_: ToCopyable<Into = RangeType>,
     {
         Self {
-            parser: parser,
+            parser,
             range: range.into(),
         }
     }
@@ -57,10 +54,10 @@ where
         let mut count: RepeatCountType = 0;
         loop {
             // check reached max count
-            if self.range.contains(&count) && self.range.contains(&(count + 1)) == false {
+            if self.range.contains(&count) && !self.range.contains(&(count + 1)) {
                 return ParseResult {
                     output: Some(output),
-                    it: it,
+                    it,
                 };
             }
             let res = self.parser.parse(it);
@@ -68,18 +65,16 @@ where
                 count += 1;
                 val.push_this_to_output(&mut output);
                 it = res.it;
+            } else if self.range.contains(&count) {
+                return ParseResult {
+                    output: Some(output),
+                    it: res.it,
+                };
             } else {
-                if self.range.contains(&count) {
-                    return ParseResult {
-                        output: Some(output),
-                        it: res.it,
-                    };
-                } else {
-                    return ParseResult {
-                        output: None,
-                        it: i0,
-                    };
-                }
+                return ParseResult {
+                    output: None,
+                    it: i0,
+                };
             }
         }
     }
@@ -89,28 +84,26 @@ where
         let mut count: RepeatCountType = 0;
         loop {
             // check reached max count
-            if self.range.contains(&count) && self.range.contains(&(count + 1)) == false {
+            if self.range.contains(&count) && !self.range.contains(&(count + 1)) {
                 return ParseResult {
                     output: Some(()),
-                    it: it,
+                    it,
                 };
             }
             let res = self.parser.match_pattern(it);
-            if let Some(_) = res.output {
+            if res.output.is_some() {
                 count += 1;
                 it = res.it;
+            } else if self.range.contains(&count) {
+                return ParseResult {
+                    output: Some(()),
+                    it: res.it,
+                };
             } else {
-                if self.range.contains(&count) {
-                    return ParseResult {
-                        output: Some(()),
-                        it: res.it,
-                    };
-                } else {
-                    return ParseResult {
-                        output: None,
-                        it: i0,
-                    };
-                }
+                return ParseResult {
+                    output: None,
+                    it: i0,
+                };
             }
         }
     }
@@ -186,7 +179,7 @@ mod test {
     #[test]
     fn success5() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let digit_parser = SeqParser::new(digit_parser, digit_parser);
         let repeat_parser = RepeatParser::from(digit_parser, 2..=2);
 
         let str = "12341234";

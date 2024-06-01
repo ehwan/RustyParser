@@ -21,7 +21,7 @@ where
     SliceIter: IntoIterator + Clone,
 {
     pub fn new(string: SliceIter) -> Self {
-        SliceEqualParser { string: string }
+        SliceEqualParser { string }
     }
 }
 
@@ -58,10 +58,10 @@ where
                 }
             }
         }
-        return ParseResult {
+        ParseResult {
             output: Some(()),
-            it: it,
-        };
+            it,
+        }
     }
 }
 

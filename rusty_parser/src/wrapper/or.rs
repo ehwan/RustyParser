@@ -11,10 +11,7 @@ pub struct OrParser<ParserA, ParserB> {
 
 impl<ParserA, ParserB> OrParser<ParserA, ParserB> {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
-        Self {
-            parser_a: parser_a,
-            parser_b: parser_b,
-        }
+        Self { parser_a, parser_b }
     }
 }
 
@@ -50,14 +47,14 @@ where
 
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let res = self.parser_a.match_pattern(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             return ParseResult {
                 output: Some(()),
                 it: res.it,
             };
         }
         let res = self.parser_b.parse(res.it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             return ParseResult {
                 output: Some(()),
                 it: res.it,

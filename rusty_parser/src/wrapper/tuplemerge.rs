@@ -9,9 +9,7 @@ pub trait AppendTupleToTuple<Tup> {
 
 impl AppendTupleToTuple<()> for () {
     type Output = ();
-    fn append_back(self, _val: ()) -> Self::Output {
-        ()
-    }
+    fn append_back(self, _val: ()) -> Self::Output {}
 }
 
 impl<U0> AppendTupleToTuple<(U0,)> for () {

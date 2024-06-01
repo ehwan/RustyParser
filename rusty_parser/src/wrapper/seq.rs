@@ -14,10 +14,7 @@ pub struct SeqParser<ParserA, ParserB> {
 
 impl<ParserA, ParserB> SeqParser<ParserA, ParserB> {
     pub fn new(parser_a: ParserA, parser_b: ParserB) -> Self {
-        Self {
-            parser_a: parser_a,
-            parser_b: parser_b,
-        }
+        Self { parser_a, parser_b }
     }
 }
 
@@ -60,9 +57,9 @@ where
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let i0 = it.clone();
         let res_a = self.parser_a.match_pattern(it);
-        if let Some(_) = res_a.output {
+        if res_a.output.is_some() {
             let res_b = self.parser_b.match_pattern(res_a.it);
-            if let Some(_) = res_b.output {
+            if res_b.output.is_some() {
                 ParseResult {
                     output: Some(()),
                     it: res_b.it,
@@ -105,7 +102,7 @@ mod test {
     #[test]
     fn success1() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let seq_parser = SeqParser::new(digit_parser, digit_parser);
 
         let str = "1234abcd";
         let res = seq_parser.parse(str.chars());
@@ -117,7 +114,7 @@ mod test {
     #[test]
     fn fail1() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let seq_parser = SeqParser::new(digit_parser, digit_parser);
 
         let str = "1a34abcd";
         let res = seq_parser.parse(str.chars());
@@ -129,7 +126,7 @@ mod test {
     #[test]
     fn fail2() {
         let digit_parser = SingleRangeParser::from('0'..='9');
-        let seq_parser = SeqParser::new(digit_parser.clone(), digit_parser);
+        let seq_parser = SeqParser::new(digit_parser, digit_parser);
 
         let str = "a234abcd";
         let res = seq_parser.parse(str.chars());

@@ -5,7 +5,7 @@ use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub struct AnyParser {}
 
 impl AnyParser {
@@ -25,28 +25,22 @@ where
         if let Some(val) = it.next() {
             ParseResult {
                 output: Some((val,)),
-                it: it,
+                it,
             }
         } else {
-            ParseResult {
-                output: None,
-                it: it,
-            }
+            ParseResult { output: None, it }
         }
     }
 
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let mut it = it;
-        if let Some(_) = it.next() {
+        if it.next().is_some() {
             ParseResult {
                 output: Some(()),
-                it: it,
+                it,
             }
         } else {
-            ParseResult {
-                output: None,
-                it: it,
-            }
+            ParseResult { output: None, it }
         }
     }
 }

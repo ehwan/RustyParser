@@ -12,7 +12,7 @@ pub struct OptionalParser<ParserType> {
 
 impl<ParserType> OptionalParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self { parser: parser }
+        Self { parser }
     }
 }
 
@@ -42,16 +42,9 @@ where
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
-            ParseResult {
-                output: Some(()),
-                it: res.it,
-            }
-        } else {
-            ParseResult {
-                output: Some(()),
-                it: res.it,
-            }
+        ParseResult {
+            output: Some(()),
+            it: res.it,
         }
     }
 }
@@ -78,10 +71,7 @@ where
     Output: Clone + Tuple,
 {
     pub fn new(parser: ParserType, output: Output) -> Self {
-        Self {
-            parser: parser,
-            output: output,
-        }
+        Self { parser, output }
     }
 }
 
@@ -109,16 +99,9 @@ where
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
-            ParseResult {
-                output: Some(()),
-                it: res.it,
-            }
-        } else {
-            ParseResult {
-                output: Some(()),
-                it: res.it,
-            }
+        ParseResult {
+            output: Some(()),
+            it: res.it,
         }
     }
 }

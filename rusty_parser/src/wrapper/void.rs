@@ -10,7 +10,7 @@ pub struct VoidParser<ParserType> {
 
 impl<ParserType> VoidParser<ParserType> {
     pub fn new(parser: ParserType) -> Self {
-        Self { parser: parser }
+        Self { parser }
     }
 }
 
@@ -23,7 +23,7 @@ where
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             ParseResult {
                 output: Some(()),
                 it: res.it,

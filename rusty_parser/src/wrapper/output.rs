@@ -18,10 +18,7 @@ where
     OutputType: Tuple + Clone,
 {
     pub fn new(parser: ParserType, output: OutputType) -> Self {
-        Self {
-            parser: parser,
-            output: output,
-        }
+        Self { parser, output }
     }
 }
 
@@ -35,7 +32,7 @@ where
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.match_pattern(it);
-        if let Some(_) = res.output {
+        if res.output.is_some() {
             ParseResult {
                 output: Some(self.output.clone()),
                 it: res.it,

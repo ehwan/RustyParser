@@ -16,9 +16,7 @@ pub trait VectorOutputSpecialize {
 impl VectorOutputSpecialize for () {
     type Output = ();
 
-    fn new_output() -> Self::Output {
-        ()
-    }
+    fn new_output() -> Self::Output {}
     fn reserve(_output: &mut Self::Output, _reserve_size: usize) {}
 
     fn push_this_to_output(self, _output: &mut Self::Output) {}

@@ -41,7 +41,7 @@ where
             if (self.closure)(val.clone()) {
                 ParseResult {
                     output: Some((val,)),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {
@@ -64,7 +64,7 @@ where
             if (self.closure)(val) {
                 ParseResult {
                     output: Some(()),
-                    it: it,
+                    it,
                 }
             } else {
                 ParseResult {
