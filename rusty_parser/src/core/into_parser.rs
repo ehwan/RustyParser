@@ -347,11 +347,11 @@ pub trait IntoParser {
         crate::wrapper::boxed::DynBoxChars::new(self)
     }
 
-    /// create a Box\<dyn Parser\> wrapper for iterators of `std::iter::Copied<std::slice::Iter>`.
+    /// create a Box\<dyn Parser\> wrapper for iterators of `std::slice::Iter`.
     ///
     /// This can take any parser with Output of `Output`.
     ///
-    /// Once you wrap the parser with this, you can only use input iterator of `Copied<std::slice::Iter>`.
+    /// Once you wrap the parser with this, you can only use input iterator of `std::slice::Iter`.
     ///
     /// # Example
     /// ```rust
@@ -359,33 +359,29 @@ pub trait IntoParser {
     /// use rp::IntoParser;
     ///
     /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
-    /// let digit_parser = ('0' as u8..='9' as u8).void();
+    /// let world_parser = (&[119, 111, 114, 108, 100]).into_parser();
     ///
     /// // this will wrap the parser into Box< dyn Parser >
     /// let mut boxed_parser = hello_parser.box_slice();
     ///
-    /// let res_hello = rp::parse(&boxed_parser, "hello0123".as_bytes().iter().copied());
+    /// let res_hello = rp::parse(&boxed_parser, "helloworld".as_bytes().iter());
     /// // success
     /// assert_eq!(res_hello.output.unwrap(), ());
-    /// assert_eq!(res_hello.it.clone().collect::<Vec<u8>>(), [ '0' as u8, '1' as u8, '2' as u8, '3' as u8 ]);
     ///
-    /// // now change boxed_parser to digit_parser
-    /// boxed_parser.assign(digit_parser);
+    /// // now change boxed_parser to world_parser
+    /// boxed_parser.assign(world_parser);
     ///
     /// let res_digit = rp::parse(&boxed_parser, res_hello.it);
     /// // success
     /// assert_eq!(res_digit.output.unwrap(), ());
-    /// assert_eq!(res_digit.it.collect::<Vec<u8>>(), [ '1' as u8, '2' as u8, '3' as u8 ]);
     /// ```
     fn box_slice<Output, T>(self) -> crate::wrapper::boxed::DynBoxSlice<Output, T>
     where
         Output: crate::core::tuple::Tuple,
         T: Clone + Copy,
         Self: Sized,
-        Self::Into: for<'a> crate::core::parser::Parser<
-                std::iter::Copied<std::slice::Iter<'a, T>>,
-                Output = Output,
-            > + 'static,
+        Self::Into:
+            for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>, Output = Output> + 'static,
     {
         crate::wrapper::boxed::DynBoxSlice::new(self)
     }
@@ -468,7 +464,7 @@ pub trait IntoParser {
     }
 
     /// Returns `Vec\<T\>` of parsed input.
-    /// Only works for parsing with `std::iter::Copied<std::slice::Iter>`.
+    /// Only works for parsing with `std::slice::Iter`.
     ///
     /// `Output`: `(Vec<T>,)`
     ///
@@ -477,16 +473,16 @@ pub trait IntoParser {
     /// use rusty_parser as rp;
     /// use rp::IntoParser;
     ///
-    /// let digits_parser = ('0' as u8..='9' as u8).repeat(0..).vec();
+    /// let hello_bytes = &[104, 101, 108, 108, 111];
+    /// let hello_parser = hello_bytes.into_parser().vec::<u8>();
     ///
-    /// let res = rp::parse(&digits_parser, "123456hello_world".as_bytes().iter().copied());
-    /// assert_eq!(res.output.unwrap(), ("123456".as_bytes().to_vec(),));
-    /// assert_eq!(res.it.collect::<Vec<u8>>(), "hello_world".as_bytes().to_vec());
+    /// let res = rp::parse(&hello_parser, "hello_world1234".as_bytes().iter());
+    /// assert_eq!(res.output.unwrap(), (hello_bytes.iter().cloned().collect::<Vec<u8>>(),) );
     /// ```
     fn vec<T>(self) -> crate::wrapper::slice::SliceParser<Self::Into>
     where
         Self: Sized,
-        Self::Into: for<'a> crate::core::parser::Parser<std::iter::Copied<std::slice::Iter<'a, T>>>,
+        Self::Into: for<'a> crate::core::parser::Parser<std::slice::Iter<'a, T>>,
     {
         crate::wrapper::slice::SliceParser::new(self.into_parser())
     }

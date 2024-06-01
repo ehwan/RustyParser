@@ -1,9 +1,9 @@
 # RustyParser
 A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 
-Define pattern, combine them, and parse the input.
-
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
+
+This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::slice::Iter`.
 
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
@@ -129,9 +129,6 @@ let hello_parser = slice(&[104, 101, 108, 108, 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 ```
 `Output`: `()`
-
-#### Note
-`slice( s: &'a [T] )` or `<SliceType>.into_parser()` internally converts `&[T]` to `Copied<std::slice::Iter>`.
 
 ### `check`: check single charactor with a closure
 The closure must be: `Fn(&Iterator::Item) -> bool`
@@ -314,12 +311,12 @@ RustyParser provides `box_*`, `rc`, `refcell` which are Parser wrapper for `Box`
 
 ### `box_chars`, `box_slice`: a `Box<dyn Parser>` wrapper
 
-this function wraps the input parser into `Box<dyn Parser>`.
+this function wraps the parser into `Box<dyn Parser>`.
 You can dynamically assign ***any parsers*** with same `Output` type.
 
 #### Note
-Currently only implemented for `std::str::Chars` and `Copied<std::slice::Iter>`.
-Once you wrap the parser through `box_chars` or `box_slice`, you can only use those iterator for `parse(...)`.
+Currently only implemented for `std::str::Chars` and `std::slice::Iter`.
+Once you wrap the parser through `box_chars` or `box_slice`, you can only use corresponding iterator in `parse(...)`.
 
 ```rust
 let hello_parser = "hello".into_parser();
@@ -467,7 +464,7 @@ assert_eq!(res.it.collect::<String>(), "23456hello_world");
 
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
 
-`string` can be only used for `std::str::Chars`, and `vec` can be only used for `Copied<std::slice::Iter>`.
+`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::slice::Iter`.
 
 ```rust
 let digits_parser = ('0'..='9').repeat(0..).string();
@@ -477,6 +474,9 @@ assert_eq!(res.output.unwrap(), ("123456".to_string(),));
 assert_eq!(res.it.collect::<String>(), "hello_world");
 ```
 `Output`: `(String,)` or `(Vec<T of Slice>,)`
+
+#### Note
+`vec` internally `clone()` the items.
 
 ### `not_consume`: check if the pattern is matched or not, without consuming the input
 ```rust

@@ -59,24 +59,23 @@ impl<ParserType> SliceParser<ParserType> {
         Self { parser: parser }
     }
 }
-impl<'a, T, ParserType> Parser<std::iter::Copied<std::slice::Iter<'a, T>>>
-    for SliceParser<ParserType>
+impl<'a, T, ParserType> Parser<std::slice::Iter<'a, T>> for SliceParser<ParserType>
 where
-    ParserType: Parser<std::iter::Copied<std::slice::Iter<'a, T>>>,
+    ParserType: Parser<std::slice::Iter<'a, T>>,
     T: Clone + Copy,
 {
     type Output = (Vec<T>,);
 
     fn parse(
         &self,
-        it: std::iter::Copied<std::slice::Iter<'a, T>>,
-    ) -> ParseResult<Self::Output, std::iter::Copied<std::slice::Iter<'a, T>>> {
+        it: std::slice::Iter<'a, T>,
+    ) -> ParseResult<Self::Output, std::slice::Iter<'a, T>> {
         let i0 = it.clone();
         let res = self.parser.match_pattern(it);
         if let Some(_) = res.output {
             let len = i0.len() - res.it.len();
             ParseResult {
-                output: Some((i0.take(len).collect(),)),
+                output: Some((i0.take(len).cloned().collect(),)),
                 it: res.it,
             }
         } else {
@@ -88,8 +87,8 @@ where
     }
     fn match_pattern(
         &self,
-        it: std::iter::Copied<std::slice::Iter<'a, T>>,
-    ) -> ParseResult<(), std::iter::Copied<std::slice::Iter<'a, T>>> {
+        it: std::slice::Iter<'a, T>,
+    ) -> ParseResult<(), std::slice::Iter<'a, T>> {
         self.parser.match_pattern(it)
     }
 }

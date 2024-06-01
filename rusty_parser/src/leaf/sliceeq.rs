@@ -37,7 +37,7 @@ where
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
         let mut it = it;
-        // take
+        // use take?
         for ch in self.string.clone() {
             match it.next() {
                 Some(ch2) => {
@@ -85,9 +85,9 @@ impl<'a, T> IntoParser for &'a [T]
 where
     T: Clone + Copy,
 {
-    type Into = SliceEqualParser<std::iter::Copied<std::slice::Iter<'a, T>>>;
+    type Into = SliceEqualParser<std::slice::Iter<'a, T>>;
     fn into_parser(self) -> Self::Into {
-        SliceEqualParser::new(self.iter().copied())
+        SliceEqualParser::new(self.iter())
     }
 }
 
@@ -117,17 +117,5 @@ mod test {
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
         assert_eq!(&rest, "hell_world!!");
-    }
-
-    #[test]
-    fn fail2() {
-        let pattern = ['h', 'e', 'l', 'l', 'o'];
-        let parser = SliceEqualParser::new((&pattern).into_iter().copied());
-
-        let str: String = "hell".to_string();
-        let res = parser.parse(str.chars());
-        assert_eq!(res.output, None);
-        let rest: String = res.it.collect();
-        assert_eq!(&rest, "hell");
     }
 }

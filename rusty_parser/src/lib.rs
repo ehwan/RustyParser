@@ -171,13 +171,11 @@ pub fn chars<'a>(str: &'a str) -> leaf::sliceeq::SliceEqualParser<std::str::Char
 /// let hello_parser = rp::slice(&[104, 101, 108, 108, 111]);
 /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 /// ```
-pub fn slice<'a, T>(
-    slice: &'a [T],
-) -> leaf::sliceeq::SliceEqualParser<std::iter::Copied<std::slice::Iter<'a, T>>>
+pub fn slice<'a, T>(slice: &'a [T]) -> leaf::sliceeq::SliceEqualParser<std::slice::Iter<'a, T>>
 where
     T: Clone + Copy,
 {
-    leaf::sliceeq::SliceEqualParser::new(slice.iter().copied())
+    leaf::sliceeq::SliceEqualParser::new(slice.iter())
 }
 
 /// This Parser will always success and return the clone of given output.
@@ -230,7 +228,7 @@ pub fn fail() -> leaf::fail::Fail {
 
 /// Check single item with the given closure.
 ///
-/// The closure must be: `Fn(&Iterator::Item) -> bool`
+/// The closure must be: `Fn(Iterator::Item) -> bool`
 ///
 /// `Output`: `(Iterator::Item,)`
 /// # Example
@@ -238,15 +236,17 @@ pub fn fail() -> leaf::fail::Fail {
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let parser = rp::check( |ch:&char| ch.is_alphabetic() );
+/// let parser = rp::check( |ch:char| ch.is_alphabetic() );
+/// let res = rp::parse( &parser, "hello".chars() );
+///
 /// let parser = rp::check( |ch:&i32| ch == &1 );
-/// let res = rp::parse( &parser, (&[1,2,3]).iter().copied() );
+/// let res = rp::parse( &parser, (&[1,2,3]).iter() );
 /// ```
 pub fn check<CheckItem, Input>(
     closure: CheckItem,
 ) -> leaf::check::SingleCheckParser<CheckItem, Input>
 where
-    CheckItem: Fn(&Input) -> bool,
+    CheckItem: Fn(Input) -> bool,
 {
     leaf::check::SingleCheckParser::new(closure)
 }
@@ -333,11 +333,11 @@ pub use wrapper::refcelled::RefCelledParser as RefCell;
 /// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
 pub use wrapper::boxed::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of `std::iter::Copied<std::slice::Iter>`.
+/// A Box\<dyn Parser\> wrapper for iterators of `std::slice::Iter`.
 ///
 /// This can take any parser with Output of `Output`.
 ///
-/// Once you wrap the parser with this, you can only use input iterator of `Copied<std::slice::Iter>`.
+/// Once you wrap the parser with this, you can only use input iterator of `std::slice::Iter`.
 pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================
