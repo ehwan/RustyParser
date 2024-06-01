@@ -65,7 +65,7 @@ mod test {
     use crate::leaf::{singleeq::SingleEqualParser, singlerange::SingleRangeParser};
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = NotParser::new(digit_parser, SingleEqualParser::new('4'));
 
         let res = digit_parser.parse("3a".chars());
@@ -74,7 +74,7 @@ mod test {
     }
     #[test]
     fn fail1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = NotParser::new(digit_parser, SingleEqualParser::new('4'));
 
         let res = digit_parser.parse("4a".chars());

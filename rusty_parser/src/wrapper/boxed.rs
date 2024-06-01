@@ -172,7 +172,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let a_parser = SingleEqualParser::new('a');
 
         let str = "1a2b3c4d5e6f7g8h9i0j";

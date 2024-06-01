@@ -141,7 +141,7 @@ mod test {
 
     #[test]
     fn success() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = OptionalParser::new(digit_parser);
 
         let str = "1a2bhello";
@@ -158,7 +158,7 @@ mod test {
 
     #[test]
     fn success2() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = OptionalOrParser::new(digit_parser, ('x',));
 
         let str = "1a2bhello";

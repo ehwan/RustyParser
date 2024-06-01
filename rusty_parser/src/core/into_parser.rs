@@ -56,23 +56,28 @@ pub trait IntoParser {
     /// use rp::IntoParser;
     ///
     /// // repeat 'a' 3 to 5 times
-    /// let multiple_a_parser = 'a'.repeat(3..=5); // IntoParser for char
+    /// let multiple_a_parser = 'a'.repeat(3..=5);
     /// let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
     /// // four 'a' is parsed
     /// assert_eq!(res.output.unwrap(), (vec!['a', 'a', 'a', 'a',],));
     /// assert_eq!(res.it.collect::<String>(), "bcd");
+    ///
+    /// let multiple_a_parser = 'a'.repeat(3);
+    /// let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
+    /// // three 'a' is parsed
+    /// assert_eq!(res.output.unwrap(), (vec!['a', 'a', 'a'],));
     /// ```
-    fn repeat<Idx, RangeType: std::ops::RangeBounds<Idx>>(
+    fn repeat<RangeTypeIncludeInteger>(
         self,
-        range_: RangeType,
-    ) -> crate::wrapper::repeat::RepeatParser<Self::Into, RangeType, Idx>
+        range: RangeTypeIncludeInteger,
+    ) -> crate::wrapper::repeat::RepeatParser<Self::Into, RangeTypeIncludeInteger::Into>
     where
         Self: Sized,
-        RangeType: std::ops::RangeBounds<Idx>,
-        Idx: PartialOrd + PartialEq + PartialOrd<i32> + PartialEq<i32>,
-        i32: PartialOrd + PartialEq + PartialOrd<Idx> + PartialEq<Idx>,
+        RangeTypeIncludeInteger: crate::core::range_copyable::ToCopyable,
+        RangeTypeIncludeInteger::Into:
+            crate::core::range_copyable::RangeBound<crate::wrapper::repeat::RepeatCountType>,
     {
-        crate::wrapper::repeat::RepeatParser::new(self.into_parser(), range_)
+        crate::wrapper::repeat::RepeatParser::from(self.into_parser(), range)
     }
 
     /// or combinator for two parsers

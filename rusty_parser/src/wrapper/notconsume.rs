@@ -67,7 +67,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = NotConsumeParser::new(digit_parser);
 
         let str = "123456abcd";
@@ -80,7 +80,7 @@ mod test {
 
     #[test]
     fn fail1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = NotConsumeParser::new(digit_parser);
 
         let str = "a123456abcd";

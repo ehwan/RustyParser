@@ -92,8 +92,8 @@ mod test {
     use crate::leaf::singlerange::SingleRangeParser;
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
-        let alpha_parser = SingleRangeParser::new('a'..='z');
+        let digit_parser = SingleRangeParser::from('0'..='9');
+        let alpha_parser = SingleRangeParser::from('a'..='z');
 
         let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "1a2b3c";
@@ -110,8 +110,8 @@ mod test {
 
     #[test]
     fn fail1() {
-        let digit_parser = SingleRangeParser::new('0'..'9');
-        let alpha_parser = SingleRangeParser::new('a'..'z');
+        let digit_parser = SingleRangeParser::from('0'..'9');
+        let alpha_parser = SingleRangeParser::from('a'..'z');
 
         let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "1z2b3c";
@@ -127,8 +127,8 @@ mod test {
     }
     #[test]
     fn fail2() {
-        let digit_parser = SingleRangeParser::new('0'..'9');
-        let alpha_parser = SingleRangeParser::new('a'..'z');
+        let digit_parser = SingleRangeParser::from('0'..'9');
+        let alpha_parser = SingleRangeParser::from('a'..'z');
 
         let digitalpha_parser = OrParser::new(digit_parser, alpha_parser);
         let str = "9a2b3c";

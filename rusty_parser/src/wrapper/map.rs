@@ -97,7 +97,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let callback_parser =
             MapParser::new(digit_parser, |val: (char,)| -> (i32,) { (val.0 as i32,) });
 
@@ -110,7 +110,7 @@ mod test {
     }
     #[test]
     fn fail1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let callback_parser =
             MapParser::new(digit_parser, |val: (char,)| -> (i32,) { (val.0 as i32,) });
 

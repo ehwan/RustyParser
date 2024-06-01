@@ -108,7 +108,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
         let digit_parser = StringParser::new(digit_parser);
 
@@ -119,7 +119,7 @@ mod test {
     }
     #[test]
     fn fail() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = SeqParser::new(digit_parser.clone(), digit_parser);
         let digit_parser = StringParser::new(digit_parser);
 

@@ -41,8 +41,8 @@ fn string_parser() -> DynParser {
         '\\',
         '/',
         'n'.output(('\n',)),
-        '\r'.output(('\r',)),
-        '\t'.output(('\t',)),
+        'r'.output(('\r',)),
+        't'.output(('\t',)),
         unicode_char
     );
     let escape = rp::seq!('\\'.void(), escape);
@@ -63,9 +63,9 @@ fn number_parser() -> DynParser {
         .into_parser()
         .map(|(c,): (char,)| (c as i32 - '0' as i32,));
 
-    let digits = rp::seq!(onenine, digit.clone().repeat(0..));
+    let digits = rp::seq!(onenine, digit.repeat(0..));
 
-    let fraction = rp::seq!('.'.void(), digits.clone())
+    let fraction = rp::seq!('.'.void(), digits)
         .map(|(leaddigit, digits): (i32, Vec<i32>)| -> (f64,) {
             let mut base10: f64 = 0.01;
             let mut res: f64 = leaddigit as f64 * 0.1;
@@ -83,15 +83,13 @@ fn number_parser() -> DynParser {
         rp::or!('e', 'E').void(),
         rp::seq!(
             sign,
-            digits
-                .clone()
-                .map(|(leaddigit, digits): (i32, Vec<i32>)| -> (i32,) {
-                    let mut res = leaddigit;
-                    for digit in digits {
-                        res = res * 10 + digit;
-                    }
-                    (res,)
-                })
+            digits.map(|(leaddigit, digits): (i32, Vec<i32>)| -> (i32,) {
+                let mut res = leaddigit;
+                for digit in digits {
+                    res = res * 10 + digit;
+                }
+                (res,)
+            })
         )
         .map(|(sign, exponent): (char, i32)| -> (i32,) {
             if sign == '-' {
@@ -107,15 +105,13 @@ fn number_parser() -> DynParser {
         '-'.optional_or(('+',)),
         rp::or!(
             '0'.output((0,)),
-            digits
-                .clone()
-                .map(|(leaddigit, digits): (i32, Vec<i32>,)| -> (i32,) {
-                    let mut res = leaddigit;
-                    for digit in digits {
-                        res = res * 10 + digit;
-                    }
-                    (res,)
-                })
+            digits.map(|(leaddigit, digits): (i32, Vec<i32>,)| -> (i32,) {
+                let mut res = leaddigit;
+                for digit in digits {
+                    res = res * 10 + digit;
+                }
+                (res,)
+            })
         )
     )
     .map(|(sign, integer): (char, i32)| -> (i32,) {
@@ -163,7 +159,7 @@ fn main() {
 
     let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void();
 
-    let element = rp::seq!(ws.clone(), rp::Rc::clone(&value), ws.clone()).rc();
+    let element = rp::seq!(ws, rp::Rc::clone(&value), ws).rc();
 
     let elements = rp::seq!(
         element.clone(),
@@ -182,18 +178,11 @@ fn main() {
 
     array.borrow_mut().assign(rp::seq!(
         '['.void(),
-        rp::or!(elements, ws.clone().output((JsonValue::Array(Vec::new()),))),
+        rp::or!(elements, ws.output((JsonValue::Array(Vec::new()),))),
         ']'.void()
     ));
 
-    let member = rp::seq!(
-        ws.clone(),
-        string_parser(),
-        ws.clone(),
-        ':'.void(),
-        element.clone()
-    )
-    .rc();
+    let member = rp::seq!(ws, string_parser(), ws, ':'.void(), element.clone()).rc();
 
     let members =
         rp::seq!(
@@ -228,10 +217,7 @@ fn main() {
 
     object.borrow_mut().assign(rp::seq!(
         '{'.void(),
-        rp::or!(
-            members,
-            ws.clone().output((JsonValue::Object(HashMap::new()),))
-        ),
+        rp::or!(members, ws.output((JsonValue::Object(HashMap::new()),))),
         '}'.void()
     ));
 

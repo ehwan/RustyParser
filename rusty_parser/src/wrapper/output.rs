@@ -66,7 +66,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = OutputParser::new(digit_parser, (1, 2, 3));
 
         let str = "123456abcd";
@@ -78,7 +78,7 @@ mod test {
     }
     #[test]
     fn fail1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = OutputParser::new(digit_parser, (1, 2, 3));
 
         let str = "a23456abcd";

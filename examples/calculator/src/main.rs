@@ -42,9 +42,9 @@ fn main() {
     // '(' expression ')'
     let paren_expr = seq!(
         '('.void(),
-        whitespaces.clone(),
+        whitespaces,
         Rc::clone(&expr),
-        whitespaces.clone(),
+        whitespaces,
         ')'.void()
     );
 
@@ -55,13 +55,7 @@ fn main() {
     let mul_or_div_op = or!('*', '/');
     let mul_or_div = seq!(
         Rc::clone(&expr0),
-        seq!(
-            whitespaces.clone(),
-            mul_or_div_op,
-            whitespaces.clone(),
-            Rc::clone(&expr0)
-        )
-        .repeat(0..)
+        seq!(whitespaces, mul_or_div_op, whitespaces, Rc::clone(&expr0)).repeat(0..)
     )
     .map(|(mut base, op_rhs_vec)| -> (i32,) {
         for (op, rhs) in op_rhs_vec {
@@ -80,13 +74,7 @@ fn main() {
     let add_or_sub_op = or!('+', '-');
     let add_or_sub = seq!(
         Rc::clone(&expr1),
-        seq!(
-            whitespaces.clone(),
-            add_or_sub_op,
-            whitespaces.clone(),
-            Rc::clone(&expr1)
-        )
-        .repeat(0..)
+        seq!(whitespaces, add_or_sub_op, whitespaces, Rc::clone(&expr1)).repeat(0..)
     )
     .map(|(mut base, op_rhs_vec)| -> (i32,) {
         for (op, rhs) in op_rhs_vec {
@@ -103,12 +91,7 @@ fn main() {
 
     expr.borrow_mut().assign(Rc::clone(&expr2));
 
-    let line_parser = seq!(
-        whitespaces.clone(),
-        Rc::clone(&expr),
-        whitespaces.clone(),
-        end()
-    );
+    let line_parser = seq!(whitespaces, Rc::clone(&expr), whitespaces, end());
 
     loop {
         print!("Enter a expression: ");

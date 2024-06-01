@@ -71,7 +71,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_boxed: DynBoxChars<(char,)> = DynBoxChars::new(digit_parser);
         let digit_refcelled = RefCelledParser::new(digit_boxed);
 

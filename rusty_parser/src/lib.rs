@@ -60,8 +60,6 @@ pub(crate) mod core;
 pub(crate) mod leaf;
 pub(crate) mod wrapper;
 
-use std::ops::RangeBounds;
-
 /// Trait for converting possible types to Parser.
 ///
 /// This trait contains useful member functions for parser generation.
@@ -135,13 +133,14 @@ pub fn one<CharType>(ch: CharType) -> leaf::singleeq::SingleEqualParser<CharType
 /// let digit_parser = ('0'..='9').into_parser();
 /// ```
 pub fn range<RangeType, Idx>(
-    range_: RangeType,
-) -> leaf::singlerange::SingleRangeParser<RangeType, Idx>
+    range: RangeType,
+) -> leaf::singlerange::SingleRangeParser<RangeType::Into, Idx>
 where
     Idx: PartialOrd + PartialEq,
-    RangeType: RangeBounds<Idx>,
+    RangeType: crate::core::range_copyable::ToCopyable,
+    RangeType::Into: crate::core::range_copyable::RangeBound<Idx>,
 {
-    leaf::singlerange::SingleRangeParser::new(range_)
+    leaf::singlerange::SingleRangeParser::from(range)
 }
 
 /// This Parser will compare the input string starts with the given string.

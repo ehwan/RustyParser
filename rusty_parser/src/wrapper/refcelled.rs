@@ -63,7 +63,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let digit_parser = SingleRangeParser::new('0'..='9');
+        let digit_parser = SingleRangeParser::from('0'..='9');
         let boxed: DynBoxChars<(char,)> = DynBoxChars::new(digit_parser);
         let refed = RefCelledParser::new(boxed);
 
@@ -74,7 +74,9 @@ mod test {
         let rest: String = res.it.clone().collect();
         assert_eq!(rest, "23456abcd");
 
-        refed.borrow_mut().assign(SingleRangeParser::new('a'..='z'));
+        refed
+            .borrow_mut()
+            .assign(SingleRangeParser::from('a'..='z'));
         let res = refed.parse(res.it);
         assert_eq!(res.output, None);
         let rest: String = res.it.clone().collect();
