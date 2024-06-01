@@ -2,9 +2,9 @@
 //!
 //! A Generic compile-time Parser generator and Pattern Matching Library written in Rust
 //!
-//! Define pattern, combine them, and parse the input.
-//!
 //! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
+//!
+//! This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::slice::Iter`.
 //!
 //! # Example
 //! ```rust
