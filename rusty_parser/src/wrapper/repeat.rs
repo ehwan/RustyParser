@@ -6,7 +6,7 @@ use crate::core::range_copyable::{RangeBound, ToCopyable};
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-pub type RepeatCountType = i32;
+pub type RepeatCountType = usize;
 
 #[derive(Debug, Clone, Copy)]
 pub struct RepeatParser<ParserType, RangeType>

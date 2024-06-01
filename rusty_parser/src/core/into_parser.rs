@@ -62,7 +62,7 @@ pub trait IntoParser {
     /// assert_eq!(res.output.unwrap(), (vec!['a', 'a', 'a', 'a',],));
     /// assert_eq!(res.it.collect::<String>(), "bcd");
     ///
-    /// let multiple_a_parser = 'a'.repeat(3);
+    /// let multiple_a_parser = 'a'.repeat(3usize);
     /// let res = rp::parse(&multiple_a_parser, "aaaabcd".chars());
     /// // three 'a' is parsed
     /// assert_eq!(res.output.unwrap(), (vec!['a', 'a', 'a'],));

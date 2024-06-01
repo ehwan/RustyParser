@@ -28,13 +28,14 @@ fn string_parser() -> DynParser {
         .map(|(c,): (char,)| (c as i32 - 'A' as i32 + 10,));
     let hex = rp::or!(digit, hex_alpha_lower, hex_alpha_upper);
 
-    let unicode_char = rp::seq!('u'.void(), hex.repeat(4)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
-        let mut res: u32 = 0;
-        for hex in hexs {
-            res = res * 16 + hex as u32;
-        }
-        (char::from_u32(res).expect("invalid unicode character"),)
-    });
+    let unicode_char =
+        rp::seq!('u'.void(), hex.repeat(4usize)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
+            let mut res: u32 = 0;
+            for hex in hexs {
+                res = res * 16 + hex as u32;
+            }
+            (char::from_u32(res).expect("invalid unicode character"),)
+        });
     let escape = rp::or!(
         '"',
         '\\',
