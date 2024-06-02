@@ -466,9 +466,9 @@ pub trait IntoParser {
     }
 
     /// Returns `Vec\<T\>` of parsed input.
-    /// Only works for parsing with `std::iter::Cloned<std::slice::Iter>`.
+    /// Only works for parsing with `ExactSizeIterator`.
     ///
-    /// `Output`: `(Vec<T>,)`
+    /// `Output`: `(Vec<Iterator::Item>,)`
     ///
     /// # Example
     /// ```rust
@@ -478,7 +478,7 @@ pub trait IntoParser {
     /// let hello_bytes = &[104, 101, 108, 108, 111];
     /// let hello_parser = hello_bytes.into_parser().vec::<u8>();
     ///
-    /// let res = rp::parse(&hello_parser, "hello_world1234".as_bytes().iter().cloned());
+    /// let res = rp::parse(&hello_parser, "hello_world1234".as_bytes().iter().copied());
     /// assert_eq!(res.output.unwrap(), (hello_bytes.iter().cloned().collect::<Vec<u8>>(),) );
     /// ```
     fn vec<T>(self) -> crate::wrapper::slice::VecParser<Self::Into>

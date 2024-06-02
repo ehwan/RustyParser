@@ -480,7 +480,8 @@ assert_eq!(res.it.collect::<String>(), "23456hello_world");
 ### `string`, `vec`: captures the matched range into String or Vec\<T\>
 
 #### Note
-`string` can be only used for `std::str::Chars`, and `vec` can be only used for `std::iter::Cloned<std::slice::Iter>`.
+`string` can be only used for `std::str::Chars`, 
+and `vec` can be only used for `ExactSizeIterator`.
 
 ```rust
 let digits_parser = ('0'..='9').repeat(0..).string();
@@ -489,7 +490,7 @@ let res = rp::parse(&digits_parser, "123456hello_world".chars());
 assert_eq!(res.output.unwrap(), ("123456".to_string(),));
 assert_eq!(res.it.collect::<String>(), "hello_world");
 ```
-`Output`: `(String,)` or `(Vec<T of Slice>,)`
+`Output`: `(String,)` or `(Vec<Iterator::Item>,)`
 
 ### `not_consume`: check if the pattern is matched or not, without consuming the input
 ```rust

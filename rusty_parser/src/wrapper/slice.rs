@@ -1,6 +1,7 @@
 use crate::core::into_parser::IntoParser;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
+use crate::InputIteratorTrait;
 
 #[derive(Debug, Clone, Copy)]
 pub struct StringParser<ParserType> {
@@ -59,17 +60,14 @@ impl<ParserType> VecParser<ParserType> {
         Self { parser }
     }
 }
-impl<'a, T, ParserType> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>> for VecParser<ParserType>
+impl<It, ParserType> Parser<It> for VecParser<ParserType>
 where
-    ParserType: Parser<std::iter::Cloned<std::slice::Iter<'a, T>>>,
-    T: Clone,
+    It: InputIteratorTrait + ExactSizeIterator,
+    ParserType: Parser<It>,
 {
-    type Output = (Vec<T>,);
+    type Output = (Vec<<It as Iterator>::Item>,);
 
-    fn parse(
-        &self,
-        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
-    ) -> ParseResult<Self::Output, std::iter::Cloned<std::slice::Iter<'a, T>>> {
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let i0 = it.clone();
         let res = self.parser.match_pattern(it);
         if res.output.is_some() {
@@ -85,10 +83,7 @@ where
             }
         }
     }
-    fn match_pattern(
-        &self,
-        it: std::iter::Cloned<std::slice::Iter<'a, T>>,
-    ) -> ParseResult<(), std::iter::Cloned<std::slice::Iter<'a, T>>> {
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
         self.parser.match_pattern(it)
     }
 }
