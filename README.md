@@ -146,10 +146,10 @@ let hello_parser = (vec![104, 101, 108, 108, 111]).into_parser();
 `Output`: `()`
 
 ### `check`: check single charactor with a closure
-The closure must be: `Fn(&Iterator::Item) -> bool`
+The closure must be: `Fn(Iterator::Item) -> bool`
 
 ```rust
-let parser = check( |ch:&char| ch.is_alphabetic() );
+let parser = check( |ch:char| ch.is_alphabetic() );
 ```
 
 `Output`: `(Iterator::Item,)`
@@ -311,7 +311,7 @@ assert_eq!(res.output, None);
 
 
 
-## For complex, highly recursive pattern
+## For complex, recursive pattern
 
 By default, all the 'parser-generating' functions consumes input Parser and returns a new instance.
 These processes create new generic Parser object entirely at compile-time.

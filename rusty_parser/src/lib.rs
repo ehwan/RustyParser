@@ -281,8 +281,8 @@ pub fn fail() -> leaf::fail::Fail {
 /// let parser = rp::check( |ch:char| ch.is_alphabetic() );
 /// let res = rp::parse( &parser, "hello".chars() );
 ///
-/// let parser = rp::check( |ch:&i32| ch == &1 );
-/// let res = rp::parse( &parser, (&[1,2,3]).iter() );
+/// let parser = rp::check( |ch:i32| ch == 1 );
+/// let res = rp::parse( &parser, (&[1,2,3]).iter().cloned() );
 /// ```
 pub fn check<CheckItem, Input>(
     closure: CheckItem,

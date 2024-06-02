@@ -47,8 +47,8 @@ pub trait IntoParser {
     ///
     /// `Output`:
     ///  - if `Output` of the repeated parser is `()`, then `Output` is `()`
-    ///  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
-    ///  - otherwise, `Vec< Output of the Repeated Parser >`
+    ///  - if `Output` of the repeated parser is `(T,)`, then `Output` is `(Vec<T>,)`
+    ///  - otherwise, `(Vec< Output of the Repeated Parser >,)`
     ///
     /// # Example
     /// ```rust
