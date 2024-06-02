@@ -13,7 +13,7 @@ keywords = [
   "parser-generator",
   "parser-combinator",
   "context-free-grammar",
-  "grammar",
+  "syntax-tree",
 ]
 categories = ["parsing"]
 
