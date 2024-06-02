@@ -159,8 +159,8 @@ where
 /// let hello_parser = rp::str("hello");
 /// let hello_parser = "hello".into_parser();
 /// ```
-pub fn str(str: &'static str) -> leaf::stringeq::StaticStrEqualParser {
-    leaf::stringeq::StaticStrEqualParser::new(str)
+pub fn str(str: &'static str) -> leaf::stringeq::StrEqualParser {
+    leaf::stringeq::StrEqualParser::new(str)
 }
 
 /// This Parser will compare the input string starts with the given string.

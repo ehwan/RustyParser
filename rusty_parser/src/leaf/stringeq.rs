@@ -9,15 +9,15 @@ use crate::core::result::ParseResult;
 /// for borrowing-safety, the lifetime of str must be 'static.
 /// for non-static string, use StringEqualParser
 #[derive(Debug, Clone, Copy)]
-pub struct StaticStrEqualParser {
-    string: &'static str,
+pub struct StrEqualParser<'a> {
+    string: &'a str,
 }
-impl StaticStrEqualParser {
-    pub fn new(string: &'static str) -> Self {
-        StaticStrEqualParser { string }
+impl<'a> StrEqualParser<'a> {
+    pub fn new(string: &'a str) -> Self {
+        StrEqualParser { string }
     }
 }
-impl<It> Parser<It> for StaticStrEqualParser
+impl<'a, It> Parser<It> for StrEqualParser<'a>
 where
     It: InputIteratorTrait,
     <It as Iterator>::Item: PartialEq<char>,
@@ -54,16 +54,16 @@ where
         }
     }
 }
-impl IntoParser for StaticStrEqualParser {
+impl<'a> IntoParser for StrEqualParser<'a> {
     type Into = Self;
     fn into_parser(self) -> Self::Into {
         self
     }
 }
 impl IntoParser for &'static str {
-    type Into = StaticStrEqualParser;
+    type Into = StrEqualParser<'static>;
     fn into_parser(self) -> Self::Into {
-        StaticStrEqualParser::new(self)
+        StrEqualParser::new(self)
     }
 }
 
@@ -86,33 +86,7 @@ where
     type Output = ();
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        let i0 = it.clone();
-        let mut it = it;
-        // use take?
-        for ch in self.string.chars() {
-            match it.next() {
-                Some(ch2) => {
-                    if ch2 == ch {
-                        continue;
-                    } else {
-                        return ParseResult {
-                            output: None,
-                            it: i0,
-                        };
-                    }
-                }
-                None => {
-                    return ParseResult {
-                        output: None,
-                        it: i0,
-                    }
-                }
-            }
-        }
-        ParseResult {
-            output: Some(()),
-            it,
-        }
+        StrEqualParser::new(&self.string).parse(it)
     }
 }
 
@@ -133,17 +107,17 @@ impl IntoParser for String {
 /// This Parser will compare the input string starts with the given string.
 /// 'string' must be a iterator of slice &[U] or &str.chars()
 #[derive(Debug, Clone, Copy)]
-pub struct SliceEqualParser<T: 'static> {
-    slice: &'static [T],
+pub struct SliceEqualParser<'a, T: 'a> {
+    slice: &'a [T],
 }
 
-impl<T: 'static> SliceEqualParser<T> {
-    pub fn new(slice: &'static [T]) -> Self {
+impl<'a, T: 'a> SliceEqualParser<'a, T> {
+    pub fn new(slice: &'a [T]) -> Self {
         SliceEqualParser { slice }
     }
 }
 
-impl<T: 'static, It> Parser<It> for SliceEqualParser<T>
+impl<'a, T: 'a, It> Parser<It> for SliceEqualParser<'a, T>
 where
     It: InputIteratorTrait,
     <It as Iterator>::Item: PartialEq<T>,
@@ -181,7 +155,7 @@ where
     }
 }
 
-impl<T: 'static> IntoParser for SliceEqualParser<T> {
+impl<'a, T: 'a> IntoParser for SliceEqualParser<'a, T> {
     type Into = Self;
     fn into_parser(self) -> Self::Into {
         self
@@ -189,7 +163,7 @@ impl<T: 'static> IntoParser for SliceEqualParser<T> {
 }
 
 impl<T: 'static> IntoParser for &'static [T] {
-    type Into = SliceEqualParser<T>;
+    type Into = SliceEqualParser<'static, T>;
     fn into_parser(self) -> Self::Into {
         SliceEqualParser::new(self)
     }
@@ -214,33 +188,7 @@ where
     type Output = ();
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        let i0 = it.clone();
-        let mut it = it;
-        // use take?
-        for ch in self.vec.iter() {
-            match it.next() {
-                Some(ch2) => {
-                    if ch2 == *ch {
-                        continue;
-                    } else {
-                        return ParseResult {
-                            output: None,
-                            it: i0,
-                        };
-                    }
-                }
-                None => {
-                    return ParseResult {
-                        output: None,
-                        it: i0,
-                    }
-                }
-            }
-        }
-        ParseResult {
-            output: Some(()),
-            it,
-        }
+        SliceEqualParser::new(&self.vec).parse(it)
     }
 }
 
@@ -264,7 +212,7 @@ mod test {
 
     #[test]
     fn success1() {
-        let parser = StaticStrEqualParser::new("hello");
+        let parser = StrEqualParser::new("hello");
 
         let res = parser.parse("hello_world!!".chars());
         assert_eq!(res.output, Some(()));
@@ -274,7 +222,7 @@ mod test {
 
     #[test]
     fn fail1() {
-        let parser = StaticStrEqualParser::new("hello");
+        let parser = StrEqualParser::new("hello");
 
         let res = parser.parse("hell_world!!".chars());
         assert_eq!(res.output, None);
