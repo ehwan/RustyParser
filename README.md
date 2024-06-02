@@ -30,7 +30,7 @@ fn example1() {
     // define pattern
     // num: digit+
     // this will match one or more digits, and returns (Vec<char>,), the character it parsed
-    let num_parser = digit_parser.repeat(0..);
+    let num_parser = digit_parser.repeat(1..);
 
     // map the output
     // ( Vec<char>, )  -->  (i32, )
