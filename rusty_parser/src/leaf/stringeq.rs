@@ -104,7 +104,7 @@ impl IntoParser for String {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct StrEqualByParser<'a, Predicate, ItemType>
 where
     Predicate: Fn(ItemType, char) -> bool,
@@ -112,6 +112,22 @@ where
     string: &'a str,
     predicate: Predicate,
     _phantom: std::marker::PhantomData<ItemType>,
+}
+impl<'a, Predicate, ItemType> Clone for StrEqualByParser<'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            string: self.string,
+            predicate: self.predicate.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+impl<'a, Predicate, ItemType> Copy for StrEqualByParser<'a, Predicate, ItemType> where
+    Predicate: Fn(ItemType, char) -> bool + Copy
+{
 }
 impl<'a, Predicate, ItemType> StrEqualByParser<'a, Predicate, ItemType>
 where
@@ -172,7 +188,7 @@ where
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct StringEqualByParser<Predicate, ItemType>
 where
     Predicate: Fn(ItemType, char) -> bool,
@@ -180,6 +196,19 @@ where
     string: String,
     predicate: Predicate,
     _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<Predicate, ItemType> Clone for StringEqualByParser<Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            string: self.string.clone(),
+            predicate: self.predicate.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 impl<Predicate, ItemType> StringEqualByParser<Predicate, ItemType>
@@ -345,7 +374,7 @@ impl<T> IntoParser for Vec<T> {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct SliceEqualByParser<'a, T: 'a, Predicate, ItemType>
 where
     Predicate: Fn(ItemType, &T) -> bool,
@@ -353,6 +382,24 @@ where
     slice: &'a [T],
     predicate: Predicate,
     _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<'a, T: 'a, Predicate, ItemType> Clone for SliceEqualByParser<'a, T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool + Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            slice: self.slice,
+            predicate: self.predicate.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<'a, T: 'a, Predicate, ItemType> Copy for SliceEqualByParser<'a, T, Predicate, ItemType> where
+    Predicate: Fn(ItemType, &T) -> bool + Copy
+{
 }
 
 impl<'a, T: 'a, Predicate, ItemType> SliceEqualByParser<'a, T, Predicate, ItemType>
@@ -417,7 +464,7 @@ where
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct VecEqualByParser<T, Predicate, ItemType>
 where
     Predicate: Fn(ItemType, &T) -> bool,
@@ -425,6 +472,20 @@ where
     vec: Vec<T>,
     predicate: Predicate,
     _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<T, Predicate, ItemType> Clone for VecEqualByParser<T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool + Clone,
+    Vec<T>: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            vec: self.vec.clone(),
+            predicate: self.predicate.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
 }
 
 impl<T, Predicate, ItemType> VecEqualByParser<T, Predicate, ItemType>

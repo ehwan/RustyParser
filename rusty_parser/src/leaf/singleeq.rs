@@ -156,7 +156,7 @@ impl IntoParser for usize {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct SingleEqualByParser<CharacterType, Predicate, ItemType>
 where
     Predicate: Fn(ItemType, &CharacterType) -> bool,
@@ -177,6 +177,27 @@ where
             _phantom: std::marker::PhantomData,
         }
     }
+}
+
+impl<CharType, Predicate, ItemType> Clone for SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharType) -> bool + Clone,
+    CharType: Clone,
+{
+    fn clone(&self) -> Self {
+        Self {
+            character: self.character.clone(),
+            predicate: self.predicate.clone(),
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+impl<CharType, Predicate, ItemType> Copy for SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharType) -> bool + Copy,
+    CharType: Copy,
+    std::marker::PhantomData<ItemType>: Copy,
+{
 }
 
 impl<CharType, Predicate, ItemType, It> Parser<It>

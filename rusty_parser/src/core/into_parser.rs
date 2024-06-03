@@ -378,7 +378,7 @@ pub trait IntoParser {
     fn box_slice<Output, T>(self) -> crate::wrapper::boxed::DynBoxSlice<Output, T>
     where
         Output: crate::core::tuple::Tuple,
-        T: Clone + Copy,
+        T: Clone,
         Self: Sized,
         Self::Into: for<'a> crate::core::parser::Parser<
                 std::iter::Cloned<std::slice::Iter<'a, T>>,
