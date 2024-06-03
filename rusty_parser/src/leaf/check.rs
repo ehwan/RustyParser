@@ -63,7 +63,7 @@ where
         let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
-            if let Some(res) = (self.closure)(val.clone()) {
+            if let Some(res) = (self.closure)(val) {
                 ParseResult {
                     output: Some(res),
                     it,
@@ -86,7 +86,7 @@ where
         let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
-            if (self.closure)(val.clone()).is_some() {
+            if (self.closure)(val).is_some() {
                 ParseResult {
                     output: Some(()),
                     it,
