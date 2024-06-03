@@ -330,10 +330,15 @@ Luckily, Rust std provides wrapper for these cases.
 
 RustyParser provides `box_*`, `rc`, `refcell` which are Parser wrapper for `Box`, `Rc`, `RefCell`.
 
-### `box_chars`, `box_slice`: a `Box<dyn Parser>` wrapper
+### `box_chars`, `box_slice`: create `Box<dyn Parser>` wrapper
 
 this function wraps the parser into `Box<dyn Parser>`.
 You can dynamically assign ***any parsers*** with same `Output` type.
+
+```rust
+fn box_chars<Output:Tuple>(self) -> DynBoxChars<Output>;
+fn box_slice<Output:Tuple>(self) -> DynBoxSlice<Output>;
+```
 
 #### Note
 Currently only implemented for `std::str::Chars` and `std::iter::Cloned<std::slice::Iter>`.
@@ -363,9 +368,10 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 
 
 
-### `refcell`: a `RefCell<Parser>` wrapper
+### `refcell`: create `std::cell::RefCell<Parser>` wrapper
 `refcell` is useful when it is combined with `box_*` or `rc`,
 since it provides internal mutability.
+`std::cell::RefCell<P>` can be used as same as a Parser, if `P` is a Parser type.
 
 ```rust
 let hello_parser = "hello".into_parser();
@@ -391,15 +397,15 @@ assert_eq!(res_digit.it.collect::<String>(), "123");
 
 
 
-### `rc`: a `Rc<Parser>` wrapper
-`rc` is used to share the same parser.
+### `rc`: create `std::rc::Rc<Parser>` wrapper
+`rc` is used to share the same parser. `std::rc::Rc<P>` can be used as same as a Parser, if `P` is a Parser type.
 
 ```rust
 let hello_parser = "hello".into_parser();
 let digit_parser = ('0'..='9').void();
 
 let rc_parser1 = hello_parser.box_chars().refcell().rc();
-let rc_parser2 = rp::Rc::clone(&rc_parser1);
+let rc_parser2 = std::rc::Rc::clone(&rc_parser1);
 // rc_parser2 is now pointing to the same parser as rc_parser1
 
 let res_hello = rp::parse(&rc_parser1, "hello0123".chars());
