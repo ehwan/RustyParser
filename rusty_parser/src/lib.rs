@@ -122,6 +122,8 @@ pub fn one<CharType>(ch: CharType) -> leaf::singleeq::SingleEqualParser<CharType
 
 /// Check one character is equal to the given character by equility function.
 ///
+/// The closure MUST be `Fn(Iterator::Item, &CharType) -> bool`.
+///
 /// `Output`: `(Iterator::Item,)`
 ///
 /// # Example
@@ -143,7 +145,9 @@ where
 
 /// Check one character is in the given range.
 ///
-/// `Output`: `(Iterator::Item,)`
+/// The closure MUST be `Fn(Iterator::Item) -> Option<NewOutput>`.
+///
+/// `Output`: `( Output of the Closure, )`
 ///
 /// # Example
 /// ```rust
@@ -185,6 +189,8 @@ pub fn str(str: &'static str) -> leaf::stringeq::StrEqualParser<'static> {
 }
 
 /// Compare the input string starts with the given string. With given equality function.
+///
+/// The closure MUST be `Fn(Iterator::Item, char) -> bool`.
 ///
 /// for borrowing-safety, the lifetime of str must be 'static.
 /// for non-static string, use `string_by()` instead.
@@ -229,6 +235,8 @@ pub fn string(str: String) -> leaf::stringeq::StringEqualParser {
 
 /// Compare the input string starts with the given string. With given equality function.
 ///
+/// The closure MUST be `Fn(Iterator::Item, char) -> bool`.
+///
 /// This will copy all the characters into `String`, so lifetime belongs to the parser itself.
 ///
 /// `Output`: `()`
@@ -269,6 +277,8 @@ pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<'static
     leaf::stringeq::SliceEqualParser::new(slice)
 }
 /// Compare the input starts with the given slice. With given equality function.
+///
+/// The closure MUST be `Fn(Iterator::Item, &T) -> bool`.
 ///
 /// for borrowing-safety, the lifetime of slice must be 'static.
 /// for non-static slice, use `vec_by()` instead.
@@ -311,6 +321,8 @@ pub fn vec<T>(v: Vec<T>) -> leaf::stringeq::VecEqualParser<T> {
     leaf::stringeq::VecEqualParser::new(v)
 }
 /// Compare the input starts with the given slice. With given equality function.
+///
+/// The closure MUST be `Fn(Iterator::Item, &T) -> bool`.
 ///
 /// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
 ///
@@ -384,25 +396,27 @@ pub fn fail() -> leaf::fail::Fail {
 
 /// Check single item with the given closure.
 ///
-/// The closure must be: `Fn(Iterator::Item) -> bool`
+/// The closure must be: `Fn(Iterator::Item) -> Option<NewOutput>`.
 ///
-/// `Output`: `(Iterator::Item,)`
+/// `Output`: `NewOutput`
+///
 /// # Example
 /// ```rust
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let parser = rp::check( |ch:char| ch.is_alphabetic() );
+/// let parser = rp::check( |ch:char| if ch.is_alphabetic() { Some((ch,)) } else { None } );
 /// let res = rp::parse( &parser, "hello".chars() );
 ///
-/// let parser = rp::check( |ch:i32| ch == 1 );
+/// let parser = rp::check( |ch:i32| if ch == 1 { Some((ch,)) }else{ None } );
 /// let res = rp::parse( &parser, (&[1,2,3]).iter().cloned() );
 /// ```
-pub fn check<CheckItem, Input>(
+pub fn check<CheckItem, Input, NewOutput>(
     closure: CheckItem,
-) -> leaf::check::SingleCheckParser<CheckItem, Input>
+) -> leaf::check::SingleCheckParser<CheckItem, Input, NewOutput>
 where
-    CheckItem: Fn(Input) -> bool,
+    CheckItem: Fn(Input) -> Option<NewOutput>,
+    NewOutput: crate::core::tuple::Tuple,
 {
     leaf::check::SingleCheckParser::new(closure)
 }
