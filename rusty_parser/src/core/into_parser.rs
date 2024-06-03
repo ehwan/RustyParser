@@ -264,11 +264,11 @@ pub trait IntoParser {
     /// assert_eq!(res_digit.output.unwrap(), ());
     /// assert_eq!(res_digit.it.collect::<String>(), "123");
     /// ```
-    fn refcell(self) -> crate::wrapper::refcelled::RefCelledParser<Self::Into>
+    fn refcell(self) -> std::cell::RefCell<Self::Into>
     where
         Self: Sized,
     {
-        crate::wrapper::refcelled::RefCelledParser::new(self.into_parser())
+        std::cell::RefCell::new(self.into_parser())
     }
 
     /// Create Rc\<Parser\> wrapper.
@@ -282,7 +282,7 @@ pub trait IntoParser {
     /// let digit_parser = ('0'..='9').void();
     ///
     /// let rc_parser1 = hello_parser.box_chars().refcell().rc();
-    /// let rc_parser2 = rp::Rc::clone(&rc_parser1);
+    /// let rc_parser2 = std::rc::Rc::clone(&rc_parser1);
     /// // rc_parser2 is now pointing to the same parser as rc_parser1
     ///
     /// let res_hello = rp::parse(&rc_parser1, "hello0123".chars());
@@ -300,11 +300,11 @@ pub trait IntoParser {
     /// assert_eq!(res_digit.output.unwrap(), ());
     /// assert_eq!(res_digit.it.collect::<String>(), "123");
     /// ```
-    fn rc(self) -> crate::wrapper::rced::RcedParser<Self::Into>
+    fn rc(self) -> std::rc::Rc<Self::Into>
     where
         Self: Sized,
     {
-        crate::wrapper::rced::RcedParser::new(self.into_parser())
+        std::rc::Rc::new(self.into_parser())
     }
 
     /// create a Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.

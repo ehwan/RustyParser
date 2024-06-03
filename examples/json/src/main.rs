@@ -162,13 +162,13 @@ fn main() {
         bool_,
         number_parser(),
         string_parser(),
-        rp::Rc::clone(&array),
-        rp::Rc::clone(&object)
+        std::rc::Rc::clone(&array),
+        std::rc::Rc::clone(&object)
     ));
 
     let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void();
 
-    let element = rp::seq!(ws, rp::Rc::clone(&value), ws).rc();
+    let element = rp::seq!(ws, std::rc::Rc::clone(&value), ws).rc();
 
     let elements = rp::seq!(
         element.clone(),

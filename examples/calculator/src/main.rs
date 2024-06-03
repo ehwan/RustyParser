@@ -1,4 +1,5 @@
 use std::io::{stdin, stdout, Write};
+use std::rc::Rc;
 
 use rusty_parser as rp;
 

@@ -476,12 +476,6 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// ```
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
-/// Rc\<Parser\> wrapper.
-pub use wrapper::rced::RcedParser as Rc;
-
-/// RefCell\<Parser\> wrapper.
-pub use wrapper::refcelled::RefCelledParser as RefCell;
-
 /// A Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.
 ///
 /// This can take any parser with Output of `Output`.

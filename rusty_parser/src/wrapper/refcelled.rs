@@ -1,26 +1,11 @@
 use std::cell::RefCell;
-use std::ops::Deref;
-use std::ops::DerefMut;
 
 use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
-#[derive(Debug, Clone)]
-pub struct RefCelledParser<ParserType> {
-    parser: RefCell<ParserType>,
-}
-
-impl<ParserType> RefCelledParser<ParserType> {
-    pub fn new(parser: ParserType) -> Self {
-        Self {
-            parser: RefCell::new(parser),
-        }
-    }
-}
-
-impl<ParserType, It> Parser<It> for RefCelledParser<ParserType>
+impl<ParserType, It> Parser<It> for RefCell<ParserType>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
@@ -28,27 +13,13 @@ where
     type Output = <ParserType as Parser<It>>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
-        self.parser.borrow().parse(it)
+        self.borrow().parse(it)
     }
     fn match_pattern(&self, it: It) -> ParseResult<(), It> {
-        self.parser.borrow().match_pattern(it)
+        self.borrow().match_pattern(it)
     }
 }
-
-impl<ParserType> Deref for RefCelledParser<ParserType> {
-    type Target = RefCell<ParserType>;
-
-    fn deref(&self) -> &Self::Target {
-        &self.parser
-    }
-}
-impl<ParserType> DerefMut for RefCelledParser<ParserType> {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.parser
-    }
-}
-
-impl<ParserType> IntoParser for RefCelledParser<ParserType> {
+impl<ParserType> IntoParser for std::cell::RefCell<ParserType> {
     type Into = Self;
 
     fn into_parser(self) -> Self::Into {
@@ -65,7 +36,7 @@ mod test {
     fn success1() {
         let digit_parser = SingleRangeParser::from('0'..='9');
         let boxed: DynBoxChars<(char,)> = DynBoxChars::new(digit_parser);
-        let refed = RefCelledParser::new(boxed);
+        let refed = RefCell::new(boxed);
 
         let str = "123456abcd";
 
