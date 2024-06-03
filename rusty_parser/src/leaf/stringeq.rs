@@ -104,6 +104,145 @@ impl IntoParser for String {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct StrEqualByParser<'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    string: &'a str,
+    predicate: Predicate,
+    _phantom: std::marker::PhantomData<ItemType>,
+}
+impl<'a, Predicate, ItemType> StrEqualByParser<'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    pub fn new(string: &'a str, predicate: Predicate) -> Self {
+        Self {
+            string,
+            predicate,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+impl<'a, Predicate, ItemType, It> Parser<It> for StrEqualByParser<'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+    It: InputIteratorTrait + Iterator<Item = ItemType>,
+{
+    type Output = ();
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let mut it = it;
+        // use take?
+        for ch in self.string.chars() {
+            match it.next() {
+                Some(ch2) => {
+                    if (self.predicate)(ch2, ch) {
+                        continue;
+                    } else {
+                        return ParseResult {
+                            output: None,
+                            it: i0,
+                        };
+                    }
+                }
+                None => {
+                    return ParseResult {
+                        output: None,
+                        it: i0,
+                    }
+                }
+            }
+        }
+        ParseResult {
+            output: Some(()),
+            it,
+        }
+    }
+}
+impl<'a, Predicate, ItemType> IntoParser for StrEqualByParser<'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct StringEqualByParser<Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    string: String,
+    predicate: Predicate,
+    _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<Predicate, ItemType> StringEqualByParser<Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    pub fn new(string: String, predicate: Predicate) -> Self {
+        Self {
+            string,
+            predicate,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<Predicate, ItemType, It> Parser<It> for StringEqualByParser<Predicate, ItemType>
+where
+    It: InputIteratorTrait + Iterator<Item = ItemType>,
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    type Output = ();
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let mut it = it;
+        // use take?
+        for ch in self.string.chars() {
+            match it.next() {
+                Some(ch2) => {
+                    if (self.predicate)(ch2, ch) {
+                        continue;
+                    } else {
+                        return ParseResult {
+                            output: None,
+                            it: i0,
+                        };
+                    }
+                }
+                None => {
+                    return ParseResult {
+                        output: None,
+                        it: i0,
+                    }
+                }
+            }
+        }
+        ParseResult {
+            output: Some(()),
+            it,
+        }
+    }
+}
+
+impl<Predicate, ItemType> IntoParser for StringEqualByParser<Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
 /// This Parser will compare the input string starts with the given string.
 /// 'string' must be a iterator of slice &[U] or &str.chars()
 #[derive(Debug, Clone, Copy)]
@@ -206,6 +345,149 @@ impl<T> IntoParser for Vec<T> {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct SliceEqualByParser<'a, T: 'a, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    slice: &'a [T],
+    predicate: Predicate,
+    _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<'a, T: 'a, Predicate, ItemType> SliceEqualByParser<'a, T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    pub fn new(slice: &'a [T], predicate: Predicate) -> Self {
+        Self {
+            slice,
+            predicate,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<'a, T: 'a, Predicate, ItemType, It> Parser<It>
+    for SliceEqualByParser<'a, T, Predicate, ItemType>
+where
+    It: InputIteratorTrait + Iterator<Item = ItemType>,
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    type Output = ();
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let mut it = it;
+        // use take?
+        for ch in self.slice.iter() {
+            match it.next() {
+                Some(ch2) => {
+                    if (self.predicate)(ch2, ch) {
+                        continue;
+                    } else {
+                        return ParseResult {
+                            output: None,
+                            it: i0,
+                        };
+                    }
+                }
+                None => {
+                    return ParseResult {
+                        output: None,
+                        it: i0,
+                    }
+                }
+            }
+        }
+        ParseResult {
+            output: Some(()),
+            it,
+        }
+    }
+}
+
+impl<'a, T: 'a, Predicate, ItemType> IntoParser for SliceEqualByParser<'a, T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct VecEqualByParser<T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    vec: Vec<T>,
+    predicate: Predicate,
+    _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<T, Predicate, ItemType> VecEqualByParser<T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    pub fn new(vec: Vec<T>, predicate: Predicate) -> Self {
+        VecEqualByParser {
+            vec,
+            predicate,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<T, Predicate, ItemType, It> Parser<It> for VecEqualByParser<T, Predicate, ItemType>
+where
+    It: InputIteratorTrait + Iterator<Item = ItemType>,
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    type Output = ();
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let mut it = it;
+        // use take?
+        for ch in self.vec.iter() {
+            match it.next() {
+                Some(ch2) => {
+                    if (self.predicate)(ch2, ch) {
+                        continue;
+                    } else {
+                        return ParseResult {
+                            output: None,
+                            it: i0,
+                        };
+                    }
+                }
+                None => {
+                    return ParseResult {
+                        output: None,
+                        it: i0,
+                    }
+                }
+            }
+        }
+        ParseResult {
+            output: Some(()),
+            it,
+        }
+    }
+}
+
+impl<T, Predicate, ItemType> IntoParser for VecEqualByParser<T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
 #[cfg(test)]
 mod test {
     use super::*;
@@ -215,6 +497,16 @@ mod test {
         let parser = StrEqualParser::new("hello");
 
         let res = parser.parse("hello_world!!".chars());
+        assert_eq!(res.output, Some(()));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "_world!!");
+    }
+
+    #[test]
+    fn success2() {
+        let parser = StrEqualByParser::new("hello", |a: char, b: char| a.to_ascii_lowercase() == b);
+
+        let res = parser.parse("HeLlo_world!!".chars());
         assert_eq!(res.output, Some(()));
         let rest: String = res.it.collect();
         assert_eq!(&rest, "_world!!");

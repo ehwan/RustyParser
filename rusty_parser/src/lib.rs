@@ -120,6 +120,27 @@ pub fn one<CharType>(ch: CharType) -> leaf::singleeq::SingleEqualParser<CharType
     leaf::singleeq::SingleEqualParser::new(ch)
 }
 
+/// Check one character is equal to the given character by equility function.
+///
+/// `Output`: `(Iterator::Item,)`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let a_parser = rp::one_by('a',  |value:char, ch:&char| value.to_ascii_lowercase() == *ch );
+/// ```
+pub fn one_by<CharType, Predicate, ItemType>(
+    ch: CharType,
+    predicate: Predicate,
+) -> leaf::singleeq::SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharType) -> bool,
+{
+    leaf::singleeq::SingleEqualByParser::new(ch, predicate)
+}
+
 /// Check one character is in the given range.
 ///
 /// `Output`: `(Iterator::Item,)`
@@ -143,7 +164,7 @@ where
     leaf::singlerange::SingleRangeParser::from(range)
 }
 
-/// This Parser will compare the input string starts with the given string.
+/// Compare the input string starts with the given string.
 ///
 /// for borrowing-safety, the lifetime of str must be 'static.
 /// for non-static string, use `string()` instead.
@@ -159,11 +180,35 @@ where
 /// let hello_parser = rp::str("hello");
 /// let hello_parser = "hello".into_parser();
 /// ```
-pub fn str(str: &'static str) -> leaf::stringeq::StrEqualParser {
+pub fn str(str: &'static str) -> leaf::stringeq::StrEqualParser<'static> {
     leaf::stringeq::StrEqualParser::new(str)
 }
 
-/// This Parser will compare the input string starts with the given string.
+/// Compare the input string starts with the given string. With given equality function.
+///
+/// for borrowing-safety, the lifetime of str must be 'static.
+/// for non-static string, use `string_by()` instead.
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::str_by("hello", |value:char, ch:char| value.to_ascii_lowercase() == ch );
+/// ```
+pub fn str_by<Predicate, ItemType>(
+    str: &'static str,
+    predicate: Predicate,
+) -> leaf::stringeq::StrEqualByParser<'static, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    leaf::stringeq::StrEqualByParser::new(str, predicate)
+}
+
+/// Compare the input string starts with the given string.
 ///
 /// This will copy all the characters into `String`, so lifetime belongs to the parser itself.
 ///
@@ -182,7 +227,30 @@ pub fn string(str: String) -> leaf::stringeq::StringEqualParser {
     leaf::stringeq::StringEqualParser::new(str)
 }
 
-/// This Parser will compare the input starts with the given slice
+/// Compare the input string starts with the given string. With given equality function.
+///
+/// This will copy all the characters into `String`, so lifetime belongs to the parser itself.
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::string_by("hello".to_string(), |value:char, ch:char| value.to_ascii_lowercase() == ch );
+/// ```
+pub fn string_by<Predicate, ItemType>(
+    str: String,
+    predicate: Predicate,
+) -> leaf::stringeq::StringEqualByParser<Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, char) -> bool,
+{
+    leaf::stringeq::StringEqualByParser::new(str, predicate)
+}
+
+/// Compare the input starts with the given slice.
 ///
 /// for borrowing-safety, the lifetime of slice must be 'static.
 /// for non-static slice, use `vec()` instead.
@@ -197,11 +265,34 @@ pub fn string(str: String) -> leaf::stringeq::StringEqualParser {
 /// let hello_parser = rp::slice(&[104, 101, 108, 108, 111]);
 /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
 /// ```
-pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<T> {
+pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<'static, T> {
     leaf::stringeq::SliceEqualParser::new(slice)
 }
+/// Compare the input starts with the given slice. With given equality function.
+///
+/// for borrowing-safety, the lifetime of slice must be 'static.
+/// for non-static slice, use `vec_by()` instead.
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::slice_by(&[104, 101, 108, 108, 111], |value:i32, ch:&i32| value == *ch );
+/// ```
+pub fn slice_by<T, Predicate, ItemType>(
+    slice: &'static [T],
+    predicate: Predicate,
+) -> leaf::stringeq::SliceEqualByParser<'static, T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    leaf::stringeq::SliceEqualByParser::new(slice, predicate)
+}
 
-/// This Parser will compare the input starts with the given slice
+/// Compare the input starts with the given slice.
 ///
 /// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
 ///
@@ -218,6 +309,29 @@ pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<T> {
 /// ```
 pub fn vec<T>(v: Vec<T>) -> leaf::stringeq::VecEqualParser<T> {
     leaf::stringeq::VecEqualParser::new(v)
+}
+/// Compare the input starts with the given slice. With given equality function.
+///
+/// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
+///
+///
+/// `Output`: `()`
+///
+/// # Example
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let hello_parser = rp::vec_by(vec![104, 101, 108, 108, 111], |value:i32, ch:&i32| value == *ch );
+/// ```
+pub fn vec_by<T, Predicate, ItemType>(
+    v: Vec<T>,
+    predicate: Predicate,
+) -> leaf::stringeq::VecEqualByParser<T, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &T) -> bool,
+{
+    leaf::stringeq::VecEqualByParser::new(v, predicate)
 }
 
 /// This Parser will always success and return the clone of given output.

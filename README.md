@@ -97,13 +97,15 @@ where
 
 ## Basic Parsers
 
- ### `one`: consumes one charactor if it is equal to `c`.
- ```rust
- let parser = one( c: CharactorType )
+### `one`, `one_by`: consumes one charactor if it is equal to `c`.
+```rust
+let parser = one( c: CharactorType )
 
- let a_parser = one('a')
- let a_parser = 'a'.into_parser()
- ```
+let a_parser = one('a')
+let a_parser = 'a'.into_parser()
+
+let a_parser = one_by('a', |value:char, ch:&char| value.to_ascii_lowercase() == *ch );
+```
 `Output`: `(Iterator::Item,)`
 
 
@@ -117,7 +119,7 @@ let digit_parser = ('0'..='9').into_parser()
 `Output`: `(Iterator::Item,)`
 
 
-### `str`, `slice`: consumes multiple charactors if it is equal to `s`.
+### `str`, `str_by`, `slice`, `slice_by`: consumes multiple charactors if it is equal to `s`.
 
 For borrowing-safety, the lifetime of str or slice must be 'static.
 
@@ -127,21 +129,25 @@ To use with other lifetime, you should use `string()` or `vec()` instead. Those 
 // must be 'static
 let hello_parser = str("hello");
 let hello_parser = "hello".into_parser();
+let hello_parser = str_by("hello", |value:char, ch:char| value.to_ascii_lowercase() == ch );
 
 let hello_parser = slice(&[104, 101, 108, 108, 111]);
 let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
+let hello_parser = slice_by(&[104, 101, 108, 108, 111], |value:i32, ch:&i32| value == *ch );
 ```
 `Output`: `()`
 
-### `string`, `vec`: consumes multiple charactors if it is equal to `s`.
+### `string`, `string_by`, `vec`, `vec_by`: consumes multiple charactors if it is equal to `s`.
 This will copy all the characters into `String` or `Vec`, so lifetime belongs to the parser itself.
 
 ```rust
 let hello_parser = string("hello".to_string());
 let hello_parser = "hello".to_string().into_parser();
+let hello_parser = string_by("hello".to_string(), |value:char, ch:char| value.to_ascii_lowercase() == ch );
 
 let hello_parser = vec(vec![104, 101, 108, 108, 111]);
 let hello_parser = (vec![104, 101, 108, 108, 111]).into_parser();
+let hello_parser = vec_by(vec![104, 101, 108, 108, 111], |value:i32, ch:&i32| value == *ch );
 ```
 `Output`: `()`
 

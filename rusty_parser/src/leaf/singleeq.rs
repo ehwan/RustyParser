@@ -6,20 +6,20 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone, Copy)]
-pub struct SingleEqualParser<TargetCharacterType> {
-    pub character: TargetCharacterType,
+pub struct SingleEqualParser<CharacterType> {
+    pub character: CharacterType,
 }
 
-impl<TargetCharacterType> SingleEqualParser<TargetCharacterType> {
-    pub fn new(character: TargetCharacterType) -> Self {
+impl<CharacterType> SingleEqualParser<CharacterType> {
+    pub fn new(character: CharacterType) -> Self {
         SingleEqualParser { character }
     }
 }
 
-impl<TargetCharacterType, It> Parser<It> for SingleEqualParser<TargetCharacterType>
+impl<CharacterType, It> Parser<It> for SingleEqualParser<CharacterType>
 where
     It: InputIteratorTrait,
-    <It as Iterator>::Item: PartialEq<TargetCharacterType>,
+    <It as Iterator>::Item: PartialEq<CharacterType>,
 {
     type Output = (<It as Iterator>::Item,);
 
@@ -156,6 +156,96 @@ impl IntoParser for usize {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub struct SingleEqualByParser<CharacterType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharacterType) -> bool,
+{
+    character: CharacterType,
+    predicate: Predicate,
+    _phantom: std::marker::PhantomData<ItemType>,
+}
+
+impl<CharType, Predicate, ItemType> SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharType) -> bool,
+{
+    pub fn new(character: CharType, predicate: Predicate) -> Self {
+        Self {
+            character,
+            predicate,
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<CharType, Predicate, ItemType, It> Parser<It>
+    for SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    It: InputIteratorTrait + Iterator<Item = ItemType>,
+    Predicate: Fn(ItemType, &CharType) -> bool,
+    ItemType: Clone,
+{
+    type Output = (<It as Iterator>::Item,);
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let mut it = it;
+        let i0 = it.clone();
+        if let Some(val) = it.next() {
+            if (self.predicate)(val.clone(), &self.character) {
+                ParseResult {
+                    output: Some((val,)),
+                    it,
+                }
+            } else {
+                ParseResult {
+                    output: None,
+                    it: i0,
+                }
+            }
+        } else {
+            ParseResult {
+                output: None,
+                it: i0,
+            }
+        }
+    }
+
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        let mut it = it;
+        let i0 = it.clone();
+        if let Some(val) = it.next() {
+            if (self.predicate)(val, &self.character) {
+                ParseResult {
+                    output: Some(()),
+                    it,
+                }
+            } else {
+                ParseResult {
+                    output: None,
+                    it: i0,
+                }
+            }
+        } else {
+            ParseResult {
+                output: None,
+                it: i0,
+            }
+        }
+    }
+}
+
+impl<CharType, Predicate, ItemType> IntoParser
+    for SingleEqualByParser<CharType, Predicate, ItemType>
+where
+    Predicate: Fn(ItemType, &CharType) -> bool,
+{
+    type Into = Self;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use std::string::String;
@@ -163,7 +253,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn success_test1() {
+    fn success1() {
         let a_parser = SingleEqualParser::new('a');
         // success
         let start_with_a_string = String::from("abcde");
@@ -173,7 +263,7 @@ mod tests {
         assert_eq!(&rest, "bcde");
     }
     #[test]
-    fn success_test2() {
+    fn success2() {
         let b_parser = SingleEqualParser::new('b');
         // success
         let start_with_b_string = String::from("bacde");
@@ -183,7 +273,7 @@ mod tests {
         assert_eq!(&rest, "acde");
     }
     #[test]
-    fn fail_test1() {
+    fn fail1() {
         let a_parser = SingleEqualParser::new('a');
         // this case is fail
         let start_with_b_string = String::from("bacde");
@@ -193,7 +283,7 @@ mod tests {
         assert_eq!(&rest, "bacde");
     }
     #[test]
-    fn fail_test2() {
+    fn fail2() {
         let b_parser = SingleEqualParser::new('b');
         // this case is fail
         let start_with_a_string = String::from("abcde");
@@ -204,7 +294,7 @@ mod tests {
     }
 
     #[test]
-    fn parse_null() {
+    fn null() {
         let x_parser = SingleEqualParser::new('x');
         let empty_string = String::from("");
         let res = x_parser.parse(empty_string.chars());
@@ -259,6 +349,43 @@ mod tests {
         let x_parser = SingleEqualParser::new('x');
         let empty_string = String::from("");
         let res = x_parser.match_pattern(empty_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "");
+    }
+
+    #[test]
+    fn by_success1() {
+        let a_parser = SingleEqualByParser::new('a', |a: char, b: &char| a == *b);
+        let start_with_a_string = String::from("abcde");
+        let res = a_parser.parse(start_with_a_string.chars());
+        assert_eq!(res.output, Some(('a',)));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "bcde");
+    }
+    #[test]
+    fn by_success2() {
+        let b_parser = SingleEqualByParser::new('b', |a: char, b: &char| a == *b);
+        let start_with_a_string = String::from("bacde");
+        let res = b_parser.parse(start_with_a_string.chars());
+        assert_eq!(res.output, Some(('b',)));
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "acde");
+    }
+    #[test]
+    fn by_fail1() {
+        let a_parser = SingleEqualByParser::new('a', |a: char, b: &char| a == *b);
+        let start_with_a_string = String::from("bacde");
+        let res = a_parser.parse(start_with_a_string.chars());
+        assert_eq!(res.output, None);
+        let rest: String = res.it.collect();
+        assert_eq!(&rest, "bacde");
+    }
+
+    #[test]
+    fn by_null() {
+        let a_parser = SingleEqualByParser::new('a', |a: char, b: &char| a == *b);
+        let res = a_parser.parse("".chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
         assert_eq!(&rest, "");
