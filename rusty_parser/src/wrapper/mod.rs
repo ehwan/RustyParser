@@ -6,6 +6,7 @@ pub mod option;
 pub mod or;
 pub mod output;
 pub mod rced;
+pub mod reduce;
 pub mod refcelled;
 pub mod repeat;
 pub mod seq;
