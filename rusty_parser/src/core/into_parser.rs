@@ -120,9 +120,11 @@ pub trait IntoParser {
         crate::wrapper::or::OrParser::new(self.into_parser(), rhs.into_parser())
     }
 
-    /// Map parser's Output to new value
+    /// Map parser's Output to new value.
     ///
-    /// `Output`: return type of the closure ( must be Tuple )
+    /// Parser's Output will be unpacked and passed to the closure. The value returned from the closure will be new Output.
+    ///
+    /// `Output`: `(T,)` where `T` is return type of the closure. The value `v` returned from the closure will be wrapped into `(v,)`.
     ///
     /// # Example
     /// ```rust
@@ -130,21 +132,18 @@ pub trait IntoParser {
     /// use rp::IntoParser;
     ///
     /// // map the output
-    /// // <Output of 'a'> -> (i32,)
-    /// let int_parser = 'a'.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
+    /// // <Output of 'a'> -> i32
+    /// let int_parser = 'a'.map(|ch| -> i32 { ch as i32 - 'a' as i32 });
     ///
     /// let res = rp::parse(&int_parser, "abcd".chars());
     /// assert_eq!(res.output.unwrap(), (0,));
     /// assert_eq!(res.it.collect::<String>(), "bcd");
     /// ```
-    fn map<ClosureType, ClosureInput, ClosureOutput>(
+    fn map<ClosureType>(
         self,
         callback: ClosureType,
-    ) -> crate::wrapper::map::MapParser<Self::Into, ClosureType, ClosureInput, ClosureOutput>
+    ) -> crate::wrapper::map::MapParser<Self::Into, ClosureType>
     where
-        ClosureInput: crate::core::tuple::Tuple,
-        ClosureType: Fn(ClosureInput) -> ClosureOutput,
-        ClosureOutput: crate::core::tuple::Tuple,
         Self: Sized,
     {
         crate::wrapper::map::MapParser::new(self.into_parser(), callback)
@@ -160,7 +159,7 @@ pub trait IntoParser {
     /// use rusty_parser as rp;
     /// use rp::IntoParser;
     ///
-    /// let expensive_parser = 'a'.map(|(_,)| -> (i32,) {
+    /// let expensive_parser = 'a'.map(|_| -> i32 {
     ///     // some expensive operations for data extracting...
     ///     panic!("This should not be called");
     /// });

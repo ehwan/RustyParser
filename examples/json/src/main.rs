@@ -19,23 +19,22 @@ type DynParser = rp::DynBoxChars<(JsonValue,)>;
 fn string_parser() -> DynParser {
     let digit = ('0'..='9')
         .into_parser()
-        .map(|(c,): (char,)| (c as i32 - '0' as i32,));
+        .map(|c: char| c as i32 - '0' as i32);
     let hex_alpha_lower = ('a'..='f')
         .into_parser()
-        .map(|(c,): (char,)| (c as i32 - 'a' as i32 + 10,));
+        .map(|c: char| c as i32 - 'a' as i32 + 10);
     let hex_alpha_upper = ('A'..='F')
         .into_parser()
-        .map(|(c,): (char,)| (c as i32 - 'A' as i32 + 10,));
+        .map(|c: char| c as i32 - 'A' as i32 + 10);
     let hex = rp::or!(digit, hex_alpha_lower, hex_alpha_upper);
 
-    let unicode_char =
-        rp::seq!('u'.void(), hex.repeat(4usize)).map(|(hexs,): (Vec<i32>,)| -> (char,) {
-            let mut res: u32 = 0;
-            for hex in hexs {
-                res = res * 16 + hex as u32;
-            }
-            (char::from_u32(res).expect("invalid unicode character"),)
-        });
+    let unicode_char = rp::seq!('u'.void(), hex.repeat(4usize)).map(|hexs: Vec<i32>| -> char {
+        let mut res: u32 = 0;
+        for hex in hexs {
+            res = res * 16 + hex as u32;
+        }
+        char::from_u32(res).expect("invalid unicode character")
+    });
     let escape = rp::or!(
         '"',
         '\\',
@@ -53,13 +52,10 @@ fn string_parser() -> DynParser {
         '"'.void(),
         character
             .repeat(0..)
-            .map(|(chars,): (Vec<char>,)| -> (String,) {
-                let res = chars.into_iter().collect::<String>();
-                (res,)
-            },),
+            .map(|chars: Vec<char>| -> String { chars.into_iter().collect::<String>() },),
         '"'.void()
     )
-    .map(|(s,): (String,)| (JsonValue::String(s),));
+    .map(|s: String| JsonValue::String(s));
 
     DynParser::new(string)
 }
@@ -67,22 +63,23 @@ fn string_parser() -> DynParser {
 fn number_parser() -> DynParser {
     let digit = ('0'..='9')
         .into_parser()
-        .map(|(c,): (char,)| (c as i32 - '0' as i32,));
+        .map(|c: char| c as i32 - '0' as i32);
     let onenine = ('1'..='9')
         .into_parser()
-        .map(|(c,): (char,)| (c as i32 - '0' as i32,));
+        .map(|c: char| c as i32 - '0' as i32);
 
-    let digits = rp::seq!(onenine, digit.repeat(0..));
+    let digits = rp::seq!(digit, digit.repeat(0..));
+    let onedigits = rp::seq!(onenine, digit.repeat(0..));
 
     let fraction = rp::seq!('.'.void(), digits)
-        .map(|(leaddigit, digits): (i32, Vec<i32>)| -> (f64,) {
+        .map(|leaddigit: i32, digits: Vec<i32>| -> f64 {
             let mut base10: f64 = 0.01;
             let mut res: f64 = leaddigit as f64 * 0.1;
             for digit in digits {
                 res += digit as f64 * base10;
                 base10 *= 0.1;
             }
-            (res,)
+            res
         })
         .optional_or((0.0_f64,));
 
@@ -92,19 +89,19 @@ fn number_parser() -> DynParser {
         rp::or!('e', 'E').void(),
         rp::seq!(
             sign,
-            digits.map(|(leaddigit, digits): (i32, Vec<i32>)| -> (i32,) {
+            digits.map(|leaddigit: i32, digits: Vec<i32>| -> i32 {
                 let mut res = leaddigit;
                 for digit in digits {
                     res = res * 10 + digit;
                 }
-                (res,)
+                res
             })
         )
-        .map(|(sign, exponent): (char, i32)| -> (i32,) {
+        .map(|sign: char, exponent: i32| -> i32 {
             if sign == '-' {
-                (-exponent,)
+                -exponent
             } else {
-                (exponent,)
+                exponent
             }
         })
     )
@@ -114,28 +111,28 @@ fn number_parser() -> DynParser {
         '-'.optional_or(('+',)),
         rp::or!(
             '0'.output((0,)),
-            digits.map(|(leaddigit, digits): (i32, Vec<i32>,)| -> (i32,) {
+            onedigits.map(|leaddigit: i32, digits: Vec<i32>| -> i32 {
                 let mut res = leaddigit;
                 for digit in digits {
                     res = res * 10 + digit;
                 }
-                (res,)
+                res
             })
         )
     )
-    .map(|(sign, integer): (char, i32)| -> (i32,) {
+    .map(|sign: char, integer: i32| -> i32 {
         let mut res = integer;
         if '-' == sign {
             res = -res;
         }
-        (res,)
+        res
     });
 
     let number = rp::seq!(integer, fraction, exponent).map(
-        |(integer, fraction, exponent): (i32, f64, i32)| -> (JsonValue,) {
+        |integer: i32, fraction: f64, exponent: i32| -> JsonValue {
             let mut res = integer as f64 + fraction;
             res *= 10f64.powi(exponent);
-            (JsonValue::Number(res),)
+            JsonValue::Number(res)
         },
     );
 
@@ -151,11 +148,11 @@ fn main() {
     let object = dummy_parser.clone().box_chars().refcell().rc();
     let array = dummy_parser.clone().box_chars().refcell().rc();
 
-    let true_ = "true".map(|_| (JsonValue::Bool(true),));
-    let false_ = "false".map(|_| (JsonValue::Bool(false),));
+    let true_ = "true".map(|| JsonValue::Bool(true));
+    let false_ = "false".map(|| JsonValue::Bool(false));
     let bool_ = rp::or(true_, false_);
 
-    let null = "null".map(|_| (JsonValue::Null,));
+    let null = "null".map(|| JsonValue::Null);
 
     value.borrow_mut().assign(rp::or!(
         null,
@@ -174,16 +171,14 @@ fn main() {
         element.clone(),
         rp::seq!(','.void(), element.clone()).repeat(0..)
     )
-    .map(
-        |(first, rest): (JsonValue, Vec<JsonValue>)| -> (JsonValue,) {
-            let mut res = Vec::with_capacity(rest.len() + 1);
-            res.push(first);
-            for r in rest {
-                res.push(r);
-            }
-            (JsonValue::Array(res),)
-        },
-    );
+    .map(|first: JsonValue, rest: Vec<JsonValue>| -> JsonValue {
+        let mut res = Vec::with_capacity(rest.len() + 1);
+        res.push(first);
+        for r in rest {
+            res.push(r);
+        }
+        JsonValue::Array(res)
+    });
 
     array.borrow_mut().assign(rp::seq!(
         '['.void(),
@@ -193,36 +188,33 @@ fn main() {
 
     let member = rp::seq!(ws, string_parser(), ws, ':'.void(), element.clone()).rc();
 
-    let members =
-        rp::seq!(
-            member.clone(),
-            rp::seq!(','.void(), member.clone()).repeat(0..)
-        )
-        .map(
-            |(first_key, first_value, rest): (
-                JsonValue,
-                JsonValue,
-                Vec<(JsonValue, JsonValue)>,
-            )|
-             -> (JsonValue,) {
-                let mut res: HashMap<String, JsonValue> = HashMap::new();
-                match first_key {
-                    JsonValue::String(first_key) => {
-                        res.insert(first_key, first_value);
+    let members = rp::seq!(
+        member.clone(),
+        rp::seq!(','.void(), member.clone()).repeat(0..)
+    )
+    .map(
+        |first_key: JsonValue,
+         first_value: JsonValue,
+         rest: Vec<(JsonValue, JsonValue)>|
+         -> JsonValue {
+            let mut res: HashMap<String, JsonValue> = HashMap::new();
+            match first_key {
+                JsonValue::String(first_key) => {
+                    res.insert(first_key, first_value);
+                }
+                _ => panic!("Key must be String type"),
+            }
+            for (key, value) in rest {
+                match key {
+                    JsonValue::String(key) => {
+                        res.insert(key, value);
                     }
                     _ => panic!("Key must be String type"),
                 }
-                for (key, value) in rest {
-                    match key {
-                        JsonValue::String(key) => {
-                            res.insert(key, value);
-                        }
-                        _ => panic!("Key must be String type"),
-                    }
-                }
-                (JsonValue::Object(res),)
-            },
-        );
+            }
+            JsonValue::Object(res)
+        },
+    );
 
     object.borrow_mut().assign(rp::seq!(
         '{'.void(),

@@ -28,16 +28,16 @@ fn main() {
     // one digit [0-9]
     let digit = ('0'..='9')
         .into_parser()
-        .map(|(c,)| -> (i32,) { (c as i32 - '0' as i32,) });
+        .map(|c| -> i32 { c as i32 - '0' as i32 });
 
     // number [0-9]+
     // multiple digits -> build number
-    let num = digit.repeat(1..).map(|(digits,)| -> (i32,) {
+    let num = digit.repeat(1..).map(|digits| -> i32 {
         let mut res = 0;
         for digit in digits {
             res = res * 10 + digit;
         }
-        (res,)
+        res
     });
 
     // '(' expression ')'
@@ -58,7 +58,7 @@ fn main() {
         Rc::clone(&expr0),
         seq!(whitespaces, mul_or_div_op, whitespaces, Rc::clone(&expr0)).repeat(0..)
     )
-    .map(|(mut base, op_rhs_vec)| -> (i32,) {
+    .map(|mut base, op_rhs_vec| -> i32 {
         for (op, rhs) in op_rhs_vec {
             if op == '*' {
                 base *= rhs;
@@ -66,7 +66,7 @@ fn main() {
                 base /= rhs;
             }
         }
-        (base,)
+        base
     });
 
     expr1.borrow_mut().assign(mul_or_div);
@@ -77,7 +77,7 @@ fn main() {
         Rc::clone(&expr1),
         seq!(whitespaces, add_or_sub_op, whitespaces, Rc::clone(&expr1)).repeat(0..)
     )
-    .map(|(mut base, op_rhs_vec)| -> (i32,) {
+    .map(|mut base, op_rhs_vec| -> i32 {
         for (op, rhs) in op_rhs_vec {
             if op == '+' {
                 base += rhs;
@@ -85,7 +85,7 @@ fn main() {
                 base -= rhs;
             }
         }
-        (base,)
+        base
     });
 
     expr2.borrow_mut().assign(add_or_sub);

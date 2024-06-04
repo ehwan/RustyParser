@@ -33,13 +33,13 @@ fn example1() {
     let num_parser = digit_parser.repeat(1..);
 
     // map the output
-    // ( Vec<char>, )  -->  (i32, )
-    let num_parser = num_parser.map(|(digits,): (Vec<char>,)| -> (i32,) {
+    // Vec<char>  -->  i32
+    let num_parser = num_parser.map(|digits:Vec<char>| -> i32 {
         let mut num = 0;
         for ch in digits {
             num = num * 10 + (ch as i32 - '0' as i32);
         }
-        (num,)
+        num
     });
 
     // parse input iterator with given pattern, and return the result
@@ -245,16 +245,17 @@ Note that the output of all parsers must be the same type.
 
 
 ### `map`: map the output of the parser
+Parser's Output(Tuple) will be unpacked and passed to the closure. The value returned from the closure will be new Output.
 ```rust
 // map the output
-// <Output of 'a'> -> (i32,)
-let int_parser = 'a'.map(|(ch,)| -> (i32,) { (ch as i32 - 'a' as i32,) }); // IntoParser for char
+// <Output of 'a'> -> i32
+let int_parser = 'a'.map(|ch| -> i32 { ch as i32 - 'a' as i32 }); // IntoParser for char
 
 let res = rp::parse(&int_parser, "abcd".chars());
 assert_eq!(res.output.unwrap(), (0,));
 assert_eq!(res.it.collect::<String>(), "bcd");
 ```
-`Output`: return type of the closure ( must be Tuple )
+`Output`: `(T,)` where `T` is return type of the closure. The value `v` returned from the closure will be wrapped into `(v,)`.
 
 
 ### `repeat`: repeat the parser multiple times
@@ -460,7 +461,7 @@ This is useful when you only want to check if the pattern is matched or not.
 For more information, see `match_pattern(...)` above.
 
 ```rust
-let expensive_parser = 'a'.map(|(_,)| -> (i32,) {
+let expensive_parser = 'a'.map(|_| -> i32 {
     // some expensive operations for data extracting...
     panic!("This should not be called");
 });

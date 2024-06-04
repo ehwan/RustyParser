@@ -22,13 +22,13 @@
 //! let num_parser = digit_parser.repeat(1..);
 //
 //! // map the output
-//! // ( Vec<char>, )  -->  (i32, )
-//! let num_parser = num_parser.map(|(digits,): (Vec<char>,)| -> (i32,) {
+//! // Vec<char>  -->  i32
+//! let num_parser = num_parser.map(|digits: Vec<char>| -> i32 {
 //!     let mut num = 0;
 //!     for ch in digits {
 //!         num = num * 10 + (ch as i32 - '0' as i32);
 //!     }
-//!     (num,)
+//!     num
 //! });
 //
 //! // parse input iterator with given pattern, and return the result

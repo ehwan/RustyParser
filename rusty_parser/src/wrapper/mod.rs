@@ -14,4 +14,5 @@ pub mod void;
 
 pub(crate) mod optionmerge;
 pub(crate) mod tuplemerge;
+pub(crate) mod tupleunpack;
 pub(crate) mod vecmerge;
