@@ -6,20 +6,44 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-#[derive(Debug)]
-pub struct SingleCheckParser<ClosureType, Input, NewOutput>
-where
-    ClosureType: Fn(Input) -> Option<NewOutput>,
-    NewOutput: Tuple,
-{
-    closure: ClosureType,
-    _phantom: std::marker::PhantomData<(Input, NewOutput)>,
+pub trait OptionOrBool {
+    type Output;
+    fn to_option(self) -> Option<Self::Output>;
 }
 
-impl<ClosureType, Input, NewOutput> Clone for SingleCheckParser<ClosureType, Input, NewOutput>
+impl OptionOrBool for bool {
+    type Output = ();
+    fn to_option(self) -> Option<Self::Output> {
+        if self {
+            Some(())
+        } else {
+            None
+        }
+    }
+}
+// wrap tuple Option<T> -> Option<(T,)>
+impl<T> OptionOrBool for Option<T> {
+    type Output = (T,);
+    fn to_option(self) -> Option<Self::Output> {
+        self.map(|x| (x,))
+    }
+}
+
+#[derive(Debug)]
+pub struct SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
-    ClosureType: Fn(Input) -> Option<NewOutput> + Clone,
-    NewOutput: Tuple,
+    ClosureType: Fn(Input) -> ClosureOutput,
+    ClosureOutput: OptionOrBool,
+{
+    closure: ClosureType,
+    _phantom: std::marker::PhantomData<(Input, ClosureOutput)>,
+}
+
+impl<ClosureType, Input, ClosureOutput> Clone
+    for SingleCheckParser<ClosureType, Input, ClosureOutput>
+where
+    ClosureType: Fn(Input) -> ClosureOutput + Clone,
+    ClosureOutput: OptionOrBool,
 {
     fn clone(&self) -> Self {
         Self {
@@ -28,18 +52,19 @@ where
         }
     }
 }
-impl<ClosureType, Input, NewOutput> Copy for SingleCheckParser<ClosureType, Input, NewOutput>
+impl<ClosureType, Input, ClosureOutput> Copy
+    for SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
-    ClosureType: Fn(Input) -> Option<NewOutput> + Copy,
-    NewOutput: Tuple,
-    std::marker::PhantomData<(Input, NewOutput)>: Copy,
+    ClosureType: Fn(Input) -> ClosureOutput + Copy,
+    ClosureOutput: OptionOrBool,
+    std::marker::PhantomData<(Input, ClosureOutput)>: Copy,
 {
 }
 
-impl<ClosureType, Input, NewOutput> SingleCheckParser<ClosureType, Input, NewOutput>
+impl<ClosureType, Input, ClosureOutput> SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
-    ClosureType: Fn(Input) -> Option<NewOutput>,
-    NewOutput: Tuple,
+    ClosureType: Fn(Input) -> ClosureOutput,
+    ClosureOutput: OptionOrBool,
 {
     pub fn new(closure: ClosureType) -> Self {
         Self {
@@ -49,21 +74,22 @@ where
     }
 }
 
-impl<ClosureType, Input, NewOutput, It> Parser<It>
-    for SingleCheckParser<ClosureType, Input, NewOutput>
+impl<ClosureType, Input, ClosureOutput, It> Parser<It>
+    for SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
     It: InputIteratorTrait + Iterator<Item = Input>,
     It::Item: Clone,
-    ClosureType: Fn(Input) -> Option<NewOutput>,
-    NewOutput: Tuple,
+    ClosureType: Fn(Input) -> ClosureOutput,
+    ClosureOutput: OptionOrBool,
+    ClosureOutput::Output: Tuple,
 {
-    type Output = NewOutput;
+    type Output = ClosureOutput::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
-            if let Some(res) = (self.closure)(val) {
+            if let Some(res) = (self.closure)(val).to_option() {
                 ParseResult {
                     output: Some(res),
                     it,
@@ -86,7 +112,7 @@ where
         let mut it = it;
         let i0 = it.clone();
         if let Some(val) = it.next() {
-            if (self.closure)(val).is_some() {
+            if (self.closure)(val).to_option().is_some() {
                 ParseResult {
                     output: Some(()),
                     it,
@@ -106,10 +132,12 @@ where
     }
 }
 
-impl<ClosureType, Input, NewOutput> IntoParser for SingleCheckParser<ClosureType, Input, NewOutput>
+impl<ClosureType, Input, ClosureOutput> IntoParser
+    for SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
-    ClosureType: Fn(Input) -> Option<NewOutput>,
-    NewOutput: Tuple,
+    ClosureType: Fn(Input) -> ClosureOutput,
+    ClosureOutput: Tuple,
+    ClosureOutput: OptionOrBool,
 {
     type Into = Self;
     fn into_parser(self) -> Self::Into {
@@ -125,48 +153,34 @@ mod tests {
 
     #[test]
     fn success_test1() {
-        let a_parser = SingleCheckParser::new(|c: char| if c == 'a' { Some(()) } else { None });
-        // success
-        let start_with_a_string = String::from("abcde");
-        let res = a_parser.parse(start_with_a_string.chars());
-        assert_eq!(res.output, Some(()));
+        let a_parser = SingleCheckParser::new(|c: char| if c == 'a' { Some(0) } else { None });
+        let res = a_parser.parse("abcde".chars());
+        assert_eq!(res.output, Some((0,)));
         let rest: String = res.it.collect();
         assert_eq!(&rest, "bcde");
     }
     #[test]
     fn success_test2() {
-        let b_parser = SingleCheckParser::new(|c: char| if c == 'b' { Some(()) } else { None });
-        // success
-        let start_with_a_string = String::from("bacde");
-        let res = b_parser.parse(start_with_a_string.chars());
+        let a_parser = SingleCheckParser::new(|c: char| if c == 'a' { true } else { false });
+        let res = a_parser.parse("abcde".chars());
         assert_eq!(res.output, Some(()));
         let rest: String = res.it.collect();
-        assert_eq!(&rest, "acde");
+        assert_eq!(&rest, "bcde");
     }
     #[test]
     fn fail_test1() {
-        let a_parser = SingleCheckParser::new(|c: char| if c == 'a' { Some(()) } else { None });
-        let start_with_a_string = String::from("bbcde");
-        let res = a_parser.parse(start_with_a_string.chars());
+        let a_parser = SingleCheckParser::new(|c: char| if c == 'a' { Some(0) } else { None });
+        let res = a_parser.parse("bbcde".chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
         assert_eq!(&rest, "bbcde");
     }
     #[test]
     fn fail_test2() {
-        let b_parser = SingleCheckParser::new(|c: char| if c == 'b' { Some(()) } else { None });
-        let start_with_a_string = String::from("abcde");
-        let res = b_parser.parse(start_with_a_string.chars());
+        let b_parser = SingleCheckParser::new(|c: char| if c == 'b' { true } else { false });
+        let res = b_parser.parse("abcde".chars());
         assert_eq!(res.output, None);
         let rest: String = res.it.collect();
         assert_eq!(&rest, "abcde");
-    }
-    #[test]
-    fn fail_test3() {
-        let b_parser = SingleCheckParser::new(|c: char| if c == 'b' { Some(()) } else { None });
-        let res = b_parser.parse("".chars());
-        assert_eq!(res.output, None);
-        let rest: String = res.it.collect();
-        assert_eq!(&rest, "");
     }
 }

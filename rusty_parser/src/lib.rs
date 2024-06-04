@@ -396,27 +396,33 @@ pub fn fail() -> leaf::fail::Fail {
 
 /// Check single item with the given closure.
 ///
-/// The closure must be: `Fn(Iterator::Item) -> Option<NewOutput>`.
+/// The closure must be either of:
+/// `Fn(Iterator::Item) -> Option<NewOutput>`
+/// or
+/// `Fn(Iterator::Item) -> bool`.
 ///
-/// `Output`: `NewOutput`
+/// If the closure returns `Option<NewOutput>`, the output will be `(NewOutput,)`.
+/// If the closure returns `bool`, the output will be `()`.
 ///
 /// # Example
 /// ```rust
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let parser = rp::check( |ch:char| if ch.is_alphabetic() { Some((ch,)) } else { None } );
+/// // `check` returns by Option<>
+/// let parser = rp::check( |ch:char| if ch.is_alphabetic() { Some(ch) } else { None } );
 /// let res = rp::parse( &parser, "hello".chars() );
 ///
-/// let parser = rp::check( |ch:i32| if ch == 1 { Some((ch,)) }else{ None } );
+/// // `check` returns by bool
+/// let parser = rp::check( |ch:i32| if ch == 1 { true }else{ false } );
 /// let res = rp::parse( &parser, (&[1,2,3]).iter().cloned() );
 /// ```
-pub fn check<CheckItem, Input, NewOutput>(
+pub fn check<CheckItem, Input, ClosureOutput>(
     closure: CheckItem,
-) -> leaf::check::SingleCheckParser<CheckItem, Input, NewOutput>
+) -> leaf::check::SingleCheckParser<CheckItem, Input, ClosureOutput>
 where
-    CheckItem: Fn(Input) -> Option<NewOutput>,
-    NewOutput: crate::core::tuple::Tuple,
+    CheckItem: Fn(Input) -> ClosureOutput,
+    ClosureOutput: crate::leaf::check::OptionOrBool,
 {
     leaf::check::SingleCheckParser::new(closure)
 }

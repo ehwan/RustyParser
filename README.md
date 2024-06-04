@@ -152,13 +152,18 @@ let hello_parser = vec_by(vec![104, 101, 108, 108, 111], |value:i32, ch:&i32| va
 `Output`: `()`
 
 ### `check`: check single charactor with a closure
-The closure must be: `Fn(Iterator::Item) -> Option<NewOutput>`
+The closure must be either of:
+`Fn(Iterator::Item) -> Option<NewOutput>`
+or
+`Fn(Iterator::Item) -> bool`.
 
 ```rust
-let parser = check( |ch:char| if ch.is_alphabetic() { Some((ch,)) }else{ None } );
+let parser = check( |ch:char| if ch.is_alphabetic() { Some(ch) }else{ None } ); // returns Option<char> -> `(char,)` as output
+let parser = check( |ch:char| ch.is_alphabetic() ); // returns bool -> `()` as output
 ```
 
-`Output`: `NewOutput`
+If the closure returns `Option<NewOutput>`, the output will be `(NewOutput,)`.
+If the closure returns `bool`, the output will be `()`.
 
 
 ### `any`: Match any character.
