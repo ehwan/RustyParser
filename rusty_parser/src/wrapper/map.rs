@@ -26,16 +26,15 @@ where
     ParserType: Parser<It>,
     ClosureType: TupleUnpack<<ParserType as Parser<It>>::Output>,
     <ParserType as Parser<It>>::Output: Tuple,
-    ClosureType::Output: Tuple,
 {
-    type Output = ClosureType::Output;
+    type Output = (ClosureType::Output,);
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.parse(it);
         if let Some(val) = res.output {
             let callback_res = (self.callback).map(val);
             ParseResult {
-                output: Some(callback_res),
+                output: Some((callback_res,)),
                 it: res.it,
             }
         } else {

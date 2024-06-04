@@ -321,7 +321,54 @@ assert_eq!(res.output, None);
 ```
 `Output`: `Output` of the first parser
 
+### `reduce_left`: reduce the output of the parser
+With given input string `self rhs rhs rhs rhs ...` and the reducer `f`,
+the output will be calculated as
+`f( f( f(self,rhs), rhs ), rhs ), ...`
 
+#### Note
+- The signature of the reducer must be `Fn(A0, A1, A2, ..., B0, B1, B2, ...) -> ( A0, A1, A2 ... )`.
+  Where `(A0, A1, A2, ...)` are the output of the first parser, and `(B0, B1, B2, ...)` are the output of the following parser.
+
+- For single-value-output ( which's output is `(T,)` ),
+  returning either `T` or `(T,)` is permitted.
+
+```rust
+let digit_parser = ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+let reduced_left = digit_parser.reduce_left(digit_parser, |lhs, rhs| lhs * 10 + rhs);
+let res = rp::parse( &reduced_left, "123456abcd".chars() );
+assert_eq!(res.output.unwrap(), (123456,));
+assert_eq!(res.it.collect::<String>(), "abcd");
+```
+
+`Output`: `Output` of `Self`
+
+### `reduce_right`: reduce the output of the parser
+With given input string `lhs lhs lhs lhs ... self` and the reducer `f`,
+the output will be calculated as
+`f(lhs, f(lhs, f(lhs, f( ... f(lhs,self)))`
+
+#### Note
+- The signature of the reducer must be `Fn(A0, A1, A2, ..., B0, B1, B2, ...) -> ( B0, B1, B2 ... )`.
+  Where `(A0, A1, A2, ...)` are the output of the first parser, and `(B0, B1, B2, ...)` are the output of the following parser.
+
+- For single-value-output ( which's output is `(T,)` ),
+  returning either `T` or `(T,)` is permitted.
+
+```rust
+let digit_parser =
+    ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+let alphabet_parser =
+    ('a'..='z').into_parser().map(|val: char| -> i32 { val as i32 - 'a' as i32 });
+let reduced_right =
+    alphabet_parser.reduce_right(digit_parser, |lhs: i32, rhs: i32| -> i32 { rhs * 10 + lhs });
+
+let res = rp::parse(&reduced_right, "123456dcba".chars());
+assert_eq!(res.output.unwrap(), (3654321,));
+assert_eq!(res.it.collect::<String>(), "cba");
+```
+
+`Output`: `Output` of `Self`
 
 ## For complex, recursive pattern
 
