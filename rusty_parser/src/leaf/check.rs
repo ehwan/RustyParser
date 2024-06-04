@@ -7,7 +7,7 @@ use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
 pub trait OptionOrBool {
-    type Output;
+    type Output: Tuple;
     fn to_option(self) -> Option<Self::Output>;
 }
 
@@ -78,12 +78,10 @@ impl<ClosureType, Input, ClosureOutput, It> Parser<It>
     for SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
     It: InputIteratorTrait + Iterator<Item = Input>,
-    It::Item: Clone,
     ClosureType: Fn(Input) -> ClosureOutput,
     ClosureOutput: OptionOrBool,
-    ClosureOutput::Output: Tuple,
 {
-    type Output = ClosureOutput::Output;
+    type Output = <ClosureOutput as OptionOrBool>::Output;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let mut it = it;
@@ -136,7 +134,6 @@ impl<ClosureType, Input, ClosureOutput> IntoParser
     for SingleCheckParser<ClosureType, Input, ClosureOutput>
 where
     ClosureType: Fn(Input) -> ClosureOutput,
-    ClosureOutput: Tuple,
     ClosureOutput: OptionOrBool,
 {
     type Into = Self;
