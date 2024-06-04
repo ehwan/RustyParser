@@ -478,19 +478,18 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 
 
 
-### `output`: change the output of the parser
+### `output`: Change Parser's Output to `(output,)`
 ```rust
-let digit_parser = ('0'..='9').output((1, 2, 3));
+let digit_parser = ('0'..='9').output(2024);
 
 let res = rp::parse(&digit_parser, "123456hello_world".chars());
-assert_eq!(res.output.unwrap(), (1, 2, 3));
+assert_eq!(res.output.unwrap(), (2024,));
 assert_eq!(res.it.collect::<String>(), "23456hello_world");
 ```
-`Output`: the Tuple value you provided
+`Output`: `(T,)` where `T` is the type of the value you provided.
 
 
-
-### `string`, `vec`: captures the matched range into String or Vec\<T\>
+### `string`, `vec`: captures the matched range into `String` or `Vec<T>`
 
 #### Note
 `string` can be only used for `std::str::Chars`, 

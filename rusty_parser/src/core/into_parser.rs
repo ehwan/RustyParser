@@ -414,22 +414,22 @@ pub trait IntoParser {
         crate::wrapper::not::NotParser::new(self.into_parser(), rhs.into_parser())
     }
 
-    /// Change Parser's Output to output.
+    /// Change Parser's Output to (output,).
     ///
-    /// `Output`: value you provided.
+    /// `Output`: `(T,)` where `T` is the type of the value you provided.
     ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
     /// use rp::IntoParser;
     ///
-    /// let digit_parser = ('0'..='9').output((1, 2, 3));
+    /// let digit_parser = ('0'..='9').output(2024);
     ///
     /// let res = rp::parse(&digit_parser, "123456hello_world".chars());
-    /// assert_eq!(res.output.unwrap(), (1, 2, 3));
+    /// assert_eq!(res.output.unwrap(), (2024,));
     /// assert_eq!(res.it.collect::<String>(), "23456hello_world");
     /// ```
-    fn output<Output: crate::core::tuple::Tuple + Clone>(
+    fn output<Output: Clone>(
         self,
         output: Output,
     ) -> crate::wrapper::output::OutputParser<Self::Into, Output>

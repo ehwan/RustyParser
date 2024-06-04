@@ -39,9 +39,9 @@ fn string_parser() -> DynParser {
         '"',
         '\\',
         '/',
-        'n'.output(('\n',)),
-        'r'.output(('\r',)),
-        't'.output(('\t',)),
+        'n'.output('\n'),
+        'r'.output('\r'),
+        't'.output('\t'),
         unicode_char
     );
     let escape = rp::seq!('\\'.void(), escape);
@@ -110,7 +110,7 @@ fn number_parser() -> DynParser {
     let integer = rp::seq!(
         '-'.optional_or(('+',)),
         rp::or!(
-            '0'.output((0,)),
+            '0'.output(0),
             onedigits.map(|leaddigit: i32, digits: Vec<i32>| -> i32 {
                 let mut res = leaddigit;
                 for digit in digits {
@@ -182,7 +182,7 @@ fn main() {
 
     array.borrow_mut().assign(rp::seq!(
         '['.void(),
-        rp::or!(elements, ws.output((JsonValue::Array(Vec::new()),))),
+        rp::or!(elements, ws.output(JsonValue::Array(Vec::new()))),
         ']'.void()
     ));
 
@@ -218,7 +218,7 @@ fn main() {
 
     object.borrow_mut().assign(rp::seq!(
         '{'.void(),
-        rp::or!(members, ws.output((JsonValue::Object(HashMap::new()),))),
+        rp::or!(members, ws.output(JsonValue::Object(HashMap::new()))),
         '}'.void()
     ));
 
