@@ -306,6 +306,10 @@ assert_eq!(res.output.unwrap(), ('x',));
   <`Output` of the origin parser>. 
   The value given to `optional_or` must match with the `Output` of the origin parser.
 
+#### Note
+ - The passed value's type to `optional_or` must match with the `Output` of the origin parser.
+ - For single-value-output ( which's output is `(T,)` ), passing either `T` or `(T,)` is permitted.
+
 
 
 ### `not`: match for Pattern1 to success and Pattern2 to fail

@@ -4,29 +4,9 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
+use crate::wrapper::tuple_single::SingleValueAutoTuple;
 use crate::wrapper::tuplemerge::AppendTupleToTuple;
 use crate::wrapper::tupleunpack::TupleUnpack;
-
-trait ReducerOutputAutoTuple<T> {
-    type Output;
-
-    fn wrap(self) -> Self::Output;
-}
-
-impl<T> ReducerOutputAutoTuple<T> for T {
-    type Output = T;
-
-    fn wrap(self) -> Self::Output {
-        self
-    }
-}
-impl<T> ReducerOutputAutoTuple<(T,)> for T {
-    type Output = (T,);
-
-    fn wrap(self) -> Self::Output {
-        (self,)
-    }
-}
 
 #[derive(Debug, Clone, Copy)]
 pub struct ReduceLeftParser<LhsParser, RhsParser, Reducer> {
@@ -50,7 +30,7 @@ where
     LhsOutput: Tuple + AppendTupleToTuple<RhsOutput, Output = TupleMerged>,
     RhsOutput: Tuple,
     Reducer: TupleUnpack<TupleMerged, Output = ReducerOutput>,
-    ReducerOutput: ReducerOutputAutoTuple<LhsOutput, Output = LhsOutput>,
+    ReducerOutput: SingleValueAutoTuple<LhsOutput, Output = LhsOutput>,
 {
     type Output = LhsOutput;
 
@@ -130,7 +110,7 @@ where
     LhsOutput: Tuple + AppendTupleToTuple<RhsOutput, Output = TupleMerged>,
     RhsOutput: Tuple,
     Reducer: TupleUnpack<TupleMerged, Output = ReducerOutput>,
-    ReducerOutput: ReducerOutputAutoTuple<RhsOutput, Output = RhsOutput>,
+    ReducerOutput: SingleValueAutoTuple<RhsOutput, Output = RhsOutput>,
 {
     type Output = RhsOutput;
 

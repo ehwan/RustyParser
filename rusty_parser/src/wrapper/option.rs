@@ -4,6 +4,7 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 use crate::wrapper::optionmerge::OptionOutputSpecialize;
+use crate::wrapper::tuple_single::SingleValueAutoTuple;
 
 #[derive(Debug, Clone, Copy)]
 pub struct OptionalParser<ParserType> {
@@ -60,7 +61,7 @@ impl<ParserType> IntoParser for OptionalParser<ParserType> {
 #[derive(Debug, Clone, Copy)]
 pub struct OptionalOrParser<ParserType, Output>
 where
-    Output: Clone + Tuple,
+    Output: Clone,
 {
     parser: ParserType,
     output: Output,
@@ -68,20 +69,21 @@ where
 
 impl<ParserType, Output> OptionalOrParser<ParserType, Output>
 where
-    Output: Clone + Tuple,
+    Output: Clone,
 {
     pub fn new(parser: ParserType, output: Output) -> Self {
         Self { parser, output }
     }
 }
 
-impl<ParserType, Output, It> Parser<It> for OptionalOrParser<ParserType, Output>
+impl<ParserType, Output, ParserOutput, It> Parser<It> for OptionalOrParser<ParserType, Output>
 where
     It: InputIteratorTrait,
-    Output: Clone + Tuple,
-    ParserType: Parser<It, Output = Output>,
+    ParserType: Parser<It, Output = ParserOutput>,
+    Output: Clone + SingleValueAutoTuple<ParserOutput, Output = ParserOutput>,
+    <Output as SingleValueAutoTuple<ParserOutput>>::Output: Tuple,
 {
-    type Output = Output;
+    type Output = ParserOutput;
 
     fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
         let res = self.parser.parse(it);
@@ -92,7 +94,7 @@ where
             }
         } else {
             ParseResult {
-                output: Some(self.output.clone()),
+                output: Some(self.output.clone().wrap()),
                 it: res.it,
             }
         }
@@ -108,7 +110,7 @@ where
 
 impl<ParserType, Output> IntoParser for OptionalOrParser<ParserType, Output>
 where
-    Output: Clone + Tuple,
+    Output: Clone,
 {
     type Into = OptionalOrParser<ParserType, Output>;
 
@@ -143,6 +145,20 @@ mod test {
     fn success2() {
         let digit_parser = SingleRangeParser::from('0'..='9');
         let digit_parser = OptionalOrParser::new(digit_parser, ('x',));
+
+        let str = "1a2bhello";
+        let res = digit_parser.parse(str.chars());
+        assert_eq!(res.output, Some(('1',)));
+        let res = digit_parser.parse(res.it);
+        assert_eq!(res.output, Some(('x',)));
+
+        let rest: String = res.it.collect();
+        assert_eq!(rest, "a2bhello");
+    }
+    #[test]
+    fn success3() {
+        let digit_parser = SingleRangeParser::from('0'..='9');
+        let digit_parser = OptionalOrParser::new(digit_parser, 'x');
 
         let str = "1a2bhello";
         let res = digit_parser.parse(str.chars());

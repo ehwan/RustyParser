@@ -81,9 +81,9 @@ fn number_parser() -> DynParser {
             }
             res
         })
-        .optional_or((0.0_f64,));
+        .optional_or(0.0_f64);
 
-    let sign = rp::or!('+', '-').optional_or(('+',));
+    let sign = rp::or!('+', '-').optional_or('+');
 
     let exponent = rp::seq!(
         rp::or!('e', 'E').void(),
@@ -105,10 +105,10 @@ fn number_parser() -> DynParser {
             }
         })
     )
-    .optional_or((0,));
+    .optional_or(0);
 
     let integer = rp::seq!(
-        '-'.optional_or(('+',)),
+        '-'.optional_or('+'),
         rp::or!(
             '0'.output(0),
             onedigits.map(|leaddigit: i32, digits: Vec<i32>| -> i32 {

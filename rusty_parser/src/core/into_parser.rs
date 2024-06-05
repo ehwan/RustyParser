@@ -196,12 +196,6 @@ pub trait IntoParser {
     ///
     /// let res = rp::parse(&a_optional_parser, "bcd".chars()); // success, but 'a' is not matched
     /// assert_eq!(res.output.unwrap(), (None,));
-    ///
-    /// // if 'a' failed, return 'x'
-    /// let a_optional_or = 'a'.optional_or(('x',)); // (char,)
-    ///
-    /// let res = rp::parse(&a_optional_or, "bcd".chars());
-    /// assert_eq!(res.output.unwrap(), ('x',));
     /// ```
     fn optional(self) -> crate::wrapper::option::OptionalParser<Self::Into>
     where
@@ -216,18 +210,21 @@ pub trait IntoParser {
     /// <`Output` of the origin parser>.
     /// The value given to `optional_or` must match with the `Output` of the origin parser.
     ///
+    /// For single-value-output ( which's output is `(T,)` ),
+    /// either `T` or `(T,)` is permitted.
+    ///
     /// # Example
     /// ```rust
     /// use rusty_parser as rp;
     /// use rp::IntoParser;
     ///
     /// // if 'a' failed, return 'x'
-    /// let a_optional_or = 'a'.optional_or(('x',)); // (char,)
+    /// let a_optional_or = 'a'.optional_or('x'); // (char,)
     ///
     /// let res = rp::parse(&a_optional_or, "bcd".chars());
     /// assert_eq!(res.output.unwrap(), ('x',));
     /// ```
-    fn optional_or<Output: Clone + crate::core::tuple::Tuple>(
+    fn optional_or<Output: Clone>(
         self,
         output: Output,
     ) -> crate::wrapper::option::OptionalOrParser<Self::Into, Output>
