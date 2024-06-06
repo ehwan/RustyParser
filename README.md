@@ -96,8 +96,46 @@ where
   - Since the `parse(...)` internally clones the iterator, the iterator must be cheaply clonable.
   - `Output` must be `Tuple`, including `()`. If you want to return a single value, use `(Value,)`.
 
+## Overview
+
+### Basic(Leaf) Parsers
+| Parser | Description | Output |
+| :------: | ----------- | :------: |
+| `one`, `one_by` | Match one charactor | `(Iterator::Item,)` |
+| `range` | Match one charactor in the range | `(Iterator::Item,)` |
+| `str`, `str_by`, `slice`, `slice_by` | Match multiple charactors | `()` |
+| `string`, `string_by`, `vec`, `vec_by` | Match multiple charactors | `()` |
+| `check` | Check the charactor with closure | `()` |
+| `any` | Match any charactor | `(Iterator::Item,)` |
+| `dict` | Dictionary | `T` |
+
+### Combinators
+| Combinator | Description | Output |
+| :------: | ----------- | :------: |
+| `seq` | Sequence of parsers | `( A0, A1, ..., B0, B1, ..., C0, C1, ... )` |
+| `or` | Or combinator | `Output` of the all parsers |
+| `map` | Map the output of the parser | `(T,)` |
+| `repeat` | Repeat the parser multiple times | `Vec< Output of the Repeated Parser >` |
+| `optional`, `optional_or` | Success whether the pattern is matched or not | `( Option<Output of the Origin Parser>, )` |
+| `not` | Match for Pattern1 to success and Pattern2 to fail | `Output` of the first parser |
+| `reduce_left`, `reduce_right` | Reduce the output of the parser | `Output` of `Self` |
+
+
+### Others
+| Parser | Description | Output |
+| :------: | ----------- | :------: |
+| `constant` | This parser will always succeed, and return the constant value | `()` |
+| `end` | Success if it reached to the end of input | `()` |
+| `fail` | This parser will always fail | `()` |
+| `void` | Ignore the output of the parser | `()` |
+| `output` | Change Parser's Output to `(output,)` | `(T,)` |
+| `string`, `vec` | Captures the matched range into `String` or `Vec<T>` | `(String,)` or `(Vec<Iterator::Item>,)` |
+| `not_consume` | Check if the pattern is matched or not, without consuming the input | `Output` of the parser |
+
 
 ## Basic Parsers
+
+<a name="basic_one"></a>
 
 ### `one`, `one_by`: consumes one charactor if it is equal to `c`.
 ```rust
