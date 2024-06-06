@@ -1,4 +1,5 @@
 pub mod boxed;
+pub mod inspect;
 pub mod map;
 pub mod not;
 pub mod notconsume;

@@ -595,4 +595,33 @@ pub trait IntoParser {
             reducer,
         )
     }
+
+    /// This does what `inspect` in `Iterator` do.
+    /// The closure will be called before parsing. Regardless of the success or failure of the parser.
+    ///
+    /// `Output`: `Output` of `Self`
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let digit_parser =
+    ///     ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+    /// let digit_parser = digit_parser.inspect(|| {
+    ///   println!( "digit parser entered!" );
+    /// });
+    ///
+    /// let res = rp::parse(&digit_parser, "123456abcd".chars());
+    /// assert_eq!(res.output.unwrap(), (1,));
+    /// assert_eq!(res.it.collect::<String>(), "23456abcd");
+    fn inspect<ClosureType>(
+        self,
+        closure: ClosureType,
+    ) -> crate::wrapper::inspect::InspectParser<Self::Into, ClosureType>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::inspect::InspectParser::new(self.into_parser(), closure)
+    }
 }
