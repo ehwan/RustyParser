@@ -1,3 +1,5 @@
+use std::cell::RefCell;
+use std::rc::Rc;
 use std::string::String;
 use std::vec::Vec;
 use std::{collections::HashMap, io::Write};
@@ -140,13 +142,10 @@ fn number_parser() -> DynParser {
 }
 
 fn main() {
-    // Since there are no 'null parsers' in RustyParser, we need to create a dummy parser
-    // this will tell compiler of dyn Parser's signature
-    let dummy_parser = rp::constant((JsonValue::Null,));
-
-    let value = dummy_parser.clone().box_chars().refcell().rc();
-    let object = dummy_parser.clone().box_chars().refcell().rc();
-    let array = dummy_parser.clone().box_chars().refcell().rc();
+    // init with dummy parser
+    let value: Rc<RefCell<rp::DynBoxChars<(JsonValue,)>>> = Default::default();
+    let object: Rc<RefCell<rp::DynBoxChars<(JsonValue,)>>> = Default::default();
+    let array: Rc<RefCell<rp::DynBoxChars<(JsonValue,)>>> = Default::default();
 
     let true_ = "true".map(|| JsonValue::Bool(true));
     let false_ = "false".map(|| JsonValue::Bool(false));

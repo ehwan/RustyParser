@@ -501,6 +501,21 @@ pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 /// This can take any parser with Output of `Output`.
 ///
 /// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
+///
+/// `Default` is implemented, with always-panic-parser
+///
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let mut parser = rp::DynBoxChars::<(char,)>::default();
+/// // #[should_panic]
+/// // let res = rp::parse(&parser, "hello".chars());
+///
+/// parser.assign( '0'..='9' );
+/// let res = rp::parse(&parser, "123456hello_world".chars());
+/// assert_eq!( res.output.unwrap(), ('1',) );
+/// ```
 pub use wrapper::boxed::DynBoxChars;
 
 /// A Box\<dyn Parser\> wrapper for iterators of `std::iter::Cloned<std::slice::Iter>`.
@@ -508,6 +523,21 @@ pub use wrapper::boxed::DynBoxChars;
 /// This can take any parser with Output of `Output`.
 ///
 /// Once you wrap the parser with this, you can only use input iterator of `std::iter::Cloned<std::slice::Iter>`.
+///
+/// `Default` is implemented, with always-panic-parser
+///
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let mut parser = rp::DynBoxChars::<(char,)>::default();
+/// // #[should_panic]
+/// // let res = rp::parse(&parser, "hello".chars());
+///
+/// parser.assign( '0'..='9' );
+/// let res = rp::parse(&parser, "123456hello_world".chars());
+/// assert_eq!( res.output.unwrap(), ('1',) );
+/// ```
 pub use wrapper::boxed::DynBoxSlice;
 
 // ================== useful macros below ==================

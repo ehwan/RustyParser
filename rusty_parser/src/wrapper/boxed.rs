@@ -6,6 +6,8 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
+use crate::leaf::panic::Panic;
+
 pub struct DynBoxChars<Output>
 where
     Output: Tuple,
@@ -30,6 +32,13 @@ where
         ParserType::Into: for<'a> Parser<std::str::Chars<'a>, Output = Output> + 'static,
     {
         self.parser = std::boxed::Box::new(parser.into_parser());
+    }
+}
+
+/// default to dummy parser that always panic
+impl<Output: Tuple + 'static> Default for DynBoxChars<Output> {
+    fn default() -> Self {
+        Self::new(Panic::new())
     }
 }
 
@@ -106,6 +115,12 @@ where
             for<'a> Parser<std::iter::Cloned<std::slice::Iter<'a, T>>, Output = Output> + 'static,
     {
         self.parser = std::boxed::Box::new(parser.into_parser());
+    }
+}
+/// default to dummy parser that always panic
+impl<Output: Tuple + 'static, T: Clone + 'static> Default for DynBoxSlice<Output, T> {
+    fn default() -> Self {
+        Self::new(Panic::new())
     }
 }
 
@@ -190,5 +205,20 @@ mod test {
         let rest: String = res.it.collect();
         assert_eq!(res.output, Some(('a',)));
         assert_eq!(rest, "2b3c4d5e6f7g8h9i0j");
+    }
+
+    #[test]
+    #[should_panic]
+    fn panic_test() {
+        let boxed: DynBoxChars<(i32,)> = Default::default();
+        boxed.parse("123".chars());
+        boxed.match_pattern("123".chars());
+    }
+    #[test]
+    #[should_panic]
+    fn panic_test2() {
+        let boxed: DynBoxSlice<(i32,), i32> = Default::default();
+        boxed.parse((&[1, 2, 3]).iter().cloned());
+        boxed.match_pattern((&[1, 2, 3]).iter().cloned());
     }
 }

@@ -396,8 +396,10 @@ You can dynamically assign ***any parsers*** with same `Output` type.
 
 ```rust
 fn box_chars<Output:Tuple>(self) -> DynBoxChars<Output>;
-fn box_slice<Output:Tuple>(self) -> DynBoxSlice<Output>;
+fn box_slice<Output:Tuple>(self) -> DynBoxSlice<Output,T>;
 ```
+
+`Default` trait is implemented with always-panic-parser. You must assign it later.
 
 #### Note
 Currently only implemented for `std::str::Chars` and `std::iter::Cloned<std::slice::Iter>`.

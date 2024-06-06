@@ -1,3 +1,4 @@
+use std::cell::RefCell;
 use std::io::{stdin, stdout, Write};
 use std::rc::Rc;
 
@@ -6,13 +7,14 @@ use rusty_parser as rp;
 fn main() {
     use rp::*;
 
-    // Since there are no 'null parsers' in RustyParser, we need to create a dummy parser
-    // this will tell compiler of dyn Parser's signature
-    let dummy_parser = constant((0,));
-    let expr = dummy_parser.box_chars().refcell().rc();
-    let expr0 = dummy_parser.box_chars().refcell().rc();
-    let expr1 = dummy_parser.box_chars().refcell().rc();
-    let expr2 = dummy_parser.box_chars().refcell().rc();
+    // dynamic Parser type
+    type DynParser = DynBoxChars<(i32,)>;
+
+    // initialize with dummy parser that always panic
+    let expr: Rc<RefCell<DynParser>> = Default::default();
+    let expr0: Rc<RefCell<DynParser>> = Default::default();
+    let expr1: Rc<RefCell<DynParser>> = Default::default();
+    let expr2: Rc<RefCell<DynParser>> = Default::default();
 
     /*
     paren_expr: '(' expr ')'
