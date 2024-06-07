@@ -15,12 +15,12 @@
 //! // digit: [0-9]
 //! // this will match one digit, and returns (char,), the character it parsed
 //! let digit_parser = rp::range('0'..='9');
-//
+//!
 //! // define pattern
 //! // num: digit+
 //! // this will match one or more digits, and returns (Vec<char>,), the character it parsed
 //! let num_parser = digit_parser.repeat(1..);
-//
+//!
 //! // map the output
 //! // Vec<char>  -->  i32
 //! let num_parser = num_parser.map(|digits: Vec<char>| -> i32 {
@@ -30,13 +30,13 @@
 //!     }
 //!     num
 //! });
-//
+//!
 //! // parse input iterator with given pattern, and return the result
 //! let res = rp::parse(&num_parser, "123456hello_world".chars());
-//
+//!
 //! // res contains the result of parsing
 //! assert_eq!(res.output.unwrap(), (123456,));
-//
+//!
 //! // res.it: iterator after parsing
 //! // here, '123456' is parsed, so the rest is "hello_world"
 //! assert_eq!(res.it.collect::<String>(), "hello_world");
@@ -108,7 +108,7 @@ pub fn into_parser<ParserType: IntoParser>(parser: ParserType) -> ParserType::In
     parser.into_parser()
 }
 
-/// Parser trait.
+/// Parser trait. Every parser object must implement this trait.
 ///
 /// for [`crate::parse()`], [`crate::match_pattern()`] functions
 pub use core::parser::Parser;
@@ -534,7 +534,7 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// ```
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
-/// A Box\<dyn Parser\> wrapper for iterators of [`std::str::Chars`].
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::str::Chars`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
@@ -556,7 +556,7 @@ pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 /// ```
 pub use wrapper::boxed::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
@@ -578,7 +578,7 @@ pub use wrapper::boxed::DynBoxChars;
 /// ```
 pub use wrapper::boxed::DynBoxSlice;
 
-/// A Box\<dyn Parser\> wrapper for iterators of [`std::iter::Copied<std::slice::Iter>`].
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Copied<std::slice::Iter>`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
