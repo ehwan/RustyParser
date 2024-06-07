@@ -6,7 +6,7 @@ use crate::core::result::ParseResult;
 #[derive(Debug, Clone, Copy)]
 pub struct InspectParser<ParserType, Closure>
 where
-    Closure: Fn() -> (),
+    Closure: Fn(),
 {
     parser: ParserType,
     closure: Closure,
@@ -14,7 +14,7 @@ where
 
 impl<ParserType, Closure> InspectParser<ParserType, Closure>
 where
-    Closure: Fn() -> (),
+    Closure: Fn(),
 {
     pub fn new(parser: ParserType, closure: Closure) -> Self {
         Self { parser, closure }
@@ -25,7 +25,7 @@ impl<ParserType, Closure, It> Parser<It> for InspectParser<ParserType, Closure>
 where
     It: InputIteratorTrait,
     ParserType: Parser<It>,
-    Closure: Fn() -> (),
+    Closure: Fn(),
 {
     type Output = <ParserType as Parser<It>>::Output;
 
@@ -41,7 +41,7 @@ where
 
 impl<ParserType, ClosureType> IntoParser for InspectParser<ParserType, ClosureType>
 where
-    ClosureType: Fn() -> (),
+    ClosureType: Fn(),
 {
     type Into = Self;
 

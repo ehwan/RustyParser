@@ -1,9 +1,9 @@
 use std::vec::Vec;
 
-// this tarit is used to construct Vec< Output > for Repeat Parser
-// if Output is (), new Output will be ()
-// if Output is (T0,), new Output will be Vec<T0>
-// otherwise, new Output will be Vec<Output>
+/// this tarit is used to construct Vec< Output > for Repeat Parser
+/// if Output is (), new Output will be ()
+/// if Output is (T0,), new Output will be Vec<T0>
+/// otherwise, new Output will be Vec<Output>
 pub trait VectorOutputSpecialize {
     type Output;
 

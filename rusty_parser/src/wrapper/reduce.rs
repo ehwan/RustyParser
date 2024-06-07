@@ -4,9 +4,9 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
 
-use crate::wrapper::tuple_single::SingleValueAutoTuple;
-use crate::wrapper::tuplemerge::AppendTupleToTuple;
-use crate::wrapper::tupleunpack::TupleUnpack;
+use crate::wrapper::tupleutils::concat::AppendTupleToTuple;
+use crate::wrapper::tupleutils::singlevalue::SingleValueAutoTuple;
+use crate::wrapper::tupleutils::unpack::TupleUnpack;
 
 #[derive(Debug, Clone, Copy)]
 pub struct ReduceLeftParser<LhsParser, RhsParser, Reducer> {

@@ -1,10 +1,10 @@
-use super::vecmerge::VectorOutputSpecialize;
 use crate::core::into_parser::IntoParser;
 use crate::core::iterator_bound::InputIteratorTrait;
 use crate::core::parser::Parser;
 use crate::core::range_copyable::{RangeBound, ToCopyable};
 use crate::core::result::ParseResult;
 use crate::core::tuple::Tuple;
+use crate::wrapper::tupleutils::vec::VectorOutputSpecialize;
 
 pub type RepeatCountType = usize;
 

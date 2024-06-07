@@ -1,8 +1,8 @@
 use std::option::Option;
 
-// this tarit is used to construct Option< Output > for Optional Parser
-// if Output is (T0,), new Output will be Option<T0>
-// otherwise, new Output will be Option<Output>
+/// this tarit is used to construct Option< Output > for Optional Parser
+/// if Output is (T0,), new Output will be Option<T0>
+/// otherwise, new Output will be Option<Output>
 pub trait OptionOutputSpecialize {
     type Output;
 

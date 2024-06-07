@@ -474,7 +474,7 @@ pub trait IntoParser {
     ) -> crate::wrapper::inspect::InspectParser<Self::Into, ClosureType>
     where
         Self: Sized,
-        ClosureType: Fn() -> (),
+        ClosureType: Fn(),
     {
         crate::wrapper::inspect::InspectParser::new(self.into_parser(), closure)
     }

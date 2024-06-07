@@ -1,6 +1,6 @@
-// Merge Tuple into Tuple's back
-// implement Maximum Tuple Size: 12
-// TODO: any elegant way to merge tuple?
+/// Concatenate Tuple
+/// Maximum Tuple Size: 12
+/// TODO: any elegant way to merge tuple?
 
 pub trait AppendTupleToTuple<Tup> {
     type Output;

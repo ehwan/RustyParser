@@ -14,8 +14,4 @@ pub mod seq;
 pub mod slice;
 pub mod void;
 
-pub(crate) mod optionmerge;
-pub(crate) mod tuple_single;
-pub(crate) mod tuplemerge;
-pub(crate) mod tupleunpack;
-pub(crate) mod vecmerge;
+pub(crate) mod tupleutils;
