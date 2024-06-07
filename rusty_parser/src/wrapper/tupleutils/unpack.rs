@@ -1,3 +1,4 @@
+/// unpack tuple values to function invocation
 pub trait TupleUnpack<Tup> {
     type Output;
 

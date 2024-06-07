@@ -4,12 +4,18 @@ use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
 
 #[derive(Debug, Clone, Copy)]
-pub struct InspectParser<ParserType, Closure> {
+pub struct InspectParser<ParserType, Closure>
+where
+    Closure: Fn(),
+{
     parser: ParserType,
     closure: Closure,
 }
 
-impl<ParserType, Closure> InspectParser<ParserType, Closure> {
+impl<ParserType, Closure> InspectParser<ParserType, Closure>
+where
+    Closure: Fn(),
+{
     pub fn new(parser: ParserType, closure: Closure) -> Self {
         Self { parser, closure }
     }
@@ -33,7 +39,10 @@ where
     }
 }
 
-impl<ParserType, ClosureType> IntoParser for InspectParser<ParserType, ClosureType> {
+impl<ParserType, ClosureType> IntoParser for InspectParser<ParserType, ClosureType>
+where
+    ClosureType: Fn(),
+{
     type Into = Self;
 
     fn into_parser(self) -> Self::Into {

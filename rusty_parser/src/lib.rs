@@ -4,7 +4,7 @@
 //!
 //! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 //!
-//! This library is designed to work with general iterators, but some functionalities are limited to [`std::str::Chars`] or [`std::iter::Cloned<std::slice::Iter>`].
+//! This library is designed to work with general iterators, but some functionalities are limited to specific iterators.
 //!
 //! # Example
 //! ```rust
@@ -15,12 +15,12 @@
 //! // digit: [0-9]
 //! // this will match one digit, and returns (char,), the character it parsed
 //! let digit_parser = rp::range('0'..='9');
-//
+//!
 //! // define pattern
 //! // num: digit+
 //! // this will match one or more digits, and returns (Vec<char>,), the character it parsed
 //! let num_parser = digit_parser.repeat(1..);
-//
+//!
 //! // map the output
 //! // Vec<char>  -->  i32
 //! let num_parser = num_parser.map(|digits: Vec<char>| -> i32 {
@@ -30,13 +30,13 @@
 //!     }
 //!     num
 //! });
-//
+//!
 //! // parse input iterator with given pattern, and return the result
 //! let res = rp::parse(&num_parser, "123456hello_world".chars());
-//
+//!
 //! // res contains the result of parsing
 //! assert_eq!(res.output.unwrap(), (123456,));
-//
+//!
 //! // res.it: iterator after parsing
 //! // here, '123456' is parsed, so the rest is "hello_world"
 //! assert_eq!(res.it.collect::<String>(), "hello_world");
@@ -69,6 +69,7 @@
 //! | [`crate::check`] | Check one charactor with closure | `(T,)` |
 //! | [`crate::any`] | Match any charactor | `(Iterator::Item,)` |
 //! | [`crate::DictBTree`], [`crate::DictHashMap`] | Trie Dictionary | `T` |
+//! | [`crate::DynBoxChars`], [`crate::DynBoxSlice`], [`crate::DynBoxSliceCopied`] | Dynamic Parser that can take any parser with same `Output` | `T` |
 //!
 //! ### Combinators
 //! | Combinator | Description | Output |
@@ -76,7 +77,7 @@
 //! | [`seq!`] | Sequence of parsers | `( *<Output of A>, *<Output of B> ... )`(Tuple Concatenated ) |
 //! | [`or!`] | Or combinator | `Output` of the all parsers |
 //! | [`IntoParser::map`] | Map the output of the parser | `(T,)` |
-//! | [`IntoParser::repeat`] | Repeat the parser multiple times | `Vec<Output of Self>` |
+//! | [`IntoParser::repeat`] | Repeat the parser multiple times | `(Vec<Output of Self>,)` |
 //! | [`IntoParser::optional`] | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
 //! | [`IntoParser::optional_or`] | Success whether the pattern is matched or not | `Output` of `Self` |
 //! | [`IntoParser::not`] | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
@@ -98,17 +99,17 @@ pub(crate) mod core;
 pub(crate) mod leaf;
 pub(crate) mod wrapper;
 
-/// Trait for converting possible types to Parser.
+/// Trait for converting possible types to Parser object.
 ///
 /// This trait contains useful member functions for parser generation.
 pub use crate::core::into_parser::IntoParser;
 
-/// convert the given type to Parser ( if it impl IntoParser )
+/// Convert the given type to Parser ( if it impl IntoParser )
 pub fn into_parser<ParserType: IntoParser>(parser: ParserType) -> ParserType::Into {
     parser.into_parser()
 }
 
-/// Parser trait.
+/// Parser trait. Every parser object must implement this trait.
 ///
 /// for [`crate::parse()`], [`crate::match_pattern()`] functions
 pub use core::parser::Parser;
@@ -482,6 +483,8 @@ pub fn any() -> leaf::any::AnyParser {
 
 /// Dictionary using trie, implementation uses [`std::collections::BTreeMap`]; O(log(N)) search.
 ///
+/// This will match as long as possible, regardless of the order of insertion.
+///
 /// `Output`: Output you inserted
 ///
 /// # Example
@@ -509,6 +512,8 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 
 /// Dictionary using trie, implementation uses [`std::collections::HashMap`]; O(1) search.
 ///
+/// This will match as long as possible, regardless of the order of insertion.
+///
 /// `Output`: Output you inserted
 ///
 /// # Example
@@ -534,7 +539,7 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// ```
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
-/// A Box\<dyn Parser\> wrapper for iterators of [`std::str::Chars`].
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::str::Chars`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
@@ -554,9 +559,9 @@ pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 /// let res = rp::parse(&parser, "123456hello_world".chars());
 /// assert_eq!( res.output.unwrap(), ('1',) );
 /// ```
-pub use wrapper::boxed::DynBoxChars;
+pub use wrapper::boxed::chars::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
@@ -568,15 +573,37 @@ pub use wrapper::boxed::DynBoxChars;
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let mut parser = rp::DynBoxChars::<(char,)>::default();
+/// let mut parser = rp::DynBoxSlice::<(i32,), i32>::default();
 /// // #[should_panic]
-/// // let res = rp::parse(&parser, "hello".chars());
+/// // let res = rp::parse(&parser, (&[1,2,3]).iter().cloned());
 ///
-/// parser.assign( '0'..='9' );
-/// let res = rp::parse(&parser, "123456hello_world".chars());
-/// assert_eq!( res.output.unwrap(), ('1',) );
+/// parser.assign( 0..=9 );
+/// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().cloned());
+/// assert_eq!( res.output.unwrap(), (1,) );
 /// ```
-pub use wrapper::boxed::DynBoxSlice;
+pub use wrapper::boxed::slice_cloned::DynBoxSlice;
+
+/// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Copied<std::slice::Iter>`].
+///
+/// This can take any parser with Output of `Output`.
+///
+/// Once you wrap the parser with this, you can only use input iterator of [`std::iter::Copied<std::slice::Iter>`].
+///
+/// [`Default`] is implemented, with always-panic-parser
+///
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let mut parser = rp::DynBoxSliceCopied::<(i32,), i32>::default();
+/// // #[should_panic]
+/// // let res = rp::parse(&parser, (&[1,2,3]).iter().copied());
+///
+/// parser.assign( 0..=9 );
+/// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().copied());
+/// assert_eq!( res.output.unwrap(), (1,) );
+/// ```
+pub use wrapper::boxed::slice_copied::DynBoxSliceCopied;
 
 // ================== useful macros below ==================
 

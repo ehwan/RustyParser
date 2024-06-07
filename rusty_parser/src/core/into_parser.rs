@@ -206,13 +206,15 @@ pub trait IntoParser {
     }
 
     /// This parser always success whether the input is matched or not.
+    /// If it failed, the given value will be returned.
     ///
     /// `Output`:
     /// <`Output` of Self>.
+    ///
     /// The value given to `optional_or` must match with the `Output` of the origin parser.
     ///
     /// For single-value-output ( which's output is `(T,)` ),
-    /// either `T` or `(T,)` is permitted.
+    /// passing either `T` or `(T,)` is permitted.
     ///
     /// # Example
     /// ```rust
@@ -235,157 +237,7 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
     }
 
-    /// create [`std::cell::RefCell`] wrapper.
-    ///
-    /// # Example
-    /// ```rust
-    /// use rusty_parser as rp;
-    /// use rp::IntoParser;
-    ///
-    /// let hello_parser = "hello".into_parser();
-    /// let digit_parser = ('0'..='9').void();
-    ///
-    /// let refcelled_parser = hello_parser.box_chars().refcell();
-    ///
-    /// let res_hello = rp::parse(&refcelled_parser, "hello0123".chars());
-    /// // success
-    /// assert_eq!(res_hello.output.unwrap(), ());
-    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-    ///
-    /// // now change refcelled_parser to digit_parser
-    /// // Thanks to Deref, you can call borrow_mut().assign() directly
-    /// refcelled_parser.borrow_mut().assign(digit_parser);
-    ///
-    /// let res_digit = rp::parse(&refcelled_parser, res_hello.it);
-    /// // success
-    /// assert_eq!(res_digit.output.unwrap(), ());
-    /// assert_eq!(res_digit.it.collect::<String>(), "123");
-    /// ```
-    fn refcell(self) -> std::cell::RefCell<Self::Into>
-    where
-        Self: Sized,
-    {
-        std::cell::RefCell::new(self.into_parser())
-    }
-
-    /// Create [`std::rc::Rc`] wrapper.
-    ///
-    /// # Example
-    /// ```rust
-    /// use rusty_parser as rp;
-    /// use rp::IntoParser;
-    ///
-    /// let hello_parser = "hello".into_parser();
-    /// let digit_parser = ('0'..='9').void();
-    ///
-    /// let rc_parser1 = hello_parser.box_chars().refcell().rc();
-    /// let rc_parser2 = std::rc::Rc::clone(&rc_parser1);
-    /// // rc_parser2 is now pointing to the same parser as rc_parser1
-    ///
-    /// let res_hello = rp::parse(&rc_parser1, "hello0123".chars());
-    /// // success
-    /// assert_eq!(res_hello.output.unwrap(), ());
-    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-    ///
-    /// // now change rced_parser1 to digit_parser
-    /// // Thanks to Deref, you can call borrow_mut().assign() directly
-    /// rc_parser1.borrow_mut().assign(digit_parser);
-    ///
-    /// // rced_parser2 should also be digit_parser
-    /// let res_digit = rp::parse(&rc_parser2, res_hello.it);
-    /// // success
-    /// assert_eq!(res_digit.output.unwrap(), ());
-    /// assert_eq!(res_digit.it.collect::<String>(), "123");
-    /// ```
-    fn rc(self) -> std::rc::Rc<Self::Into>
-    where
-        Self: Sized,
-    {
-        std::rc::Rc::new(self.into_parser())
-    }
-
-    /// create a [`std::boxed::Box<dyn Parser>`] wrapper for iterators of [`std::str::Chars`].
-    ///
-    /// This can take any parser with Output of `Output`.
-    ///
-    /// Once you wrap the parser with this, you can only use input iterator of [`std::str::Chars`].
-    ///
-    /// # Example
-    /// ```rust
-    /// use rusty_parser as rp;
-    /// use rp::IntoParser;
-    ///
-    /// let hello_parser = "hello".into_parser();
-    /// let digit_parser = ('0'..='9').void();
-    ///
-    /// // this will wrap the parser into Box< dyn Parser >
-    /// let mut boxed_parser = hello_parser.box_chars();
-    ///
-    /// let res_hello = rp::parse(&boxed_parser, "hello0123".chars());
-    /// // success
-    /// assert_eq!(res_hello.output.unwrap(), ());
-    /// assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-    ///
-    /// // now change boxed_parser to digit_parser
-    /// boxed_parser.assign(digit_parser);
-    ///
-    /// let res_digit = rp::parse(&boxed_parser, res_hello.it);
-    /// // success
-    /// assert_eq!(res_digit.output.unwrap(), ());
-    /// assert_eq!(res_digit.it.collect::<String>(), "123");
-    /// ```
-    fn box_chars<Output>(self) -> crate::wrapper::boxed::DynBoxChars<Output>
-    where
-        Output: crate::core::tuple::Tuple,
-        Self: Sized,
-        Self::Into:
-            for<'a> crate::core::parser::Parser<std::str::Chars<'a>, Output = Output> + 'static,
-    {
-        crate::wrapper::boxed::DynBoxChars::new(self)
-    }
-
-    /// create a [`std::boxed::Box<dyn Parser>`] wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
-    ///
-    /// This can take any parser with Output of `Output`.
-    ///
-    /// Once you wrap the parser with this, you can only use input iterator of [`std::iter::Cloned<std::slice::Iter>`].
-    ///
-    /// # Example
-    /// ```rust
-    /// use rusty_parser as rp;
-    /// use rp::IntoParser;
-    ///
-    /// let hello_parser = (&[104, 101, 108, 108, 111]).into_parser();
-    /// let world_parser = (&[119, 111, 114, 108, 100]).into_parser();
-    ///
-    /// // this will wrap the parser into Box< dyn Parser >
-    /// let mut boxed_parser = hello_parser.box_slice();
-    ///
-    /// let res_hello = rp::parse(&boxed_parser, "helloworld".as_bytes().iter().cloned());
-    /// // success
-    /// assert_eq!(res_hello.output.unwrap(), ());
-    ///
-    /// // now change boxed_parser to world_parser
-    /// boxed_parser.assign(world_parser);
-    ///
-    /// let res_digit = rp::parse(&boxed_parser, res_hello.it);
-    /// // success
-    /// assert_eq!(res_digit.output.unwrap(), ());
-    /// ```
-    fn box_slice<Output, T>(self) -> crate::wrapper::boxed::DynBoxSlice<Output, T>
-    where
-        Output: crate::core::tuple::Tuple,
-        T: Clone,
-        Self: Sized,
-        Self::Into: for<'a> crate::core::parser::Parser<
-                std::iter::Cloned<std::slice::Iter<'a, T>>,
-                Output = Output,
-            > + 'static,
-    {
-        crate::wrapper::boxed::DynBoxSlice::new(self)
-    }
-
-    /// Match for parser1 parser2, parser1 must success and parser2 must fail.
+    /// Match for parser1 but not parser2.
     ///
     /// `Output`: `Output` of `Self`
     ///
@@ -487,7 +339,7 @@ pub trait IntoParser {
     }
 
     /// Parser will not consume the input iterator.
-    /// It still match and return the output.
+    /// It still matches and return the output.
     ///
     /// # Example
     /// ```rust
@@ -511,7 +363,7 @@ pub trait IntoParser {
     ///
     /// With given input string `self rhs rhs rhs rhs ...` and the reducer `f`,
     /// the output will be calculated as
-    /// f( f( f(self,rhs), rhs ), rhs ), ...
+    /// `f( f( f(self,rhs), rhs ), rhs ), ...`
     ///
     /// ## Note
     ///
@@ -553,7 +405,7 @@ pub trait IntoParser {
     ///
     /// With given input string `lhs lhs lhs lhs ... self` and the reducer `f`,
     /// the output will be calculated as
-    /// f(lhs, f(lhs, f(lhs, f( ... f(lhs,self)))
+    /// `f(lhs, f(lhs, f(lhs, f( ... f(lhs,self)))`
     ///
     /// ## Note
     ///
@@ -622,6 +474,7 @@ pub trait IntoParser {
     ) -> crate::wrapper::inspect::InspectParser<Self::Into, ClosureType>
     where
         Self: Sized,
+        ClosureType: Fn(),
     {
         crate::wrapper::inspect::InspectParser::new(self.into_parser(), closure)
     }

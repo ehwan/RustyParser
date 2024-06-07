@@ -30,7 +30,7 @@ impl<ParserType> IntoParser for std::cell::RefCell<ParserType> {
 #[cfg(test)]
 mod test {
     use super::*;
-    use crate::{leaf::singlerange::SingleRangeParser, wrapper::boxed::DynBoxChars};
+    use crate::{leaf::singlerange::SingleRangeParser, wrapper::boxed::chars::DynBoxChars};
 
     #[test]
     fn success1() {
