@@ -3,7 +3,8 @@ A Generic compile-time Parser generator and Pattern Matching Library written in 
 
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 
-This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::iter::Cloned<std::slice::Iter>`.
+This library is designed to work with general iterators, 
+but some functionalities are limited to specific iterators.
 
 ## Example
  - **[Calculator Expresion Parser](examples/calculator)**
@@ -108,6 +109,7 @@ where
 | `check` | Check one charactor with closure | `(T,)` |
 | `any` | Match any charactor | `(Iterator::Item,)` |
 | `DictBTree`, `DictHashMap` | Trie Dictionary | `T` |
+| `DynBoxChars`, `DynBoxSlice`, `DynBoxSliceCopied` | Dynamic Parser that can take any parser with same `Output` | `T` |
 
 ### Combinators
 | Combinator | Description | Output |
@@ -115,7 +117,7 @@ where
 | `seq` | Sequence of parsers | `( *<Output of A>, *<Output of B> ... )`(Tuple Concatenated ) |
 | `or` | Or combinator | `Output` of the all parsers |
 | `map` | Map the output of the parser | `(T,)` |
-| `repeat` | Repeat the parser multiple times | `Vec<Output of Self>` |
+| `repeat` | Repeat the parser multiple times | `(Vec<Output of Self>,)` |
 | `optional` | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
 | `optional_or` | Success whether the pattern is matched or not | `Output` of `Self` |
 | `not` | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
@@ -423,108 +425,40 @@ Which involves 'reference-of-parser' or 'virtual-class-like' structure.
 Luckily, Rust std provides wrapper for these cases.
 `Rc`, `RefCell`, `Box` are the most common ones.
 
-RustyParser provides `box_*`, `rc`, `refcell` which are Parser wrapper for `Box`, `Rc`, `RefCell`.
-
-### `box_chars`, `box_slice`: create `Box<dyn Parser>` wrapper
-
-this function wraps the parser into `Box<dyn Parser>`.
-You can dynamically assign ***any parsers*** with same `Output` type.
-
+For `Rc` and `RefCell`, you can wrap any parser with them. They will be treated as a `Parser` object.
 ```rust
-fn box_chars<Output:Tuple>(self) -> DynBoxChars<Output>;
-fn box_slice<Output:Tuple>(self) -> DynBoxSlice<Output,T>;
+// making shared, interior-mutable parser
+let hello_parser = "hello".into_parser();
+let hello_parser = std::cell::RefCell::new(hello_parser);
+let hello_parser = std::rc::Rc::new(hello_parser);
+```
+
+For `Box`, you can use `DynBox*` to wrap any parser.
+With `DynBox*`, you can assign **any parser** with same `Output` type.
+```rust
+let hello_parser = "hello".into_parser();
+
+let mut dynamic_parser: DynBoxChars<(char,)> = Default::new(); // Default implemented
+dynamic_parser.parse( "hello".chars() ); // this will panic, since the parser is not assigned yet
+
+// set dynamic_parser to hello_parser
+dynamic_parser.assign( "hello" );
+let res = dynamic_parser.parse( "hello".chars() ); // success
+
+// set dynamic_parser to digit_parser
+dynamic_parser.assign( '0'..='9' );
+let res = dynamic_parser.parse( "01234".chars() ); // success
 ```
 
 `Default` trait is implemented with always-panic-parser. You must assign it later.
 
-#### Note
-Currently only implemented for `std::str::Chars` and `std::iter::Cloned<std::slice::Iter>`.
-Once you wrap the parser through `box_chars` or `box_slice`, you can only use corresponding iterator in `parse(...)`.
+For now, there are three types of `DynBox*`:
+ - `DynBoxChars<Output>`: for `std::str::Chars`
+ - `DynBoxSlice<Output,T>`: for `std::iter::Cloned<std::slice::Iter<T>>`
+ - `DynBoxSliceCopied<Output,T>`: for `std::iter::Copied<std::slice::Iter<T>>`
+Once you wrap the parser through `DynBox*`, you can only use corresponding iterator in `parse(...)`.
 
-```rust
-let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void();
-
-// default box parser
-// with std::str::Chars, and Output of ().
-let mut boxed_parser: DynBoxChars<()> = Default::default();
-
-// this will wrap the parser into DynBoxChars
-boxed_parser = hello_parser.box_chars();
-
-let res_hello = rp::parse(&boxed_parser, "hello0123".chars());
-// success
-assert_eq!(res_hello.output.unwrap(), ());
-assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-
-// now change boxed_parser to digit_parser
-boxed_parser.assign(digit_parser);
-
-let res_digit = rp::parse(&boxed_parser, res_hello.it);
-// success
-assert_eq!(res_digit.output.unwrap(), ());
-assert_eq!(res_digit.it.collect::<String>(), "123");
-```
-`Output`: the `Output` of `Self`
-
-
-
-### `refcell`: create `std::cell::RefCell<Parser>` wrapper
-`refcell` is useful when it is combined with `box_*` or `rc`,
-since it provides internal mutability.
-`std::cell::RefCell<P>` can be used as same as a Parser, if `P` is a Parser type.
-
-```rust
-let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void();
-
-let refcelled_parser = hello_parser.box_chars().refcell();
-
-let res_hello = rp::parse(&refcelled_parser, "hello0123".chars());
-// success
-assert_eq!(res_hello.output.unwrap(), ());
-assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-
-// now change refcelled_parser to digit_parser
-// Thanks to Deref, you can call borrow_mut().assign() directly
-refcelled_parser.borrow_mut().assign(digit_parser);
-
-let res_digit = rp::parse(&refcelled_parser, res_hello.it);
-// success
-assert_eq!(res_digit.output.unwrap(), ());
-assert_eq!(res_digit.it.collect::<String>(), "123");
-```
-`Output`: the `Output` of `Self`
-
-
-
-### `rc`: create `std::rc::Rc<Parser>` wrapper
-`rc` is used to share the same parser. `std::rc::Rc<P>` can be used as same as a Parser, if `P` is a Parser type.
-
-```rust
-let hello_parser = "hello".into_parser();
-let digit_parser = ('0'..='9').void();
-
-let rc_parser1 = hello_parser.box_chars().refcell().rc();
-let rc_parser2 = std::rc::Rc::clone(&rc_parser1);
-// rc_parser2 is now pointing to the same parser as rc_parser1
-
-let res_hello = rp::parse(&rc_parser1, "hello0123".chars());
-// success
-assert_eq!(res_hello.output.unwrap(), ());
-assert_eq!(res_hello.it.clone().collect::<String>(), "0123");
-
-// now change rced_parser1 to digit_parser
-// Thanks to Deref, you can call borrow_mut().assign() directly
-rc_parser1.borrow_mut().assign(digit_parser);
-
-// rced_parser2 should also be digit_parser
-let res_digit = rp::parse(&rc_parser2, res_hello.it);
-// success
-assert_eq!(res_digit.output.unwrap(), ());
-assert_eq!(res_digit.it.collect::<String>(), "123");
-```
-`Output`: the `Output` of `Self`
+You can refer [HERE](rusty_parser/src/wrapper/boxed) for other iterator types.
 
 
 ## Others

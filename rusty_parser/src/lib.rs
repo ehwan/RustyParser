@@ -4,7 +4,7 @@
 //!
 //! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 //!
-//! This library is designed to work with general iterators, but some functionalities are limited to [`std::str::Chars`] or [`std::iter::Cloned<std::slice::Iter>`].
+//! This library is designed to work with general iterators, but some functionalities are limited to specific iterators.
 //!
 //! # Example
 //! ```rust
@@ -69,6 +69,7 @@
 //! | [`crate::check`] | Check one charactor with closure | `(T,)` |
 //! | [`crate::any`] | Match any charactor | `(Iterator::Item,)` |
 //! | [`crate::DictBTree`], [`crate::DictHashMap`] | Trie Dictionary | `T` |
+//! | [`crate::DynBoxChars`], [`crate::DynBoxSlice`], [`crate::DynBoxSliceCopied`] | Dynamic Parser that can take any parser with same `Output` | `T` |
 //!
 //! ### Combinators
 //! | Combinator | Description | Output |
@@ -76,7 +77,7 @@
 //! | [`seq!`] | Sequence of parsers | `( *<Output of A>, *<Output of B> ... )`(Tuple Concatenated ) |
 //! | [`or!`] | Or combinator | `Output` of the all parsers |
 //! | [`IntoParser::map`] | Map the output of the parser | `(T,)` |
-//! | [`IntoParser::repeat`] | Repeat the parser multiple times | `Vec<Output of Self>` |
+//! | [`IntoParser::repeat`] | Repeat the parser multiple times | `(Vec<Output of Self>,)` |
 //! | [`IntoParser::optional`] | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
 //! | [`IntoParser::optional_or`] | Success whether the pattern is matched or not | `Output` of `Self` |
 //! | [`IntoParser::not`] | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
