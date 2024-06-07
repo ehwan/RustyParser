@@ -58,19 +58,16 @@ fn example1() {
 ```
 
 ## Structures
-Define pattern, combine them, and parse the input.
-
 RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
-
-
 Those generated parsers are used to parse the input string, and return the extracted data.
+
  ```rust 
  fn parse(pattern:&Pattern, it:It) -> ParseResult<(Parsed Output of Pattern), It>;
  fn match_pattern(pattern:&Pattern, it:It) -> ParseResult<(), It>;
  ```
-`parse(...)` takes a Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
+ - `parse(...)` takes a Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
 
- `match_pattern(...)` is used 
+  - `match_pattern(...)` is used 
  when you only want to check if the pattern is matched or not, without extracting data. 
  For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::push` inside.
 
@@ -135,6 +132,10 @@ where
 | `string`, `vec` | Captures the matched range into `String` or `Vec<T>` | `(String,)` or `(Vec<Iterator::Item>,)` |
 | `not_consume` | Check if the pattern is matched or not, without consuming the input | `Output` of `Self` |
 
+
+or refer to [docs.rs](https://docs.rs/rusty_parser/latest/rusty_parser/)
+<details>
+<summary>Detailed Explanation of Parsers</summary>
 
 ## Basic Parsers
 
@@ -417,51 +418,6 @@ assert_eq!(res.it.collect::<String>(), "cba");
 
 `Output`: `Output` of `Self`
 
-## For complex, recursive pattern
-
-By default, all the 'parser-generating' functions consumes input Parser and returns a new instance.
-These processes create new generic Parser object entirely at compile-time.
-
-However, in some cases, you may want to define a recursive parser.
-Which involves 'reference-of-parser' or 'virtual-class-like' structure.
-
-Luckily, Rust std provides wrapper for these cases.
-`Rc`, `RefCell`, `Box` are the most common ones.
-
-For `Rc` and `RefCell`, you can wrap any parser with them. They will be treated as a `Parser` object.
-```rust
-// making shared, interior-mutable parser
-let hello_parser = "hello".into_parser();
-let hello_parser = std::cell::RefCell::new(hello_parser);
-let hello_parser = std::rc::Rc::new(hello_parser);
-```
-
-For `Box`, you can use `DynBox*` to wrap any parser.
-With `DynBox*`, you can assign **any parser** with same `Output` type.
-```rust
-let hello_parser = "hello".into_parser();
-
-let mut dynamic_parser: DynBoxChars<(char,)> = Default::new(); // Default implemented
-dynamic_parser.parse( "hello".chars() ); // this will panic, since the parser is not assigned yet
-
-// set dynamic_parser to hello_parser
-dynamic_parser.assign( "hello" );
-let res = dynamic_parser.parse( "hello".chars() ); // success
-
-// set dynamic_parser to digit_parser
-dynamic_parser.assign( '0'..='9' );
-let res = dynamic_parser.parse( "01234".chars() ); // success
-```
-
-`Default` trait is implemented with always-panic-parser. You must assign it later.
-
-For now, there are three types of `DynBox*`:
- - `DynBoxChars<Output>`: for `std::str::Chars`
- - `DynBoxSlice<Output,T>`: for `std::iter::Cloned<std::slice::Iter<T>>`
- - `DynBoxSliceCopied<Output,T>`: for `std::iter::Copied<std::slice::Iter<T>>`
-Once you wrap the parser through `DynBox*`, you can only use corresponding iterator in `parse(...)`.
-
-You can refer [HERE](rusty_parser/src/wrapper/boxed) for other iterator types.
 
 
 ## Others
@@ -550,3 +506,52 @@ assert_eq!(res.output.unwrap(), ('1',));
 assert_eq!(res.it.collect::<String>(), "12345"); // iterator is not consumed
 ```
 `Output`: `Output` of `Self`
+
+</details>
+
+
+## For complex, recursive pattern
+
+By default, all the 'parser-generating' functions consumes input Parser and returns a new instance.
+These processes create new generic Parser object entirely at compile-time.
+
+However, in some cases, you may want to define a recursive parser.
+Which involves 'reference-of-parser' or 'virtual-class-like' structure.
+
+Luckily, Rust std provides wrapper for these cases.
+`Rc`, `RefCell`, `Box` are the most common ones.
+
+For `Rc` and `RefCell`, you can wrap any parser with them. They will be treated as a `Parser` object.
+```rust
+// making shared, interior-mutable parser
+let hello_parser = "hello".into_parser();
+let hello_parser = std::cell::RefCell::new(hello_parser);
+let hello_parser = std::rc::Rc::new(hello_parser);
+```
+
+For `Box`, you can use `DynBox*` to wrap any parser.
+With `DynBox*`, you can assign **any parser** with same `Output` type.
+```rust
+let hello_parser = "hello".into_parser();
+
+let mut dynamic_parser: DynBoxChars<(char,)> = Default::new(); // Default implemented
+dynamic_parser.parse( "hello".chars() ); // this will panic, since the parser is not assigned yet
+
+// set dynamic_parser to hello_parser
+dynamic_parser.assign( "hello" );
+let res = dynamic_parser.parse( "hello".chars() ); // success
+
+// set dynamic_parser to digit_parser
+dynamic_parser.assign( '0'..='9' );
+let res = dynamic_parser.parse( "01234".chars() ); // success
+```
+
+`Default` trait is implemented with always-panic-parser. You must assign it later.
+
+For now, there are three types of `DynBox*`:
+ - `DynBoxChars<Output>`: for `std::str::Chars`
+ - `DynBoxSlice<Output,T>`: for `std::iter::Cloned<std::slice::Iter<T>>`
+ - `DynBoxSliceCopied<Output,T>`: for `std::iter::Copied<std::slice::Iter<T>>`
+Once you wrap the parser through `DynBox*`, you can only use corresponding iterator in `parse(...)`.
+
+You can refer [HERE](rusty_parser/src/wrapper/boxed) for other iterator types.
