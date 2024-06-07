@@ -445,8 +445,12 @@ Once you wrap the parser through `box_chars` or `box_slice`, you can only use co
 let hello_parser = "hello".into_parser();
 let digit_parser = ('0'..='9').void();
 
-// this will wrap the parser into Box< dyn Parser >
-let mut boxed_parser = hello_parser.box_chars();
+// default box parser
+// with std::str::Chars, and Output of ().
+let mut boxed_parser: DynBoxChars<()> = Default::default();
+
+// this will wrap the parser into DynBoxChars
+boxed_parser = hello_parser.box_chars();
 
 let res_hello = rp::parse(&boxed_parser, "hello0123".chars());
 // success
