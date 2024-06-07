@@ -1,6 +1,6 @@
 [package]
 name = "rusty_parser"
-version = "0.9.8"
+version = "1.0.0"
 edition = "2021"
 authors = ["ehwan <ehwank98@gmail.com>"]
 description = "A Generic compile-time Parser generator and pattern matching library written in Rust"
