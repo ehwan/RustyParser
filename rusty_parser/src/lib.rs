@@ -568,15 +568,37 @@ pub use wrapper::boxed::DynBoxChars;
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// let mut parser = rp::DynBoxChars::<(char,)>::default();
+/// let mut parser = rp::DynBoxSlice::<(i32,), i32>::default();
 /// // #[should_panic]
-/// // let res = rp::parse(&parser, "hello".chars());
+/// // let res = rp::parse(&parser, (&[1,2,3]).iter().cloned());
 ///
-/// parser.assign( '0'..='9' );
-/// let res = rp::parse(&parser, "123456hello_world".chars());
-/// assert_eq!( res.output.unwrap(), ('1',) );
+/// parser.assign( 0..=9 );
+/// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().cloned());
+/// assert_eq!( res.output.unwrap(), (1,) );
 /// ```
 pub use wrapper::boxed::DynBoxSlice;
+
+/// A Box\<dyn Parser\> wrapper for iterators of [`std::iter::Copied<std::slice::Iter>`].
+///
+/// This can take any parser with Output of `Output`.
+///
+/// Once you wrap the parser with this, you can only use input iterator of [`std::iter::Copied<std::slice::Iter>`].
+///
+/// [`Default`] is implemented, with always-panic-parser
+///
+/// ```rust
+/// use rusty_parser as rp;
+/// use rp::IntoParser;
+///
+/// let mut parser = rp::DynBoxSliceCopied::<(i32,), i32>::default();
+/// // #[should_panic]
+/// // let res = rp::parse(&parser, (&[1,2,3]).iter().copied());
+///
+/// parser.assign( 0..=9 );
+/// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().copied());
+/// assert_eq!( res.output.unwrap(), (1,) );
+/// ```
+pub use wrapper::boxed::DynBoxSliceCopied;
 
 // ================== useful macros below ==================
 

@@ -18,7 +18,7 @@ use rusty_parser::{self as rp, IntoParser};
 
 type DynParser = rp::DynBoxChars<(JsonValue,)>;
 
-fn string_parser() -> DynParser {
+fn string_parser() -> Rc<DynParser> {
     let digit = ('0'..='9')
         .into_parser()
         .map(|c: char| c as i32 - '0' as i32);
@@ -59,7 +59,7 @@ fn string_parser() -> DynParser {
     )
     .map(|s: String| JsonValue::String(s));
 
-    DynParser::new(string)
+    Rc::new(DynParser::new(string))
 }
 
 fn number_parser() -> DynParser {
@@ -164,7 +164,7 @@ fn main() {
 
     let ws = rp::or!(' ', '\n', '\r', '\t').repeat(0..).void();
 
-    let element = rp::seq!(ws, std::rc::Rc::clone(&value), ws).rc();
+    let element = rp::seq!(ws, std::rc::Rc::clone(&value), ws);
 
     let elements = rp::seq!(
         element.clone(),
@@ -185,7 +185,7 @@ fn main() {
         ']'.void()
     ));
 
-    let member = rp::seq!(ws, string_parser(), ws, ':'.void(), element.clone()).rc();
+    let member = rp::seq!(ws, string_parser(), ws, ':'.void(), element.clone());
 
     let members = rp::seq!(
         member.clone(),
