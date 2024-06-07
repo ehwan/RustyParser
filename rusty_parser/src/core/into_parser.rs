@@ -206,13 +206,15 @@ pub trait IntoParser {
     }
 
     /// This parser always success whether the input is matched or not.
+    /// If it failed, the given value will be returned.
     ///
     /// `Output`:
     /// <`Output` of Self>.
+    ///
     /// The value given to `optional_or` must match with the `Output` of the origin parser.
     ///
     /// For single-value-output ( which's output is `(T,)` ),
-    /// either `T` or `(T,)` is permitted.
+    /// passing either `T` or `(T,)` is permitted.
     ///
     /// # Example
     /// ```rust
@@ -235,7 +237,7 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
     }
 
-    /// Match for parser1 parser2, parser1 must success and parser2 must fail.
+    /// Match for parser1 but not parser2.
     ///
     /// `Output`: `Output` of `Self`
     ///
@@ -337,7 +339,7 @@ pub trait IntoParser {
     }
 
     /// Parser will not consume the input iterator.
-    /// It still match and return the output.
+    /// It still matches and return the output.
     ///
     /// # Example
     /// ```rust
@@ -361,7 +363,7 @@ pub trait IntoParser {
     ///
     /// With given input string `self rhs rhs rhs rhs ...` and the reducer `f`,
     /// the output will be calculated as
-    /// f( f( f(self,rhs), rhs ), rhs ), ...
+    /// `f( f( f(self,rhs), rhs ), rhs ), ...`
     ///
     /// ## Note
     ///
@@ -403,7 +405,7 @@ pub trait IntoParser {
     ///
     /// With given input string `lhs lhs lhs lhs ... self` and the reducer `f`,
     /// the output will be calculated as
-    /// f(lhs, f(lhs, f(lhs, f( ... f(lhs,self)))
+    /// `f(lhs, f(lhs, f(lhs, f( ... f(lhs,self)))`
     ///
     /// ## Note
     ///
@@ -472,6 +474,7 @@ pub trait IntoParser {
     ) -> crate::wrapper::inspect::InspectParser<Self::Into, ClosureType>
     where
         Self: Sized,
+        ClosureType: Fn() -> (),
     {
         crate::wrapper::inspect::InspectParser::new(self.into_parser(), closure)
     }

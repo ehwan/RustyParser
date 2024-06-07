@@ -237,6 +237,8 @@ assert_eq!(res.output.unwrap(), (1,));
 ```
 `Output`: generic type you inserted
 
+This will match as long as possible, regardless of the order of insertion.
+
 There are two types of Dictionary: `DictBTree` and `DictHashMap` for Trie implementation.
 Both of them have their own Pros and Cons (the memory usage and time complexity of searching), so you can choose one of them.
 
@@ -339,6 +341,7 @@ let a_optional_or = 'a'.optional_or(('x',)); // (char,)
 let res = rp::parse(&a_optional_or, "bcd".chars());
 assert_eq!(res.output.unwrap(), ('x',));
 ```
+
 `Output` for `optional`:
  - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
  - otherwise, `( Option<Output of Self>, )`

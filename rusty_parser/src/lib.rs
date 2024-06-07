@@ -99,12 +99,12 @@ pub(crate) mod core;
 pub(crate) mod leaf;
 pub(crate) mod wrapper;
 
-/// Trait for converting possible types to Parser.
+/// Trait for converting possible types to Parser object.
 ///
 /// This trait contains useful member functions for parser generation.
 pub use crate::core::into_parser::IntoParser;
 
-/// convert the given type to Parser ( if it impl IntoParser )
+/// Convert the given type to Parser ( if it impl IntoParser )
 pub fn into_parser<ParserType: IntoParser>(parser: ParserType) -> ParserType::Into {
     parser.into_parser()
 }
@@ -483,6 +483,8 @@ pub fn any() -> leaf::any::AnyParser {
 
 /// Dictionary using trie, implementation uses [`std::collections::BTreeMap`]; O(log(N)) search.
 ///
+/// This will match as long as possible, regardless of the order of insertion.
+///
 /// `Output`: Output you inserted
 ///
 /// # Example
@@ -509,6 +511,8 @@ pub fn any() -> leaf::any::AnyParser {
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 
 /// Dictionary using trie, implementation uses [`std::collections::HashMap`]; O(1) search.
+///
+/// This will match as long as possible, regardless of the order of insertion.
 ///
 /// `Output`: Output you inserted
 ///
