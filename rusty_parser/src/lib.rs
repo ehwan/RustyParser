@@ -554,7 +554,7 @@ pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 /// let res = rp::parse(&parser, "123456hello_world".chars());
 /// assert_eq!( res.output.unwrap(), ('1',) );
 /// ```
-pub use wrapper::boxed::DynBoxChars;
+pub use wrapper::boxed::chars::DynBoxChars;
 
 /// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
 ///
@@ -576,7 +576,7 @@ pub use wrapper::boxed::DynBoxChars;
 /// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().cloned());
 /// assert_eq!( res.output.unwrap(), (1,) );
 /// ```
-pub use wrapper::boxed::DynBoxSlice;
+pub use wrapper::boxed::slice_cloned::DynBoxSlice;
 
 /// A [`Box<dyn Parser>`] wrapper for iterators of [`std::iter::Copied<std::slice::Iter>`].
 ///
@@ -598,7 +598,7 @@ pub use wrapper::boxed::DynBoxSlice;
 /// let res = rp::parse(&parser, (&[1,2,3,4,5,6]).iter().copied());
 /// assert_eq!( res.output.unwrap(), (1,) );
 /// ```
-pub use wrapper::boxed::DynBoxSliceCopied;
+pub use wrapper::boxed::slice_copied::DynBoxSliceCopied;
 
 // ================== useful macros below ==================
 

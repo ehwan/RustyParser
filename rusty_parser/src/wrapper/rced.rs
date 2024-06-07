@@ -35,7 +35,7 @@ mod test {
     use super::*;
     use crate::{
         leaf::{singleeq::SingleEqualParser, singlerange::SingleRangeParser},
-        wrapper::boxed::DynBoxChars,
+        wrapper::boxed::chars::DynBoxChars,
     };
 
     #[test]
