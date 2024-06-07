@@ -135,7 +135,7 @@ where
 
 or refer to [docs.rs](https://docs.rs/rusty_parser/latest/rusty_parser/)
 <details>
-<summary>Detailed Explanation of Parsers</summary>
+<summary>Detailed explanation and examples of Parsers</summary>
 
 ## Basic Parsers
 
@@ -554,4 +554,4 @@ For now, there are three types of `DynBox*`:
  - `DynBoxSliceCopied<Output,T>`: for `std::iter::Copied<std::slice::Iter<T>>`
 Once you wrap the parser through `DynBox*`, you can only use corresponding iterator in `parse(...)`.
 
-You can refer [HERE](rusty_parser/src/wrapper/boxed) for other iterator types.
+You can refer [HERE](rusty_parser/src/wrapper/boxed) to implement for other iterator types.
