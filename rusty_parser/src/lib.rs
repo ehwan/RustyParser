@@ -4,7 +4,7 @@
 //!
 //! RustyParser provides a set of basic parsers, combinators, and parser-generating functions.
 //!
-//! This library is designed to work with general iterators, but some functionalities are limited to `std::str::Chars` or `std::iter::Cloned<std::slice::Iter>`.
+//! This library is designed to work with general iterators, but some functionalities are limited to [`std::str::Chars`] or [`std::iter::Cloned<std::slice::Iter>`].
 //!
 //! # Example
 //! ```rust
@@ -46,15 +46,53 @@
 //!
 //! Those generated parsers are used to parse the input string, and return the extracted data.
 //!
-//! `parse(...)` takes a Pattern Object and iterator of input string, then returns `ParseResult<Self::Output, It>`.
+//! [`crate::parse()`] takes a Pattern Object and iterator of input string, then returns [`crate::ParseResult`].
 //!
-//!  `match_pattern(...)` is used
-//!  when you only want to check if the pattern is matched or not, without extracting data.
-//!  For some parsers, like `repeat`, it is expensive to call `parse(...)` to get the output since it invokes `Vec::push` inside.
+//! [`crate::match_pattern()`] can be used
+//! when you only want to check if the pattern is matched or not, without extracting data.
+//! For some parsers, like [`IntoParser::repeat`], it is expensive to call [`crate::parse()`] to get the output since it invokes [`Vec::push`] inside.
 //!
 //! ### Note
-//!  - Since the `parse(...)` internally clones the iterator, the iterator must be cheaply clonable.
+//!  - Since the [`crate::parse()`] internally clones the iterator, the iterator must be cheaply clonable.
 //!  - `Output` must be `Tuple`, including `()`. If you want to return a single value, use `(Value,)`.
+//!
+//!
+//! ## Parsers Overview
+//!
+//! ### Basic(Leaf) Parsers
+//! | Parser | Description | Output |
+//! | :------: | ----------- | :------: |
+//! | [`crate::one`], [`crate::one_by`] | Match one charactor | `(Iterator::Item,)` |
+//! | [`crate::range`] | Match one charactor in the range | `(Iterator::Item,)` |
+//! | [`crate::str`], [`crate::str_by`], [`crate::slice`], [`crate::slice_by`] | Match multiple charactors | `()` |
+//! | [`crate::string`], [`crate::string_by`], [`crate::vec`], [`crate::vec_by`] | Match multiple charactors | `()` |
+//! | [`crate::check`] | Check one charactor with closure | `(T,)` |
+//! | [`crate::any`] | Match any charactor | `(Iterator::Item,)` |
+//! | [`crate::DictBTree`], [`crate::DictHashMap`] | Trie Dictionary | `T` |
+//!
+//! ### Combinators
+//! | Combinator | Description | Output |
+//! | :------: | ----------- | :------: |
+//! | [`seq!`] | Sequence of parsers | `( *<Output of A>, *<Output of B> ... )`(Tuple Concatenated ) |
+//! | [`or!`] | Or combinator | `Output` of the all parsers |
+//! | [`IntoParser::map`] | Map the output of the parser | `(T,)` |
+//! | [`IntoParser::repeat`] | Repeat the parser multiple times | `Vec<Output of Self>` |
+//! | [`IntoParser::optional`] | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
+//! | [`IntoParser::optional_or`] | Success whether the pattern is matched or not | `Output` of `Self` |
+//! | [`IntoParser::not`] | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
+//! | [`IntoParser::reduce_left`], [`IntoParser::reduce_right`] | Reduce the output of the parser | `Output` of `Self` |
+//!
+//!
+//! ### Others
+//! | Parser | Description | Output |
+//! | :------: | ----------- | :------: |
+//! | [`crate::constant`] | Always succeed, and return the constant value | `()` |
+//! | [`crate::end`] | Success if it reached to the end of input | `()` |
+//! | [`crate::fail`] | Always fail | `()` |
+//! | [`IntoParser::void`] | Ignore the output of the parser | `()` |
+//! | [`IntoParser::output`] | Change Parser's Output to `(output,)` | `(T,)` |
+//! | [`IntoParser::string`], [`IntoParser::vec`] | Captures the matched range into `String` or `Vec<T>` | `(String,)` or `(Vec<Iterator::Item>,)` |
+//! | [`IntoParser::not_consume`] | Check if the pattern is matched or not, without consuming the input | `Output` of `Self` |
 
 pub(crate) mod core;
 pub(crate) mod leaf;
@@ -72,7 +110,7 @@ pub fn into_parser<ParserType: IntoParser>(parser: ParserType) -> ParserType::In
 
 /// Parser trait.
 ///
-/// for parse(), match_pattern() functions
+/// for [`crate::parse()`], [`crate::match_pattern()`] functions
 pub use core::parser::Parser;
 
 /// struct that holds the result of parsing.
@@ -93,9 +131,11 @@ where
     parser.parse(it)
 }
 
-/// Match the input with the given parser.
+/// Match pattern of the input with the given parser.
 ///
-/// This does not construct the output, just check the input is matched or not.
+/// [`crate::match_pattern()`] can be used
+/// when you only want to check if the pattern is matched or not, without extracting data.
+/// For some parsers, like [`IntoParser::repeat`], it is expensive to call [`crate::parse()`] to get the output since it invokes [`Vec::push`] inside.
 pub fn match_pattern<ParserType, It>(parser: &ParserType, it: It) -> ParseResult<(), It>
 where
     It: InputIteratorTrait,
@@ -145,9 +185,7 @@ where
 
 /// Check one character is in the given range.
 ///
-/// The closure MUST be `Fn(Iterator::Item) -> Option<NewOutput>`.
-///
-/// `Output`: `( Output of the Closure, )`
+/// `Output`: `( Iterator::Item, )`
 ///
 /// # Example
 /// ```rust
@@ -171,7 +209,7 @@ where
 /// Compare the input string starts with the given string.
 ///
 /// for borrowing-safety, the lifetime of str must be 'static.
-/// for non-static string, use `string()` instead.
+/// for non-static string, use [`crate::string()`] instead.
 ///
 ///
 /// `Output`: `()`
@@ -193,7 +231,7 @@ pub fn str(str: &'static str) -> leaf::stringeq::StrEqualParser<'static> {
 /// The closure MUST be `Fn(Iterator::Item, char) -> bool`.
 ///
 /// for borrowing-safety, the lifetime of str must be 'static.
-/// for non-static string, use `string_by()` instead.
+/// for non-static string, use [`crate::string_by()`] instead.
 ///
 /// `Output`: `()`
 ///
@@ -261,7 +299,7 @@ where
 /// Compare the input starts with the given slice.
 ///
 /// for borrowing-safety, the lifetime of slice must be 'static.
-/// for non-static slice, use `vec()` instead.
+/// for non-static slice, use [`crate::vec()`] instead.
 ///
 /// `Output`: `()`
 ///
@@ -281,7 +319,7 @@ pub fn slice<T>(slice: &'static [T]) -> leaf::stringeq::SliceEqualParser<'static
 /// The closure MUST be `Fn(Iterator::Item, &T) -> bool`.
 ///
 /// for borrowing-safety, the lifetime of slice must be 'static.
-/// for non-static slice, use `vec_by()` instead.
+/// for non-static slice, use [`crate::vec_by()`] instead.
 ///
 /// `Output`: `()`
 ///
@@ -304,7 +342,7 @@ where
 
 /// Compare the input starts with the given slice.
 ///
-/// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
+/// This will copy all the characters into [`std::vec::Vec`], so lifetime belongs to the parser itself.
 ///
 ///
 /// `Output`: `()`
@@ -324,7 +362,7 @@ pub fn vec<T>(v: Vec<T>) -> leaf::stringeq::VecEqualParser<T> {
 ///
 /// The closure MUST be `Fn(Iterator::Item, &T) -> bool`.
 ///
-/// This will copy all the characters into `Vec`, so lifetime belongs to the parser itself.
+/// This will copy all the characters into [`std::vec::Vec`], so lifetime belongs to the parser itself.
 ///
 ///
 /// `Output`: `()`
@@ -442,7 +480,7 @@ pub fn any() -> leaf::any::AnyParser {
     leaf::any::AnyParser::new()
 }
 
-/// Dictionary using trie, implementation uses BTreeMap; O(log(N)) search.
+/// Dictionary using trie, implementation uses [`std::collections::BTreeMap`]; O(log(N)) search.
 ///
 /// `Output`: Output you inserted
 ///
@@ -469,7 +507,7 @@ pub fn any() -> leaf::any::AnyParser {
 /// ```
 pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 
-/// Dictionary using trie, implementation uses HashMap; O(1) search.
+/// Dictionary using trie, implementation uses [`std::collections::HashMap`]; O(1) search.
 ///
 /// `Output`: Output you inserted
 ///
@@ -496,13 +534,13 @@ pub use leaf::dict_btree::DictBTreeParser as DictBTree;
 /// ```
 pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 
-/// A Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.
+/// A Box\<dyn Parser\> wrapper for iterators of [`std::str::Chars`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
-/// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
+/// Once you wrap the parser with this, you can only use input iterator of [`std::str::Chars`].
 ///
-/// `Default` is implemented, with always-panic-parser
+/// [`Default`] is implemented, with always-panic-parser
 ///
 /// ```rust
 /// use rusty_parser as rp;
@@ -518,13 +556,13 @@ pub use leaf::dict_hashmap::DictHashMapParser as DictHashMap;
 /// ```
 pub use wrapper::boxed::DynBoxChars;
 
-/// A Box\<dyn Parser\> wrapper for iterators of `std::iter::Cloned<std::slice::Iter>`.
+/// A Box\<dyn Parser\> wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
 ///
 /// This can take any parser with Output of `Output`.
 ///
-/// Once you wrap the parser with this, you can only use input iterator of `std::iter::Cloned<std::slice::Iter>`.
+/// Once you wrap the parser with this, you can only use input iterator of [`std::iter::Cloned<std::slice::Iter>`].
 ///
-/// `Default` is implemented, with always-panic-parser
+/// [`Default`] is implemented, with always-panic-parser
 ///
 /// ```rust
 /// use rusty_parser as rp;
@@ -555,7 +593,7 @@ pub use wrapper::seq::seq;
 /// use rusty_parser as rp;
 /// use rp::IntoParser;
 ///
-/// // 'a', and then 'b'
+/// // 'a', and then 'b', and then 'c'
 /// let ab_parser = rp::seq!('a', 'b', 'c'); // IntoParser for char
 ///
 #[macro_export]

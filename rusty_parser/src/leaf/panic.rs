@@ -20,7 +20,7 @@ impl<Output: Tuple> Panic<Output> {
 }
 impl<Output: Tuple> Clone for Panic<Output> {
     fn clone(&self) -> Self {
-        Self::new()
+        *self
     }
 }
 impl<Output: Tuple> Copy for Panic<Output> {}

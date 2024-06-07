@@ -48,7 +48,7 @@ pub trait IntoParser {
     /// `Output`:
     ///  - if `Output` of the repeated parser is `()`, then `Output` is `()`
     ///  - if `Output` of the repeated parser is `(T,)`, then `Output` is `(Vec<T>,)`
-    ///  - otherwise, `(Vec< Output of the Repeated Parser >,)`
+    ///  - otherwise, `(Vec<Output of Self>,)`
     ///
     /// # Example
     /// ```rust
@@ -124,7 +124,8 @@ pub trait IntoParser {
     ///
     /// Parser's Output will be unpacked and passed to the closure. The value returned from the closure will be new Output.
     ///
-    /// `Output`: `(T,)` where `T` is return type of the closure. The value `v` returned from the closure will be wrapped into `(v,)`.
+    /// `Output`: `(T,)` where `T` is return type of the closure.
+    /// The value `v` returned from the closure will be wrapped into `(v,)`.
     ///
     /// # Example
     /// ```rust
@@ -149,8 +150,8 @@ pub trait IntoParser {
         crate::wrapper::map::MapParser::new(self.into_parser(), callback)
     }
 
-    /// Change Parser's Output to ().
-    /// This internally call match_pattern() instead of parse()
+    /// Change Parser's Output to `()`.
+    /// This internally call `crate::match_pattern()` instead of `crate::parse()`
     ///
     /// `Output`: `()`
     ///
@@ -182,7 +183,7 @@ pub trait IntoParser {
     ///
     /// `Output`:
     ///  - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
-    ///  - otherwise, `( Option<Output of the Origin Parser>, )`
+    ///  - otherwise, `( Option<Output of Self>, )`
     ///
     /// # Example
     /// ```rust
@@ -207,7 +208,7 @@ pub trait IntoParser {
     /// This parser always success whether the input is matched or not.
     ///
     /// `Output`:
-    /// <`Output` of the origin parser>.
+    /// <`Output` of Self>.
     /// The value given to `optional_or` must match with the `Output` of the origin parser.
     ///
     /// For single-value-output ( which's output is `(T,)` ),
@@ -234,7 +235,7 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
     }
 
-    /// create RefCell\<Parser\> wrapper.
+    /// create [`std::cell::RefCell`] wrapper.
     ///
     /// # Example
     /// ```rust
@@ -267,7 +268,7 @@ pub trait IntoParser {
         std::cell::RefCell::new(self.into_parser())
     }
 
-    /// Create Rc\<Parser\> wrapper.
+    /// Create [`std::rc::Rc`] wrapper.
     ///
     /// # Example
     /// ```rust
@@ -303,11 +304,11 @@ pub trait IntoParser {
         std::rc::Rc::new(self.into_parser())
     }
 
-    /// create a Box\<dyn Parser\> wrapper for iterators of `std::str::Chars`.
+    /// create a [`std::boxed::Box<dyn Parser>`] wrapper for iterators of [`std::str::Chars`].
     ///
     /// This can take any parser with Output of `Output`.
     ///
-    /// Once you wrap the parser with this, you can only use input iterator of `std::str::Chars`.
+    /// Once you wrap the parser with this, you can only use input iterator of [`std::str::Chars`].
     ///
     /// # Example
     /// ```rust
@@ -343,11 +344,11 @@ pub trait IntoParser {
         crate::wrapper::boxed::DynBoxChars::new(self)
     }
 
-    /// create a Box\<dyn Parser\> wrapper for iterators of `std::iter::Cloned<std::slice::Iter>`.
+    /// create a [`std::boxed::Box<dyn Parser>`] wrapper for iterators of [`std::iter::Cloned<std::slice::Iter>`].
     ///
     /// This can take any parser with Output of `Output`.
     ///
-    /// Once you wrap the parser with this, you can only use input iterator of `std::iter::Cloned<std::slice::Iter>`.
+    /// Once you wrap the parser with this, you can only use input iterator of [`std::iter::Cloned<std::slice::Iter>`].
     ///
     /// # Example
     /// ```rust
@@ -386,7 +387,7 @@ pub trait IntoParser {
 
     /// Match for parser1 parser2, parser1 must success and parser2 must fail.
     ///
-    /// `Output`: `Output` of the first parser.
+    /// `Output`: `Output` of `Self`
     ///
     /// # Example
     /// ```rust
@@ -437,7 +438,7 @@ pub trait IntoParser {
     }
 
     /// Returns String of parsed input.
-    /// Only works for parsing with `std::str::Chars`.
+    /// Only works for parsing with [`std::str::Chars`].
     ///
     /// `Output`: `(String,)`
     ///
@@ -462,7 +463,7 @@ pub trait IntoParser {
     }
 
     /// Returns `Vec\<T\>` of parsed input.
-    /// Only works for parsing with `ExactSizeIterator`.
+    /// Only works for parsing with [`ExactSizeIterator`].
     ///
     /// `Output`: `(Vec<Iterator::Item>,)`
     ///
@@ -596,8 +597,8 @@ pub trait IntoParser {
         )
     }
 
-    /// This does what `inspect` in `Iterator` do.
-    /// The closure will be called before parsing. Regardless of the success or failure of the parser.
+    /// This does what [`std::iter::Inspect`] do.
+    /// The closure will be called before parsing, regardless of the success or failure of the parser.
     ///
     /// `Output`: `Output` of `Self`
     ///

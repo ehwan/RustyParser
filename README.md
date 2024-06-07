@@ -96,12 +96,49 @@ where
   - Since the `parse(...)` internally clones the iterator, the iterator must be cheaply clonable.
   - `Output` must be `Tuple`, including `()`. If you want to return a single value, use `(Value,)`.
 
+## Parsers Overview
+
+### Basic(Leaf) Parsers
+| Parser | Description | Output |
+| :------: | ----------- | :------: |
+| `one`, `one_by` | Match one charactor | `(Iterator::Item,)` |
+| `range` | Match one charactor in the range | `(Iterator::Item,)` |
+| `str`, `str_by`, `slice`, `slice_by` | Match multiple charactors | `()` |
+| `string`, `string_by`, `vec`, `vec_by` | Match multiple charactors | `()` |
+| `check` | Check one charactor with closure | `(T,)` |
+| `any` | Match any charactor | `(Iterator::Item,)` |
+| `DictBTree`, `DictHashMap` | Trie Dictionary | `T` |
+
+### Combinators
+| Combinator | Description | Output |
+| :------: | ----------- | :------: |
+| `seq` | Sequence of parsers | `( *<Output of A>, *<Output of B> ... )`(Tuple Concatenated ) |
+| `or` | Or combinator | `Output` of the all parsers |
+| `map` | Map the output of the parser | `(T,)` |
+| `repeat` | Repeat the parser multiple times | `Vec<Output of Self>` |
+| `optional` | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
+| `optional_or` | Success whether the pattern is matched or not | `Output` of `Self` |
+| `not` | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
+| `reduce_left`, `reduce_right` | Reduce the output of the parser | `Output` of `Self` |
+
+
+### Others
+| Parser | Description | Output |
+| :------: | ----------- | :------: |
+| `constant` | Always succeed, and return the constant value | `()` |
+| `end` | Success if it reached to the end of input | `()` |
+| `fail` | Always fail | `()` |
+| `void` | Ignore the output of the parser | `()` |
+| `output` | Change Parser's Output to `(output,)` | `(T,)` |
+| `string`, `vec` | Captures the matched range into `String` or `Vec<T>` | `(String,)` or `(Vec<Iterator::Item>,)` |
+| `not_consume` | Check if the pattern is matched or not, without consuming the input | `Output` of `Self` |
+
 
 ## Basic Parsers
 
-### `one`, `one_by`: consumes one charactor if it is equal to `c`.
+### `one`, `one_by`: consumes one character if it is equal to `c`.
 ```rust
-let parser = one( c: CharactorType )
+let parser = one( c: CharType )
 
 let a_parser = one('a')
 let a_parser = 'a'.into_parser()
@@ -111,7 +148,7 @@ let a_parser = one_by('a', |value:char, ch:&char| value.to_ascii_lowercase() == 
 `Output`: `(Iterator::Item,)`
 
 
-### `range`: consumes one charactor if it is in the range `r`.
+### `range`: consumes one character if it is in the range `r`.
 ```rust
 let parser = range( r: impl std::ops::RangeBounds )
 
@@ -121,7 +158,7 @@ let digit_parser = ('0'..='9').into_parser()
 `Output`: `(Iterator::Item,)`
 
 
-### `str`, `str_by`, `slice`, `slice_by`: consumes multiple charactors if it is equal to `s`.
+### `str`, `str_by`, `slice`, `slice_by`: consumes multiple characters if it is equal to `s`.
 
 For borrowing-safety, the lifetime of str or slice must be 'static.
 
@@ -139,7 +176,7 @@ let hello_parser = slice_by(&[104, 101, 108, 108, 111], |value:i32, ch:&i32| val
 ```
 `Output`: `()`
 
-### `string`, `string_by`, `vec`, `vec_by`: consumes multiple charactors if it is equal to `s`.
+### `string`, `string_by`, `vec`, `vec_by`: consumes multiple characters if it is equal to `s`.
 This will copy all the characters into `String` or `Vec`, so lifetime belongs to the parser itself.
 
 ```rust
@@ -153,7 +190,7 @@ let hello_parser = vec_by(vec![104, 101, 108, 108, 111], |value:i32, ch:&i32| va
 ```
 `Output`: `()`
 
-### `check`: check single charactor with a closure
+### `check`: check single character with a closure
 The closure must be either of:
 `Fn(Iterator::Item) -> Option<NewOutput>`
 or
@@ -280,7 +317,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 `Output`: 
  - if `Output` of the repeated parser is `()`, then `Output` is `()`
  - if `Output` of the repeated parser is `(T,)`, then `Output` is `Vec<T>`
- - otherwise, `Vec< Output of the Repeated Parser >`
+ - otherwise, `Vec< Output of Self >`
 
 
 
@@ -302,14 +339,13 @@ assert_eq!(res.output.unwrap(), ('x',));
 ```
 `Output` for `optional`:
  - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
- - otherwise, `( Option<Output of the Origin Parser>, )`
+ - otherwise, `( Option<Output of Self>, )`
 
  `Output` for `optional_or`:
-  <`Output` of the origin parser>. 
-  The value given to `optional_or` must match with the `Output` of the origin parser.
+  - <`Output` of `Self`>. 
 
 #### Note
- - The passed value's type to `optional_or` must match with the `Output` of the origin parser.
+ - The passed value's type to `optional_or` must match with the `Output` of `Self`
  - For single-value-output ( which's output is `(T,)` ), passing either `T` or `(T,)` is permitted.
 
 
@@ -325,7 +361,7 @@ assert_eq!(res.output.unwrap(), ('3',));
 let res = rp::parse(&digit_parser_except_4, "4".chars());
 assert_eq!(res.output, None);
 ```
-`Output`: `Output` of the first parser
+`Output`: `Output` of `Self`
 
 ### `reduce_left`: reduce the output of the parser
 With given input string `self rhs rhs rhs rhs ...` and the reducer `f`,
@@ -425,7 +461,7 @@ let res_digit = rp::parse(&boxed_parser, res_hello.it);
 assert_eq!(res_digit.output.unwrap(), ());
 assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
-`Output`: the `Output` of child parser
+`Output`: the `Output` of `Self`
 
 
 
@@ -454,7 +490,7 @@ let res_digit = rp::parse(&refcelled_parser, res_hello.it);
 assert_eq!(res_digit.output.unwrap(), ());
 assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
-`Output`: the `Output` of child parser
+`Output`: the `Output` of `Self`
 
 
 
@@ -484,7 +520,7 @@ let res_digit = rp::parse(&rc_parser2, res_hello.it);
 assert_eq!(res_digit.output.unwrap(), ());
 assert_eq!(res_digit.it.collect::<String>(), "123");
 ```
-`Output`: the `Output` of child parser
+`Output`: the `Output` of `Self`
 
 
 ## Others
@@ -572,4 +608,4 @@ let res = rp::parse(&digit_parser, "12345".chars());
 assert_eq!(res.output.unwrap(), ('1',));
 assert_eq!(res.it.collect::<String>(), "12345"); // iterator is not consumed
 ```
-`Output`: `Output` of the parser
+`Output`: `Output` of `Self`
