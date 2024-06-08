@@ -389,12 +389,12 @@ pub trait IntoParser {
         self,
         rhs: RhsParser,
         reducer: Reducer,
-    ) -> crate::wrapper::reduce::ReduceLeftParser<Self::Into, RhsParser::Into, Reducer>
+    ) -> crate::wrapper::reduce::left::ReduceLeftParser<Self::Into, RhsParser::Into, Reducer>
     where
         Self: Sized,
         RhsParser: IntoParser,
     {
-        crate::wrapper::reduce::ReduceLeftParser::new(
+        crate::wrapper::reduce::left::ReduceLeftParser::new(
             self.into_parser(),
             rhs.into_parser(),
             reducer,
@@ -437,14 +437,92 @@ pub trait IntoParser {
         self,
         lhs: LhsParser,
         reducer: Reducer,
-    ) -> crate::wrapper::reduce::ReduceRightParser<LhsParser::Into, Self::Into, Reducer>
+    ) -> crate::wrapper::reduce::right::ReduceRightParser<LhsParser::Into, Self::Into, Reducer>
     where
         Self: Sized,
         LhsParser: IntoParser,
     {
-        crate::wrapper::reduce::ReduceRightParser::new(
+        crate::wrapper::reduce::right::ReduceRightParser::new(
             lhs.into_parser(),
             self.into_parser(),
+            reducer,
+        )
+    }
+
+    /// Reduce the output of the parser with the given reducer.
+    ///
+    /// With given input string `self self self ...` and the reducer `f`,
+    /// the output will be calculated as
+    /// `f( f( f(init,self), self), self), ...`
+    ///
+    /// The signature of the reducer must be `Fn(Init, A0, A1, A2, ...) -> Init`.
+    /// Where `(A0, A1, A2, ...)` are the output of `Self`.
+    ///
+    /// `Output`: `Init`
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let digit_parser =
+    ///     ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+    /// let number_parser =
+    ///     digit_parser.reduce_with(0, |acc, rhs| acc * 10 + rhs);
+    ///
+    /// let res = rp::parse(&number_parser, "123456abc".chars());
+    /// assert_eq!(res.output.unwrap(), (123456,));
+    /// assert_eq!(res.it.collect::<String>(), "abc");
+    /// ```
+    fn reduce_with<Init, Reducer>(
+        self,
+        init: Init,
+        reducer: Reducer,
+    ) -> crate::wrapper::reduce::init::ReduceInitParser<Self::Into, Init, Reducer>
+    where
+        Self: Sized,
+        Init: Clone,
+    {
+        crate::wrapper::reduce::init::ReduceInitParser::new(self.into_parser(), init, reducer)
+    }
+
+    /// Reduce the output of the parser with the given reducer.
+    ///
+    /// With given input string `self self self ...` and the reducer `f`,
+    /// the output will be calculated as
+    /// `f(self, f(self, f(self, f( ... f(self,init)))`
+    ///
+    /// The signature of the reducer must be `Fn(A0, A1, A2, ..., Init) -> Init`.
+    /// Where `(A0, A1, A2, ...)` are the output of `Self`.
+    ///
+    /// `Output`: `Init`
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// let digit_parser =
+    ///     ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+    /// let number_rev_parser =
+    ///     digit_parser.reduce_right_with(0, |lhs, acc| acc * 10 + lhs);
+    ///
+    /// let res = rp::parse(&number_rev_parser, "123456abc".chars());
+    /// assert_eq!(res.output.unwrap(), (654321,));
+    /// assert_eq!(res.it.collect::<String>(), "abc");
+    /// ```
+    fn reduce_right_with<Init, Reducer>(
+        self,
+        init: Init,
+        reducer: Reducer,
+    ) -> crate::wrapper::reduce::init_right::ReduceRightInitParser<Self::Into, Init, Reducer>
+    where
+        Self: Sized,
+        Init: Clone,
+    {
+        crate::wrapper::reduce::init_right::ReduceRightInitParser::new(
+            self.into_parser(),
+            init,
             reducer,
         )
     }

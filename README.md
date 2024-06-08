@@ -119,6 +119,7 @@ where
 | `optional_or` | Success whether the pattern is matched or not | `Output` of `Self` |
 | `not` | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
 | `reduce_left`, `reduce_right` | Reduce the output of the parser | `Output` of `Self` |
+| `reduce_with`, `reduce_right_with` | Reduce the output of the parser with initial value | `Init` |
 
 
 ### Others
@@ -417,6 +418,49 @@ assert_eq!(res.it.collect::<String>(), "cba");
 ```
 
 `Output`: `Output` of `Self`
+
+### `reduce_with`: reduce the output of the parser with initial value
+With given input string `self self self ...` and the reducer `f`,
+the output will be calculated as
+`f( f( f(init,self), self), self), ...`
+
+The signature of the reducer must be `Fn(Init, A0, A1, A2, ...) -> Init`.
+Where `(A0, A1, A2, ...)` are the output of `Self`.
+
+`Output`: `Init`
+
+```rust
+let digit_parser =
+    ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+let number_parser =
+    digit_parser.reduce_with(0, |acc, rhs| acc * 10 + rhs);
+
+let res = rp::parse(&number_parser, "123456abc".chars());
+assert_eq!(res.output.unwrap(), (123456,));
+assert_eq!(res.it.collect::<String>(), "abc");
+```
+
+### `reduce_right_with`: reduce the output of the parser with initial value
+With given input string `self self self ...` and the reducer `f`,
+the output will be calculated as
+`f(self, f(self, f(self, f( ... f(self,init)))`
+
+The signature of the reducer must be `Fn(A0, A1, A2, ..., Init) -> Init`.
+Where `(A0, A1, A2, ...)` are the output of `Self`.
+
+`Output`: `Init`
+
+# Example
+```rust
+let digit_parser =
+    ('0'..='9').into_parser().map(|val: char| -> i32 { val as i32 - '0' as i32 });
+let number_rev_parser =
+    digit_parser.reduce_right_with(0, |lhs, acc| acc * 10 + lhs);
+
+let res = rp::parse(&number_rev_parser, "123456abc".chars());
+assert_eq!(res.output.unwrap(), (654321,));
+assert_eq!(res.it.collect::<String>(), "abc");
+```
 
 
 

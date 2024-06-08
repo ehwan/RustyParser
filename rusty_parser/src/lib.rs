@@ -82,6 +82,7 @@
 //! | [`IntoParser::optional_or`] | Success whether the pattern is matched or not | `Output` of `Self` |
 //! | [`IntoParser::not`] | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
 //! | [`IntoParser::reduce_left`], [`IntoParser::reduce_right`] | Reduce the output of the parser | `Output` of `Self` |
+//! | [`IntoParser::reduce_with`], [`IntoParser::reduce_right_with`] | Reduce the output of the parser with initial value | `Init` |
 //!
 //!
 //! ### Others
