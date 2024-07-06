@@ -237,6 +237,38 @@ pub trait IntoParser {
         crate::wrapper::option::OptionalOrParser::new(self.into_parser(), output)
     }
 
+    /// This parser always success whether the input is matched or not.
+    /// If it failed, the given closure will be evaluated and returned.
+    ///
+    /// `Output`:
+    /// <`Output` of Self>.
+    ///
+    /// The value given to `or_else` must match with the `Output` of the origin parser.
+    ///
+    /// For single-value-output ( which's output is `(T,)` ),
+    /// returning either `T` or `(T,)` is permitted.
+    ///
+    /// # Example
+    /// ```rust
+    /// use rusty_parser as rp;
+    /// use rp::IntoParser;
+    ///
+    /// // if 'a' failed, return 'x'
+    /// let a_or_else = 'a'.or_else(|| 'x'); // (char,)
+    ///
+    /// let res = rp::parse(&a_or_else, "bcd".chars());
+    /// assert_eq!(res.output.unwrap(), ('x',));
+    /// ```
+    fn or_else<Closure>(
+        self,
+        closure: Closure,
+    ) -> crate::wrapper::or_else::OptionalOrElseParser<Self::Into, Closure>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::or_else::OptionalOrElseParser::new(self.into_parser(), closure)
+    }
+
     /// Match for parser1 but not parser2.
     ///
     /// `Output`: `Output` of `Self`

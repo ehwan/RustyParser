@@ -116,7 +116,7 @@ where
 | `map` | Map the output of the parser | `(T,)` |
 | `repeat` | Repeat the parser multiple times | `(Vec<Output of Self>,)` |
 | `optional` | Success whether the pattern is matched or not | `( Option<Output of Self>, )` |
-| `optional_or` | Success whether the pattern is matched or not | `Output` of `Self` |
+| `optional_or`, `or_else` | Success whether the pattern is matched or not | `Output` of `Self` |
 | `not` | Match for Pattern1 to success and Pattern2 to fail | `Output` of `Self` |
 | `reduce_left`, `reduce_right` | Reduce the output of the parser | `Output` of `Self` |
 | `reduce_with`, `reduce_right_with` | Reduce the output of the parser with initial value | `Init` |
@@ -327,7 +327,7 @@ assert_eq!(res.it.collect::<String>(), "bcd");
 
 
 
-### `optional`, `optional_or`: success whether the pattern is matched or not
+### `optional`, `optional_or`, `or_else`: success whether the pattern is matched or not
 ```rust
 let a_optional_parser = 'a'.optional(); // (Option<char>,)
 
@@ -342,17 +342,21 @@ let a_optional_or = 'a'.optional_or(('x',)); // (char,)
 
 let res = rp::parse(&a_optional_or, "bcd".chars());
 assert_eq!(res.output.unwrap(), ('x',));
+
+// if 'a' failed, evaluate the closure
+let a_or_else = 'a'.or_else( || 'x' ); // (char,)
+assert_eq!(res.output.unwrap(), ('x',));
 ```
 
 `Output` for `optional`:
  - if `Output` of the origin parser is `(T0,)`, `(Option<T0>,)`
  - otherwise, `( Option<Output of Self>, )`
 
- `Output` for `optional_or`:
+ `Output` for `optional_or`, `or_else`:
   - <`Output` of `Self`>. 
 
 #### Note
- - The passed value's type to `optional_or` must match with the `Output` of `Self`
+ - The passed value's type to `optional_or` and `or_else` must match with the `Output` of `Self`
  - For single-value-output ( which's output is `(T,)` ), passing either `T` or `(T,)` is permitted.
 
 

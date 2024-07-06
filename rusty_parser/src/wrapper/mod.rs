@@ -5,6 +5,7 @@ pub mod not;
 pub mod notconsume;
 pub mod option;
 pub mod or;
+pub mod or_else;
 pub mod output;
 pub mod rced;
 pub mod reduce;
