@@ -346,6 +346,13 @@ pub trait IntoParser {
         crate::wrapper::slice::StringParser::new(self.into_parser())
     }
 
+    fn enumerate(self) -> crate::wrapper::slice::EnumerateParser<Self::Into>
+    where
+        Self: Sized,
+    {
+        crate::wrapper::slice::EnumerateParser::new(self.into_parser())
+    }
+
     /// Returns `Vec\<T\>` of parsed input.
     /// Only works for parsing with [`ExactSizeIterator`].
     ///
