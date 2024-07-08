@@ -1,7 +1,10 @@
 use crate::core::into_parser::IntoParser;
 use crate::core::parser::Parser;
 use crate::core::result::ParseResult;
+use crate::core::tuple::Tuple;
 use crate::InputIteratorTrait;
+
+use super::tupleutils::concat::AppendTupleToTuple;
 
 #[derive(Debug, Clone, Copy)]
 pub struct StringParser<ParserType> {
@@ -45,6 +48,54 @@ where
 
 impl<ParserType> IntoParser for StringParser<ParserType> {
     type Into = StringParser<ParserType>;
+    fn into_parser(self) -> Self::Into {
+        self
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct EnumerateParser<ParserType> {
+    parser: ParserType,
+}
+
+impl<ParserType> EnumerateParser<ParserType> {
+    pub fn new(parser: ParserType) -> Self {
+        Self { parser }
+    }
+}
+
+impl<ParserType, It> Parser<It> for EnumerateParser<ParserType>
+where
+    It: InputIteratorTrait,
+    ParserType: Parser<It>,
+    (It, It): AppendTupleToTuple<ParserType::Output>,
+    <(It, It) as AppendTupleToTuple<ParserType::Output>>::Output: Tuple,
+{
+    type Output = <(It, It) as AppendTupleToTuple<ParserType::Output>>::Output;
+
+    fn parse(&self, it: It) -> ParseResult<Self::Output, It> {
+        let i0 = it.clone();
+        let res = self.parser.parse(it);
+        if let Some(val) = res.output {
+            // this is length in bytes
+            ParseResult {
+                output: Some((i0, res.it.clone()).append_back(val)),
+                it: res.it,
+            }
+        } else {
+            ParseResult {
+                output: None,
+                it: res.it,
+            }
+        }
+    }
+    fn match_pattern(&self, it: It) -> ParseResult<(), It> {
+        self.parser.match_pattern(it)
+    }
+}
+
+impl<ParserType> IntoParser for EnumerateParser<ParserType> {
+    type Into = EnumerateParser<ParserType>;
     fn into_parser(self) -> Self::Into {
         self
     }
